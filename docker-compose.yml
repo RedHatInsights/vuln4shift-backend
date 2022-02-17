@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  vuln4shift_database:
+    container_name: vuln4shift-database
+    image: docker.io/library/postgres:14
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vuln4shift
+      POSTGRES_USER: vuln4shift_admin
+      POSTGRES_PASSWORD: vuln4shift_admin_pwd
+    ports:
+      - 25432:5432
+    volumes:
+      - vuln4shift-db-data:/var/lib/postgresql/data
+
+  vuln4shift_db_init:
+    command: /vuln4shift/entrypoint.sh db-init
+    container_name: vuln4shift-db-init
+    build:
+        context: .
+        dockerfile: ./Dockerfile
+    image: vuln4shift/app:latest
+    depends_on:
+      - vuln4shift_database
+
+volumes:
+  vuln4shift-db-data:
