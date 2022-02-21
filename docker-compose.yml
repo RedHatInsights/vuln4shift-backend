@@ -14,9 +14,9 @@ services:
     volumes:
       - vuln4shift-db-data:/var/lib/postgresql/data
 
-  vuln4shift_db_init:
-    command: /vuln4shift/entrypoint.sh db-init
-    container_name: vuln4shift-db-init
+  vuln4shift_database_admin:
+    command: /vuln4shift/main database_admin
+    container_name: vuln4shift-database-admin
     build:
         context: .
         dockerfile: ./Dockerfile
