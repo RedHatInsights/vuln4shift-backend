@@ -25,7 +25,7 @@ type Client struct {
 }
 
 func init() {
-	logLevel := utils.Getenv("LOGGING_LEVEL", "INFO")
+	logLevel := utils.GetEnv("LOGGING_LEVEL", "INFO")
 	var err error
 	logger, err = logging.CreateLogger(logLevel)
 	if err != nil {
@@ -55,7 +55,8 @@ func (c *Client) Request(method, url string, requestPtr, responsePtr interface{}
 		}
 	}
 
-	request, err := http.NewRequest(method, url, nil)
+	request, err := http.NewRequest(method, url, body)
+	request.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return 0, err
 	}

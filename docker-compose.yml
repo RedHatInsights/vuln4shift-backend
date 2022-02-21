@@ -81,5 +81,21 @@ services:
     profiles:
       - pyxis
 
+  vuln4shift_vmsync:
+    command: /vuln4shift/main vmsync
+    container_name: vuln4shift-vmsync
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: vuln4shift/app:latest
+    env_file:
+      - ./conf/db.env
+      - ./conf/vmsync.env
+    depends_on:
+      vuln4shift_database:
+        condition: service_started
+    profiles:
+      - vmsync
+
 volumes:
   vuln4shift-db-data:

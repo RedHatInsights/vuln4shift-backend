@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// account	 table
+// Account table
 type Account struct {
 	ID   int64  `gorm:"type:bigint;primaryKey;autoIncrement"`
 	Name string `gorm:"type:text"`
@@ -16,7 +16,7 @@ func (a Account) TableName() string {
 	return "account"
 }
 
-// cluster table
+// Cluster table
 type Cluster struct {
 	ID                int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
 	UUID              uuid.UUID `gorm:"type:uuid;unique"`
@@ -34,7 +34,7 @@ func (Cluster) TableName() string {
 	return "cluster"
 }
 
-// repository table
+// Repository table
 type Repository struct {
 	ID           int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
 	PyxisID      string    `gorm:"type:text;not null;unique"`
@@ -47,7 +47,7 @@ func (i Repository) TableName() string {
 	return "repository"
 }
 
-// image table
+// Image table
 type Image struct {
 	ID           int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
 	PyxisID      string    `gorm:"type:text;not null;unique"`
@@ -59,7 +59,7 @@ func (i Image) TableName() string {
 	return "image"
 }
 
-// repository_image table
+// RepositoryImage table
 type RepositoryImage struct {
 	RepositoryID int64 `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
 	ImageID      int64 `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
@@ -69,7 +69,7 @@ func (ic RepositoryImage) TableName() string {
 	return "repository_image"
 }
 
-// cve table
+// Cve table
 type Cve struct {
 	ID           int64      `gorm:"type:bigint;primaryKey;autoIncrement"`
 	Name         string     `gorm:"type:text;not null;unique"`
@@ -89,7 +89,7 @@ func (c Cve) TableName() string {
 	return "cve"
 }
 
-// image_cve table
+// ImageCve table
 type ImageCve struct {
 	ImageID int64 `gorm:"type:bigint;index:image_cve_image_id_cve_id_key"`
 	CveID   int64 `gorm:"type:bigint;index:image_cve_image_id_cve_id_key"`
@@ -99,7 +99,7 @@ func (ic ImageCve) TableName() string {
 	return "image_cve"
 }
 
-// cluster_image table
+// ClusterImage table
 type ClusterImage struct {
 	ClusterID int64 `gorm:"type:bigint;index:cluster_image_cluster_id_image_id_key"`
 	ImageID   int64 `gorm:"type:bigint;index:cluster_image_cluster_id_image_id_key"`
@@ -109,7 +109,7 @@ func (ci ClusterImage) TableName() string {
 	return "cluster_image"
 }
 
-// cluster_cve_cache table
+// ClusterCveCache table
 type ClusterCveCache struct {
 	ClusterID  int64 `gorm:"type:bigint;index:cluster_cve_cache_cluster_id_cve_id_key"`
 	CveID      int64 `gorm:"type:bigint;index:cluster_cve_cache_cluster_id_cve_id_key"`
@@ -120,7 +120,7 @@ func (ccc ClusterCveCache) TableName() string {
 	return "cluster_cve_cache"
 }
 
-// account_cve_cache
+// AccountCveCache table
 type AccountCveCache struct {
 	AccountID    int64 `gorm:"type:bigint;index:account_cve_cache_account_id_cve_id_key"`
 	CveID        int64 `gorm:"type:bigint;index:account_cve_cache_account_id_cve_id_key"`

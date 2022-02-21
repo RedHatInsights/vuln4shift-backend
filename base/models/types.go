@@ -23,7 +23,7 @@ const (
 // Scan scanner interface implementation for Severity
 func (s *Severity) Scan(value interface{}) error {
 	if value == nil {
-		return errors.New("Invalid scan value for severity type")
+		return errors.New("invalid scan value for severity type")
 	}
 	*s = Severity(value.(string))
 	return nil

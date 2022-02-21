@@ -4,27 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib" // Needed to make pgx work with database/sql
 )
 
-func getDbVar(envVar string) string {
-	value, ok := os.LookupEnv(envVar)
-	if !ok {
-		log.Fatalf("Unable to get env var: %s.\n", envVar)
-	}
-	return value
-}
-
 func GetDbURL() string {
-	dbHost := getDbVar("POSTGRES_HOST")
-	dbPort := getDbVar("POSTGRES_PORT")
-	dbName := getDbVar("POSTGRES_DB")
-	dbUser := getDbVar("POSTGRES_USER")
-	dbPassword := getDbVar("POSTGRES_PASSWORD")
+	dbHost := GetEnv("POSTGRES_HOST", "vuln4shift_database")
+	dbPort := GetEnv("POSTGRES_PORT", "5432")
+	dbName := GetEnv("POSTGRES_DB", "vuln4shift")
+	dbUser := GetEnv("POSTGRES_USER", "vuln4shift_admin")
+	dbPassword := GetEnv("POSTGRES_PASSWORD", "vuln4shift_admin_pwd")
 	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
 }
 
