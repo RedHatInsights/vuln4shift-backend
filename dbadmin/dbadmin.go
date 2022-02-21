@@ -64,14 +64,14 @@ func Start() {
 		}
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(migrationFiles, utils.Getenv("POSTGRES_DB", ""), driver)
+	m, err := migrate.NewWithDatabaseInstance(migrationFiles, utils.GetEnv("POSTGRES_DB", ""), driver)
 	if err != nil {
 		log.Fatalf("Unable to get migration interface: %s\n", err)
 	}
 
 	m.Log = logger{} // Set custom logger
 
-	schemaMigration := utils.Getenv("SCHEMA_MIGRATION", "-1") // Check env variable to migrate to specific version
+	schemaMigration := utils.GetEnv("SCHEMA_MIGRATION", "-1") // Check env variable to migrate to specific version
 	schemaMigrationInt, err := strconv.Atoi(schemaMigration)
 	if err != nil {
 		log.Fatalf("Unable to convert to int: %s\n", schemaMigration)

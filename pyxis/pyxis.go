@@ -18,7 +18,7 @@ var (
 )
 
 func init() {
-	logLevel := utils.Getenv("LOGGING_LEVEL", "INFO")
+	logLevel := utils.GetEnv("LOGGING_LEVEL", "INFO")
 	var err error
 	logger, err = logging.CreateLogger(logLevel)
 	if err != nil {

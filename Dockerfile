@@ -20,6 +20,7 @@ ADD manager                     /vuln4shift/manager
 ADD pyxis                       /vuln4shift/pyxis
 ADD scripts                     /vuln4shift/scripts
 ADD test                        /vuln4shift/test
+ADD vmsync                      /vuln4shift/vmsync
 
 # install swag command to generate swagger
 RUN go install github.com/swaggo/swag/cmd/swag@latest

@@ -27,7 +27,7 @@ func ParseLoglevel(level string) (logrus.Level, error) {
 	case "FATAL":
 		return logrus.FatalLevel, nil
 	default:
-		return logrus.InfoLevel, errors.New("Invalid loglevel given")
+		return logrus.InfoLevel, errors.New("invalid loglevel given")
 	}
 }
 
