@@ -24,5 +24,19 @@ services:
     depends_on:
       - vuln4shift_database
 
+  vuln4shift_manager:
+    command: /vuln4shift/main manager
+    container_name: vuln4shift-manager
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: vuln4shift/app:latest
+    env_file:
+      - ./conf/manager.env
+    ports:
+      - 8000:8000
+    depends_on: 
+      - vuln4shift_database
+
 volumes:
   vuln4shift-db-data:
