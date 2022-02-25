@@ -14,9 +14,9 @@ services:
     volumes:
       - vuln4shift-db-data:/var/lib/postgresql/data
 
-  vuln4shift_database_admin:
-    command: /vuln4shift/main database_admin
-    container_name: vuln4shift-database-admin
+  vuln4shift_dbadmin:
+    command: /vuln4shift/main dbadmin
+    container_name: vuln4shift-dbadmin
     build:
         context: .
         dockerfile: ./Dockerfile
