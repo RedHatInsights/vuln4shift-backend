@@ -6,11 +6,18 @@ ARG RUNIMG=registry.access.redhat.com/ubi8-minimal
 FROM ${BUILDIMG} as buildimg
 
 WORKDIR /vuln4shift
+
+USER root
+RUN chown 1001 /vuln4shift
+
 USER 1001
 
-ADD go.mod         /vuln4shift/
-ADD dbadmin        /vuln4shift/dbadmin
-ADD main.go        /vuln4shift/
+ADD go.mod                      /vuln4shift/
+ADD go.sum                      /vuln4shift/
+ADD main.go                     /vuln4shift/
+ADD base                        /vuln4shift/base
+ADD dbadmin                     /vuln4shift/dbadmin
+ADD manager                     /vuln4shift/manager
 
 RUN go mod download
 RUN go build -v main.go
