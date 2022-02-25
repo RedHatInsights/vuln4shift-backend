@@ -1,4 +1,4 @@
-package database_admin
+package dbadmin
 
 import (
 	"log"
