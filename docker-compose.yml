@@ -5,10 +5,9 @@ services:
     container_name: vuln4shift-database
     image: docker.io/library/postgres:14
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: vuln4shift
-      POSTGRES_USER: vuln4shift_admin
-      POSTGRES_PASSWORD: vuln4shift_admin_pwd
+    env_file:
+      - ./conf/db.env
+      - ./conf/dbadmin.env
     ports:
       - 25432:5432
     volumes:
@@ -21,6 +20,9 @@ services:
         context: .
         dockerfile: ./Dockerfile
     image: vuln4shift/app:latest
+    env_file:
+      - ./conf/db.env
+      - ./conf/dbadmin.env
     depends_on:
       - vuln4shift_database
 

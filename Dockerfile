@@ -14,12 +14,14 @@ USER 1001
 
 ADD go.mod                      /vuln4shift/
 ADD go.sum                      /vuln4shift/
+
+RUN go mod download
+
 ADD main.go                     /vuln4shift/
 ADD base                        /vuln4shift/base
 ADD dbadmin                     /vuln4shift/dbadmin
 ADD manager                     /vuln4shift/manager
 
-RUN go mod download
 RUN go build -v main.go
 
 # ---------------------------------------
@@ -29,4 +31,5 @@ FROM ${RUNIMG} as runtimeimg
 WORKDIR /vuln4shift
 USER 1001
 
-COPY --from=buildimg /vuln4shift/main /vuln4shift/
+COPY --from=buildimg /vuln4shift/main               /vuln4shift/
+COPY --from=buildimg /vuln4shift/dbadmin/migrations /vuln4shift/dbadmin/migrations

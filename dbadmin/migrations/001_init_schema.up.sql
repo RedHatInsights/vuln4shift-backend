@@ -1,3 +1,18 @@
+-- user for archive writing
+CREATE USER archive_db_writer;
+
+-- user for pyxis gathering
+CREATE USER pyxis_gatherer;
+
+-- user for VMaaS CVE sync
+CREATE USER vmaas_gatherer;
+
+-- user for CVE aggregating
+CREATE USER cve_aggregator;
+
+-- user for manager
+CREATE USER manager;
+
 -- ---------------------------------------------------------------------------
 -- Functions
 -- ---------------------------------------------------------------------------
@@ -135,3 +150,6 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO vmaas_gatherer;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO cve_aggregator;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO cve_aggregator;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO manager;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO manager;
