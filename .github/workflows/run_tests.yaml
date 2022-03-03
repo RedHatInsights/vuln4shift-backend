@@ -1,0 +1,26 @@
+name: Run unit tests
+
+on:
+  push:
+    braches:
+      - "master"
+  pull_request:
+    branches:
+      - "master"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      GIN_MODE: release
+      LOGGING_LEVEL: INFO
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16.14'
+
+      - name: Tests
+        run: /bin/bash ./scripts/run_tests.sh
