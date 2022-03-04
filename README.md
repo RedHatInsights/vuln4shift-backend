@@ -9,3 +9,8 @@ Vulnerabilities detection for OpenShift images.
     docker-compose down          # Stop and delete containers
     docker-compose down -v       # Stop and delete containers + delete persistent volumes
 
+Manager swagger documentation is running at
+```
+http://localhost:8000/api/vuln4shift/v1/openapi.json
+http://localhost:8000/openapi/index.html
+```
