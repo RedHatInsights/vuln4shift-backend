@@ -34,6 +34,7 @@ services:
       dockerfile: ./Dockerfile
     image: vuln4shift/app:latest
     env_file:
+      - ./conf/db.env
       - ./conf/manager.env
     ports:
       - 8000:8000
