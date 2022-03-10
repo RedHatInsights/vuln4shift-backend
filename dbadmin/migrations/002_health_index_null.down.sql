@@ -1,0 +1,1 @@
+ALTER TABLE image ALTER COLUMN health_index SET NOT NULL;
