@@ -1,22 +1,30 @@
 package manager
 
 import (
+	"app/base/models"
+	"app/base/utils"
 	"app/manager/controllers/meta"
 	"app/manager/middlewares"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
 )
 
 var openAPILocation = "/api/vuln4shift/v1/openapi.json"
 
 // createMetaGroup adds meta endpoints to the router.
-func createMetaGroup(router *gin.Engine) *gin.RouterGroup {
+func createMetaGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
 	metaGroup := router.Group("/")
 
-	metaGroup.GET("healthz", meta.GetApistatus)
-	metaGroup.GET("apistatus", meta.GetApistatus)
+	metaController := meta.Controller{
+		Conn: db,
+	}
+
+	metaGroup.GET("healthz", metaController.GetApistatus)
+	metaGroup.GET("apistatus", metaController.GetApistatus)
 
 	openAPIURL := ginSwagger.URL(openAPILocation)
 	metaGroup.GET("openapi/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, openAPIURL))
@@ -34,8 +42,15 @@ func setMiddlewares(router *gin.Engine) {
 func BuildRouter() *gin.Engine {
 	router := gin.New()
 
+	dsn := utils.GetDbURL()
+	db, err := models.GetGormConnection(dsn)
+
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
 	setMiddlewares(router)
-	createMetaGroup(router)
+	createMetaGroup(router, db)
 	return router
 }
 
