@@ -12,11 +12,15 @@ import (
 )
 
 func buildApistatusRouter() *gin.Engine {
+	metaEndpoint := Controller{
+		Conn: nil,
+	}
+
 	endpoints := []test.Endpoint{
 		{
 			HTTPMethod: "GET",
 			Path:       "/apistatus",
-			Handler:    GetApistatus,
+			Handler:    metaEndpoint.GetApistatus,
 		},
 	}
 
