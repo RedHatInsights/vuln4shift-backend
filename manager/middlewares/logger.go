@@ -16,7 +16,7 @@ import (
 func Logger() gin.HandlerFunc {
 	logger, err := logging.CreateLogger(utils.Getenv("LOGGING_LEVEL", "DEBUG"))
 	if err != nil {
-		panic("Invalid LOGGING_LEVEL enviroment variable set")
+		panic("Invalid LOGGING_LEVEL environment variable set")
 	}
 
 	return func(ctx *gin.Context) {
