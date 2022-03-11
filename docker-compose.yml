@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   vuln4shift_database:
@@ -39,7 +39,31 @@ services:
     ports:
       - 8000:8000
     depends_on: 
-      - vuln4shift_database
+      vuln4shift_database:
+        condition: service_started
+      vuln4shift_dbadmin:
+        condition: service_completed_successfully
+
+  # --------------------------------------------------
+  # unit tests profile containers
+  vuln4shift_unit_tests:
+    command: go test -v ./...
+    container_name: vuln4shift-unit-tests
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: buildimg
+    image: vuln4shift/app:latest
+    env_file:
+      - ./conf/db.env
+      - ./conf/manager.env
+    depends_on: 
+      vuln4shift_database:
+        condition: service_started
+      vuln4shift_dbadmin:
+        condition: service_completed_successfully
+    profiles:
+      - unit-tests
 
 volumes:
   vuln4shift-db-data:
