@@ -38,12 +38,27 @@ services:
       - ./conf/manager.env
     ports:
       - 8000:8000
-    depends_on: 
+    depends_on:
       vuln4shift_database:
         condition: service_started
       vuln4shift_dbadmin:
         condition: service_completed_successfully
 
+  vuln4shift_digestwriter:
+    command: /vuln4shift/main digestwriter
+    container_name: vuln4shift-digestwriter
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: vuln4shift/app:latest
+    env_file:
+      - ./conf/db.env
+      - ./conf/digestwriter.env
+    depends_on:
+      vuln4shift_database:
+        condition: service_started
+      vuln4shift_dbadmin:
+        condition: service_completed_successfully
   # --------------------------------------------------
   # unit tests profile containers
   vuln4shift_unit_tests:
@@ -59,7 +74,7 @@ services:
       - ./conf/dbadmin.env
     environment:
       - GIN_MODE=release
-    depends_on: 
+    depends_on:
       vuln4shift_database:
         condition: service_started
       vuln4shift_dbadmin:
@@ -77,7 +92,7 @@ services:
     env_file:
       - ./conf/db.env
       - ./conf/pyxis.env
-    depends_on: 
+    depends_on:
       vuln4shift_database:
         condition: service_started
     profiles:
