@@ -18,6 +18,7 @@ ADD base                        /vuln4shift/base
 ADD dbadmin                     /vuln4shift/dbadmin
 ADD manager                     /vuln4shift/manager
 ADD pyxis                       /vuln4shift/pyxis
+ADD digestwriter                /vuln4shift/digestwriter
 ADD scripts                     /vuln4shift/scripts
 ADD test                        /vuln4shift/test
 ADD vmsync                      /vuln4shift/vmsync

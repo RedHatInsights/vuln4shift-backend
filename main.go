@@ -2,6 +2,7 @@ package main
 
 import (
 	"app/dbadmin"
+	"app/digestwriter"
 	"app/manager"
 	"app/pyxis"
 	"app/vmsync"
@@ -20,6 +21,8 @@ func main() {
 			pyxis.Start()
 		case "vmsync":
 			vmsync.Start()
+		case "digestwriter":
+			digestwriter.Start()
 		default:
 			log.Fatalf("Unknown service name: %s\n", os.Args[1])
 		}
