@@ -9,6 +9,12 @@ Vulnerabilities detection for OpenShift images.
     docker-compose down          # Stop and delete containers
     docker-compose down -v       # Stop and delete containers + delete persistent volumes
 
+    # Sync Pyxis data
+    docker-compose run --rm vuln4shift_pyxis
+
+    # psql console
+    docker-compose exec vuln4shift_database psql -U vuln4shift_admin vuln4shift
+
 Manager swagger documentation is running at
 ```
 http://localhost:8000/api/vuln4shift/v1/openapi.json

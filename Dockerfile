@@ -17,6 +17,7 @@ ADD main.go                     /vuln4shift/
 ADD base                        /vuln4shift/base
 ADD dbadmin                     /vuln4shift/dbadmin
 ADD manager                     /vuln4shift/manager
+ADD pyxis                       /vuln4shift/pyxis
 ADD scripts                     /vuln4shift/scripts
 ADD test                        /vuln4shift/test
 

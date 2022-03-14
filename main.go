@@ -3,6 +3,7 @@ package main
 import (
 	"app/dbadmin"
 	"app/manager"
+	"app/pyxis"
 	"log"
 	"os"
 )
@@ -14,6 +15,8 @@ func main() {
 			dbadmin.Start()
 		case "manager":
 			manager.Start()
+		case "pyxis":
+			pyxis.Start()
 		default:
 			log.Fatalf("Unknown service name: %s\n", os.Args[1])
 		}
