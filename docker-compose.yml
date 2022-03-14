@@ -65,5 +65,21 @@ services:
     profiles:
       - unit-tests
 
+  vuln4shift_pyxis:
+    command: /vuln4shift/main pyxis
+    container_name: vuln4shift-pyxis
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: vuln4shift/app:latest
+    env_file:
+      - ./conf/db.env
+      - ./conf/pyxis.env
+    depends_on: 
+      vuln4shift_database:
+        condition: service_started
+    profiles:
+      - pyxis
+
 volumes:
   vuln4shift-db-data:

@@ -34,15 +34,39 @@ func (Cluster) TableName() string {
 	return "cluster"
 }
 
+// repository table
+type Repository struct {
+	ID           int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
+	PyxisID      string    `gorm:"type:text;not null;unique"`
+	ModifiedDate time.Time `gorm:"type:timestamp with time zone not null"`
+	Registry     string    `gorm:"type:text;not null"`
+	Repository   string    `gorm:"type:text;not null"`
+}
+
+func (i Repository) TableName() string {
+	return "repository"
+}
+
 // image table
 type Image struct {
-	ID          int64  `gorm:"type:bigint;primaryKey;autoIncrement"`
-	Digest      string `gorm:"type:text;not null;unique"`
-	HealthIndex string `gorm:"type:char"`
+	ID           int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
+	PyxisID      string    `gorm:"type:text;not null;unique"`
+	ModifiedDate time.Time `gorm:"type:timestamp with time zone not null"`
+	Digest       string    `gorm:"type:text;not null;unique"`
 }
 
 func (i Image) TableName() string {
 	return "image"
+}
+
+// repository_image table
+type RepositoryImage struct {
+	RepositoryID int64 `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
+	ImageID      int64 `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
+}
+
+func (ic RepositoryImage) TableName() string {
+	return "repository_image"
 }
 
 // cve table
