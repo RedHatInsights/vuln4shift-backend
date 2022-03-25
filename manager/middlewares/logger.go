@@ -29,6 +29,7 @@ func Logger() gin.HandlerFunc {
 			"method":    ctx.Request.Method,
 			"status":    ctx.Writer.Status(),
 			"duration":  duration.String(),
+			"acc_num":   ctx.GetString("account_number"),
 		})
 		if ctx.Writer.Status() < http.StatusInternalServerError {
 			entry.Info(ctx.Request.RequestURI)
