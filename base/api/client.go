@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 
@@ -15,11 +16,8 @@ import (
 )
 
 var (
-	logger *logrus.Logger
-)
-
-const (
-	Retries = 3
+	logger  *logrus.Logger
+	retries = 3
 )
 
 type Client struct {
@@ -37,6 +35,15 @@ func init() {
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
+
+	retriesStr, ok := os.LookupEnv("API_RETRIES")
+	if ok {
+		retriesInt, err := strconv.Atoi(retriesStr)
+		if err != nil {
+			logger.Fatalf("Unable to convert API_RETRIES to int: %s", retriesStr)
+		}
+		retries = retriesInt
+	}
 }
 
 func (c *Client) Request(method, url string, requestPtr, responsePtr interface{}) (int, error) {
@@ -74,12 +81,12 @@ func (c *Client) Request(method, url string, requestPtr, responsePtr interface{}
 func (c *Client) RetryRequest(method string, url string, requestPtr interface{}, responsePtr interface{}) (int, error) {
 	var statusCode int
 	var err error
-	for i := 0; i < Retries; i++ {
+	for i := 0; i < retries; i++ {
 		statusCode, err = c.Request(method, url, requestPtr, responsePtr)
 		if statusCode >= 200 && statusCode <= 299 && err == nil {
 			return statusCode, err
 		}
-		if i < (Retries - 1) {
+		if i < (retries - 1) {
 			logger.Debugf("Request %s %s failed, retrying: statusCode=%d, err=%s", method, url, statusCode, err)
 		}
 	}

@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"app/base/api"
+	"app/base/utils"
 )
 
 var (
-	PyxisBaseURL       = "https://catalog.redhat.com/api/containers/v1"
+	PyxisBaseURL       = utils.Getenv("BASE_URL", "https://catalog.redhat.com/api/containers/v1")
 	PyxisReposURL      = fmt.Sprintf("%s/repositories", PyxisBaseURL)
 	PyxisRepoImagesURL = fmt.Sprintf("%s/repositories/registry/%%s/repository/%%s/images", PyxisBaseURL)
 	PyxisImageCvesURL  = fmt.Sprintf("%s/images/id/%%s/vulnerabilities", PyxisBaseURL)
