@@ -1,0 +1,104 @@
+package middlewares
+
+import (
+	"app/base/models"
+	"app/base/utils"
+	"app/test"
+	"encoding/base64"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/redhatinsights/platform-go-middlewares/identity"
+	"github.com/stretchr/testify/assert"
+)
+
+var (
+	identityMock = identity.XRHID{Identity: identity.Identity{
+		Type:  "User",
+		OrgID: "3340851",
+		User: identity.User{
+			Username:  "unit@test.com",
+			Email:     "unit@test.com",
+			FirstName: "Unit",
+			LastName:  "Test",
+			Active:    true,
+			OrgAdmin:  false,
+			Internal:  false,
+			Locale:    "en_US",
+			UserID:    "1337",
+		},
+		Internal: identity.Internal{
+			OrgID: "3340851",
+		},
+	}}
+)
+
+var authenticator gin.HandlerFunc
+
+func TestAuthenticatorValid(t *testing.T) {
+	// valid account in db
+	identityMock.Identity.AccountNumber = "13"
+	buf, _ := json.Marshal(identityMock)
+
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test", nil)
+	ctx.Request.Header.Set("x-rh-identity", base64.StdEncoding.EncodeToString(buf))
+	authenticator(ctx)
+
+	assert.Equal(t, int64(13), ctx.GetInt64("account_id"), "account number must be translated to the acc ID")
+	assert.Equal(t, identityMock.Identity.AccountNumber, ctx.GetString("account_number"), "Account number must be taken from identity header")
+}
+
+func TestAuthenticatorNonExisting(t *testing.T) {
+	// Non existing account in db
+	identityMock.Identity.AccountNumber = "1337"
+	buf, _ := json.Marshal(identityMock)
+
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test", nil)
+	ctx.Request.Header.Set("x-rh-identity", base64.StdEncoding.EncodeToString(buf))
+	authenticator(ctx)
+
+	assert.Equal(t, int64(-1), ctx.GetInt64("account_id"), "Non-existing account number must be translated to the account ID '-1'")
+	assert.Equal(t, identityMock.Identity.AccountNumber, ctx.GetString("account_number"), "Account number must be taken from identity header")
+}
+
+func TestAuthenticatorInvalid(t *testing.T) {
+	header := []byte("{\"wrong\":\"header\"}")
+
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test", nil)
+	ctx.Request.Header.Set("x-rh-identity", base64.StdEncoding.EncodeToString(header))
+	authenticator(ctx)
+
+	assert.Equal(t, ctx.Writer.Status(), http.StatusBadRequest, "Must be 400, wrong request")
+}
+
+func TestAuthenticatorEmptyNumber(t *testing.T) {
+	header := []byte("{\"account_number\":null}")
+
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test", nil)
+	ctx.Request.Header.Set("x-rh-identity", base64.StdEncoding.EncodeToString(header))
+	authenticator(ctx)
+
+	assert.Equal(t, ctx.Writer.Status(), http.StatusBadRequest, "Must be 400, wrong request")
+}
+
+func TestMain(m *testing.M) {
+	db, err := models.GetGormConnection(utils.GetDbURL())
+	if err != nil {
+		panic(err)
+	}
+	test.DB = db
+	err = test.ResetDB()
+	if err != nil {
+		panic(err)
+	}
+	authenticator = Authenticate(db)
+	os.Exit(m.Run())
+}

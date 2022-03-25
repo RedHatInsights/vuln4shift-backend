@@ -56,7 +56,9 @@ services:
     image: vuln4shift/app:latest
     env_file:
       - ./conf/db.env
-      - ./conf/manager.env
+      - ./conf/dbadmin.env
+    environment:
+      - GIN_MODE=release
     depends_on: 
       vuln4shift_database:
         condition: service_started
