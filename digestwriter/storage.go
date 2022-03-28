@@ -50,25 +50,6 @@ func NewFromConnection(connection *gorm.DB, logger *logrus.Logger) *DBStorage {
 	}
 }
 
-// Close method closes the connection to database.
-// This only works with a single master connection, but when dealing with
-// replicas using DBResolver, it does not close everything since gorm.DB.DB()
-// only returns the master connection.
-func (storage DBStorage) Close() error {
-	storage.Logger.Info("Closing connection to data storage.")
-	db, err := storage.connection.DB()
-	if err != nil {
-		storage.Logger.Fatalf("Unable to retrieve connection to data storage: %s\n", err)
-		return err
-	}
-	err = db.Close()
-	if err != nil {
-		storage.Logger.Fatalf("Cannot close connection to data storage: %s\n", err)
-		return err
-	}
-	return nil
-}
-
 func prepareBulkInsertDigestsStruct(digests []string) (data []models.Image) {
 	data = make([]models.Image, len(digests))
 	for idx, digest := range digests {

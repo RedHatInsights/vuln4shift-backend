@@ -11,10 +11,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/assert"
-
 	"app/digestwriter"
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 // mustCreateMockConnection function tries to create a new mock connection and
@@ -31,7 +29,7 @@ func mustCreateMockConnection(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	return connection, mock
 }
 
-func createGormMockConnection(t *testing.T, db *sql.DB) (*gorm.DB, error) {
+func createGormMockConnection(db *sql.DB) (*gorm.DB, error) {
 	dialector := postgres.New(postgres.Config{
 		DSN:                  "sqlmock_db",
 		DriverName:           "postgres",
@@ -70,7 +68,7 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 func TestWriteSingleDigest(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
-	DB, err := createGormMockConnection(t, connection)
+	DB, err := createGormMockConnection(connection)
 	if err != nil {
 		t.Errorf("error was not expected while creating mock connection: %s", err)
 	}
@@ -109,7 +107,7 @@ func TestWriteSingleDigest(t *testing.T) {
 func TestWriteMultipleDigest(t *testing.T) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
-	DB, err := createGormMockConnection(t, connection)
+	DB, err := createGormMockConnection(connection)
 	if err != nil {
 		t.Errorf("error was not expected while creating mock connection: %s", err)
 	}
@@ -139,28 +137,4 @@ func TestWriteMultipleDigest(t *testing.T) {
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
-}
-
-// TestClose function tests database close operation.
-func TestClose(t *testing.T) {
-	// prepare new mocked connection to database
-	connection, mock := mustCreateMockConnection(t)
-	DB, err := createGormMockConnection(t, connection)
-	if err != nil {
-		t.Errorf("error was not expected while creating mock connection: %s", err)
-	}
-
-	logger, err := logging.CreateLogger("DEBUG")
-	// prepare connection to mocked database
-	storage := digestwriter.NewFromConnection(DB, logger)
-
-	// we just happen to make connection without trying to actually connect
-	assert.Nil(t, err)
-
-	// try to close the storage
-	mock.ExpectClose()
-	err = storage.Close()
-
-	// it should not fail
-	assert.Nil(t, err)
 }
