@@ -5,48 +5,44 @@ package digestwriter
 
 import (
 	"app/base/models"
+	"app/base/utils"
+
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-
-	"app/base/utils"
 )
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	Close() error
-	WriteDigests(
-		digests []string,
-	) error
+	WriteDigests(digests []string) error
 }
 
 // DBStorage is an implementation of Storage
 // It is possible to configure connection via Configuration structure.
 type DBStorage struct {
-	connection   *gorm.DB
-	Logger       *logrus.Logger
+	connection *gorm.DB
+	Logger     *logrus.Logger
 }
 
 // NewStorage function creates and initializes a new instance of Storage interface
 func NewStorage(logger *logrus.Logger) (*DBStorage, error) {
 	logger.Info("Initializing connection to storage.")
 
-		dsn := utils.GetDbURL()
-		db, err := models.GetGormConnection(dsn)
+	db, err := models.GetGormConnection(utils.GetDbURL())
 
 	if err != nil {
-		logger.Fatalf("Unable to connect to database: %s.\n", err)
+		logger.Errorf("Unable to connect to database: %s\n", err)
 		return nil, err
 	}
 
-	logger.Info("Connection to storage established.")
+	logger.Infoln("Connection to storage established")
 	return NewFromConnection(db, logger), nil
 }
 
 // NewFromConnection function creates and initializes a new instance of Storage interface from prepared connection
 func NewFromConnection(connection *gorm.DB, logger *logrus.Logger) *DBStorage {
 	return &DBStorage{
-		connection:   connection,
-		Logger: 	  logger,
+		connection: connection,
+		Logger:     logger,
 	}
 }
 
@@ -59,13 +55,12 @@ func prepareBulkInsertDigestsStruct(digests []string) (data []models.Image) {
 }
 
 // WriteDigests writes digests into the 'image' table
-func (storage DBStorage) WriteDigests(digests []string) error {
-
+func (storage *DBStorage) WriteDigests(digests []string) error {
 	data := prepareBulkInsertDigestsStruct(digests)
 
 	storage.Logger.WithFields(logrus.Fields{
-			"num_rows": len(data),
-		}).Debug("trying to insert digests.")
+		"num_rows": len(data),
+	}).Debug("trying to insert digests.")
 
 	// Begin a new transaction.
 	tx := storage.connection.Begin()
@@ -85,4 +80,3 @@ func (storage DBStorage) WriteDigests(digests []string) error {
 
 	return tx.Commit().Error
 }
-
