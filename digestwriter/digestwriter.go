@@ -3,6 +3,7 @@ package digestwriter
 import (
 	"app/base/logging"
 	"app/base/utils"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,23 +27,26 @@ func startConsumer(storage Storage, logger *logrus.Logger) (*KafkaConsumer, erro
 }
 
 // Start function tries to start the digest writer service.
-func Start() (int, error) {
+func Start() {
 	logger, err := logging.CreateLogger(utils.Getenv("LOGGING_LEVEL", "INFO"))
 	if err != nil {
 		panic("Invalid LOGGING_LEVEL environment variable set")
 	}
-	logger.Info("Initializing digest writer...\n")
+	logger.Infoln("Initializing digest writer...")
 
 	storage, err := NewStorage(logger)
 	if err != nil {
-		return ExitStatusStorageError, err
+		logger.Logln(logrus.FatalLevel, "Error initializing storage")
+		logger.Exit(ExitStatusStorageError)
 	}
-	defer storage.Close()
 
 	consumer, err := startConsumer(storage, logger)
 	if err != nil {
-		return ExitStatusConsumerError, err
+		logger.Logln(logrus.FatalLevel, "Error initializing consumer")
+		logger.Exit(ExitStatusConsumerError)
 	}
 	defer consumer.Close()
-	return ExitStatusOK, nil
+
+	logger.Infoln("Digest writer done")
+	logger.Exit(ExitStatusOK)
 }
