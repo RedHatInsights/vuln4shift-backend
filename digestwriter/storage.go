@@ -13,10 +13,7 @@ import (
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	Close() error
-	WriteDigests(
-		digests []string,
-	) error
+	WriteDigests(digests []string) error
 }
 
 // DBStorage is an implementation of Storage
@@ -59,7 +56,7 @@ func prepareBulkInsertDigestsStruct(digests []string) (data []models.Image) {
 }
 
 // WriteDigests writes digests into the 'image' table
-func (storage DBStorage) WriteDigests(digests []string) error {
+func (storage *DBStorage) WriteDigests(digests []string) error {
 
 	data := prepareBulkInsertDigestsStruct(digests)
 

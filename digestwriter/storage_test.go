@@ -29,7 +29,7 @@ func mustCreateMockConnection(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	return connection, mock
 }
 
-func createGormMockConnection(db *sql.DB) (*gorm.DB, error) {
+func createGormMockPostgresConnection(db *sql.DB) (*gorm.DB, error) {
 	dialector := postgres.New(postgres.Config{
 		DSN:                  "sqlmock_db",
 		DriverName:           "postgres",
@@ -39,16 +39,17 @@ func createGormMockConnection(db *sql.DB) (*gorm.DB, error) {
 	return gorm.Open(dialector, &gorm.Config{})
 }
 
-// checkConnectionClose function perform mocked DB closing operation and checks
-// if the connection is properly closed from unit tests.
-func checkConnectionClose(t *testing.T, connection *sql.DB) {
-	// connection to mocked DB needs to be closed properly
-	err := connection.Close()
-
-	// check the error status
+func NewMockStorage(t *testing.T, logLevel string) (*digestwriter.DBStorage,  sqlmock.Sqlmock){
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+	DB, err := createGormMockPostgresConnection(connection)
 	if err != nil {
-		t.Fatalf("error during closing connection: %v", err)
+		t.Errorf("error was not expected while creating mock connection: %s", err)
 	}
+
+	logger, err := logging.CreateLogger(logLevel)
+	// prepare connection to mocked database
+	return digestwriter.NewFromConnection(DB, logger), mock
 }
 
 // checkAllExpectations function checks if all database-related operations have
@@ -66,16 +67,7 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 // TestWriteSingleDigest function tests the method Storage.WriteDigests
 // when only one digest is passed in the slice
 func TestWriteSingleDigest(t *testing.T) {
-	// prepare new mocked connection to database
-	connection, mock := mustCreateMockConnection(t)
-	DB, err := createGormMockConnection(connection)
-	if err != nil {
-		t.Errorf("error was not expected while creating mock connection: %s", err)
-	}
-
-	logger, err := logging.CreateLogger("DEBUG")
-	// prepare connection to mocked database
-	storage := digestwriter.NewFromConnection(DB, logger)
+	storage, mock := NewMockStorage(t, "DEBUG")
 
 	// expected SQL statements during this test
 	//expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1);`
@@ -87,16 +79,12 @@ func TestWriteSingleDigest(t *testing.T) {
 		WithArgs("digest1").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 	mock.ExpectCommit()
-	mock.ExpectClose()
 
 	// call the tested method
-	err = storage.WriteDigests([]string{"digest1"})
+	err := storage.WriteDigests([]string{"digest1"})
 	if err != nil {
 		t.Errorf("error was not expected while writing the digests: %s", err)
 	}
-
-	// connection to mocked DB needs to be closed properly
-	checkConnectionClose(t, connection)
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
@@ -105,16 +93,7 @@ func TestWriteSingleDigest(t *testing.T) {
 // TestWriteSingleDigest function tests the method Storage.WriteDigests
 // when multiple digests are passed in the slice
 func TestWriteMultipleDigest(t *testing.T) {
-	// prepare new mocked connection to database
-	connection, mock := mustCreateMockConnection(t)
-	DB, err := createGormMockConnection(connection)
-	if err != nil {
-		t.Errorf("error was not expected while creating mock connection: %s", err)
-	}
-
-	logger, err := logging.CreateLogger("DEBUG")
-	// prepare connection to mocked database
-	storage := digestwriter.NewFromConnection(DB, logger)
+	storage, mock := NewMockStorage(t, "DEBUG")
 
 	// expected SQL statements during this test
 	expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1),($2) RETURNING "id"`
@@ -124,16 +103,12 @@ func TestWriteMultipleDigest(t *testing.T) {
 		WithArgs("digest1", "digest2").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1).AddRow(2))
 	mock.ExpectCommit()
-	mock.ExpectClose()
 
 	// call the tested method
-	err = storage.WriteDigests([]string{"digest1", "digest2"})
+	err := storage.WriteDigests([]string{"digest1", "digest2"})
 	if err != nil {
 		t.Errorf("error was not expected while writing the digests: %s", err)
 	}
-
-	// connection to mocked DB needs to be closed properly
-	checkConnectionClose(t, connection)
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)

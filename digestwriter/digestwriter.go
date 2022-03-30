@@ -37,7 +37,6 @@ func Start() (int, error) {
 	if err != nil {
 		return ExitStatusStorageError, err
 	}
-	defer storage.Close()
 
 	consumer, err := startConsumer(storage, logger)
 	if err != nil {
