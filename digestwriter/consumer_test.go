@@ -3,12 +3,13 @@ package digestwriter_test
 import (
 	"app/base/logging"
 	"app/digestwriter"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/Shopify/sarama"
-	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
 	"time"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/Shopify/sarama"
+	"github.com/stretchr/testify/assert"
 )
 
 // Unit test definitions for functions and methods defined in source file
@@ -25,22 +26,6 @@ func NewDummyConsumer() *digestwriter.KafkaConsumer {
 		Ready:         nil,
 		Cancel:        nil,
 	}
-
-	/*
-	consumer := &KafkaConsumer{
-		Config: KafkaConsumerConfig{
-			Address:       brokerAddress,
-			IncomingTopic: topic,
-			Group:         group,
-		},
-		ConsumerGroup:                        consumerGroup,
-		Storage:                              storage,
-		Logger:                               logger,
-		numberOfSuccessfullyConsumedMessages: 0,
-		numberOfErrorsConsumingMessages:      0,
-		Ready:                                make(chan bool),
-	}
-	*/
 }
 
 // TestParseEmptyMessage checks how empty message is handled by
@@ -250,6 +235,7 @@ func TestHandleMessageCheckCounters(t *testing.T) {
 
 	storage, mock := NewMockStorage(t, "ERROR")
 	dummyConsumer.Storage = storage
+
 	// expected SQL statements during this test
 	expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1) RETURNING "id"`
 	mock.ExpectBegin()
@@ -263,7 +249,6 @@ func TestHandleMessageCheckCounters(t *testing.T) {
 	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
 	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 
-	// prepare a message with missing 'images' field
 	message := sarama.ConsumerMessage{}
 
 	WrongInputMessage := `{
@@ -303,21 +288,15 @@ func TestHandleMessageCheckCounters(t *testing.T) {
 	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 
 	message.Value = []byte(NoDigestsMessage)
-	// try to handle the message
 	digestwriter.HandleKafkaMessage(dummyConsumer, &message)
-	// check counters after processing
 	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
 	assert.Equal(t, uint64(2), dummyConsumer.GetNumberOfErrorsConsumingMessages())
 
-
 	message.Value = []byte(CorrectMessage)
-	// try to handle the message
 	digestwriter.HandleKafkaMessage(dummyConsumer, &message)
-	// check counters after processing
 	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
 	assert.Equal(t, uint64(2), dummyConsumer.GetNumberOfErrorsConsumingMessages())
+
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
-
 }
-

@@ -51,21 +51,21 @@ const (
 
 	// key for duration of message processing used in structured log messages
 	processingDurationKey = "processing_duration"
-	)
+)
 
 // ClusterName represents the external cluster UUID contained in the consumed message
 type ClusterName string
 
-// JsonContent represents the workload info contained in the consumed message
-type JsonContent map[string]*json.RawMessage
+// JSONContent represents the workload info contained in the consumed message
+type JSONContent map[string]*json.RawMessage
 
 // IncomingMessage data structure is representation of message consumed from
 // the configured topic
 type IncomingMessage struct {
-	Pods        int             `json:"-"`
-	ImageCount  int             `json:"imageCount"`
-	Digests     *JsonContent    `json:"images"`
-	Namespaces  *JsonContent    `json:"-"`
+	Pods       int          `json:"-"`
+	ImageCount int          `json:"imageCount"`
+	Digests    *JSONContent `json:"images"`
+	Namespaces *JSONContent `json:"-"`
 }
 
 // Consumer interface for a topic consumer for any message broker
@@ -90,7 +90,7 @@ type KafkaConsumer struct {
 	Config                               KafkaConsumerConfig
 	ConsumerGroup                        sarama.ConsumerGroup
 	Storage                              Storage
-	Logger 								 *logrus.Logger
+	Logger                               *logrus.Logger
 	numberOfSuccessfullyConsumedMessages uint64
 	numberOfErrorsConsumingMessages      uint64
 	Ready                                chan bool
@@ -116,15 +116,15 @@ func NewWithSaramaConfig(
 
 	brokerAddress := utils.Getenv("KAFKA_BROKER_ADDRESS", "")
 	if brokerAddress == "" {
-		logger.Fatal("Unable to get env var: KAFKA_BROKER_ADDRESS")
+		logger.Errorln("Unable to get env var: KAFKA_BROKER_ADDRESS")
 	}
 	group := utils.Getenv("KAFKA_BROKER_CONSUMER_GROUP", "")
 	if group == "" {
-		logger.Fatal("Unable to get env var: KAFKA_BROKER_CONSUMER_GROUP")
+		logger.Errorln("Unable to get env var: KAFKA_BROKER_CONSUMER_GROUP")
 	}
 	topic := utils.Getenv("KAFKA_BROKER_INCOMING_TOPIC", "")
 	if topic == "" {
-		logger.Fatal("Unable to get env var: KAFKA_BROKER_INCOMING_TOPIC")
+		logger.Errorln("Unable to get env var: KAFKA_BROKER_INCOMING_TOPIC")
 	}
 	if saramaConfig == nil {
 		saramaConfig = sarama.NewConfig()
@@ -142,9 +142,8 @@ func NewWithSaramaConfig(
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err,
-		}).Fatal("Couldn't setup Kafka consumer group with given config")
+		}).Errorln("Couldn't setup Kafka consumer group with given config")
 	}
-
 
 	consumer := &KafkaConsumer{
 		Config: KafkaConsumerConfig{
@@ -173,14 +172,14 @@ func (consumer *KafkaConsumer) Serve() {
 			if err := consumer.ConsumerGroup.Consume(ctx, []string{consumer.Config.IncomingTopic}, consumer); err != nil {
 				consumer.Logger.WithFields(logrus.Fields{
 					errorKey: err,
-				}).Fatal("Unable to recreate Kafka session")
+				}).Errorln("Unable to recreate Kafka session")
 			}
 
 			// check if context was cancelled, signaling that the consumer should stop
 			if ctx.Err() != nil {
 				consumer.Logger.WithFields(logrus.Fields{
 					errorKey: ctx.Err(),
-				}).Error("Stopping consumer")
+				}).Errorln("Stopping consumer")
 				return
 			}
 
@@ -241,7 +240,7 @@ func (consumer *KafkaConsumer) Close() error {
 		if err := consumer.ConsumerGroup.Close(); err != nil {
 			consumer.Logger.WithFields(logrus.Fields{
 				errorKey: err,
-			}).Error("Unable to close consumer group")
+			}).Errorln("Unable to close consumer group")
 		}
 	}
 
@@ -263,16 +262,16 @@ func (consumer *KafkaConsumer) GetNumberOfErrorsConsumingMessages() uint64 {
 // handleMessage handles the message and does all logging, metrics, etc
 func (consumer *KafkaConsumer) handleMessage(msg *sarama.ConsumerMessage) {
 	if msg == nil {
-		consumer.Logger.Info("nil message")
+		consumer.Logger.Infoln("nil message")
 		return
 	}
 
 	consumer.Logger.WithFields(logrus.Fields{
-		offsetKey: msg.Offset,
-		partitionKey: msg.Partition,
-		topicKey: msg.Topic,
+		offsetKey:           msg.Offset,
+		partitionKey:        msg.Partition,
+		topicKey:            msg.Topic,
 		"message_timestamp": msg.Timestamp,
-	}).Info("Start processing incoming message")
+	}).Infoln("Start processing incoming message")
 
 	startTime := time.Now()
 	err := consumer.ProcessMessage(msg)
@@ -282,18 +281,18 @@ func (consumer *KafkaConsumer) handleMessage(msg *sarama.ConsumerMessage) {
 	if err != nil {
 		consumer.Logger.WithFields(logrus.Fields{
 			errorKey: err,
-		}).Error("Error processing the message consumed from Kafka")
+		}).Errorln("Error processing the message consumed from Kafka")
 		consumer.numberOfErrorsConsumingMessages++
 		/* ConsumingErrors.Inc() */
 		return
 	}
 
 	consumer.Logger.WithFields(logrus.Fields{
-		offsetKey: msg.Offset,
-		partitionKey: msg.Partition,
-		topicKey: msg.Topic,
+		offsetKey:             msg.Offset,
+		partitionKey:          msg.Partition,
+		topicKey:              msg.Topic,
 		processingDurationKey: timeAfterProcessingMessage.Sub(startTime).Seconds(),
-	}).Info("Processed incoming message successfully")
+	}).Infoln("Processed incoming message successfully")
 	consumer.numberOfSuccessfullyConsumedMessages++
 	/*ConsumedMessages.Inc()*/
 }
@@ -311,20 +310,20 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error
 
 	/* ParsedIncomingMessage.Inc() */
 
-	consumer.Logger.Info("Parsed incoming message successfully")
+	consumer.Logger.Infoln("Parsed incoming message successfully")
 
 	if message.Digests == nil {
-		consumer.Logger.Infof("No digests were retrieved from incoming message")
+		consumer.Logger.Infoln("No digests were retrieved from incoming message")
 		return nil
 	}
 
 	// Step #2: get digests into a slice of strings
 	digests := extractDigestsFromMessage(message.Digests)
 
-	consumer.Logger.Infof("Extracted digests: %d", len(digests))
+	consumer.Logger.Infof("Extracted digests: %d\n", len(digests))
 
 	if message.ImageCount != len(digests) {
-		consumer.Logger.Warnf("Expected number of digests: %d; Extracted digests: %d", message.ImageCount, len(digests))
+		consumer.Logger.Warnf("Expected number of digests: %d; Extracted digests: %d\n", message.ImageCount, len(digests))
 	}
 
 	// Step #3: write the digests into storage
@@ -332,7 +331,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error
 	if err != nil {
 		consumer.Logger.WithFields(logrus.Fields{
 			errorKey: err,
-		}).Error("Error writing digests to database")
+		}).Errorln("Error writing digests to database")
 		/* StoredMessagesError.Inc() */
 		return err
 	}
@@ -342,17 +341,17 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error
 	// Step #5: print durations of all previous steps
 	consumer.Logger.WithFields(logrus.Fields{
 		processingDurationKey: time.Now().Sub(tStart).Seconds(),
-	}).Info("Stored digests successfully")
+	}).Infoln("Stored digests successfully")
 
 	return nil
 }
 
-func extractDigestsFromMessage(content *JsonContent) (digests []string) {
+func extractDigestsFromMessage(content *JSONContent) (digests []string) {
 	// get the digest of each item
 	digests = make([]string, len(*content))
 	index := 0
 	// TBD: We lose the ordering from the JSON by looping this way. Check if it matters
-	for digest, _ := range *content {
+	for digest := range *content {
 		digests[index] = digest
 		index++
 	}

@@ -5,14 +5,14 @@ package digestwriter_test
 
 import (
 	"app/base/logging"
+	"app/digestwriter"
 	"database/sql"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"regexp"
 	"testing"
 
-	"app/digestwriter"
 	"github.com/DATA-DOG/go-sqlmock"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 // mustCreateMockConnection function tries to create a new mock connection and
@@ -39,7 +39,7 @@ func createGormMockPostgresConnection(db *sql.DB) (*gorm.DB, error) {
 	return gorm.Open(dialector, &gorm.Config{})
 }
 
-func NewMockStorage(t *testing.T, logLevel string) (*digestwriter.DBStorage,  sqlmock.Sqlmock){
+func NewMockStorage(t *testing.T, logLevel string) (*digestwriter.DBStorage, sqlmock.Sqlmock) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
 	DB, err := createGormMockPostgresConnection(connection)
@@ -48,6 +48,9 @@ func NewMockStorage(t *testing.T, logLevel string) (*digestwriter.DBStorage,  sq
 	}
 
 	logger, err := logging.CreateLogger(logLevel)
+	if err != nil {
+		t.Errorf("error was not expected while creating logger: %s", err)
+	}
 	// prepare connection to mocked database
 	return digestwriter.NewFromConnection(DB, logger), mock
 }
