@@ -3,6 +3,7 @@ package manager
 import (
 	"app/base/models"
 	"app/base/utils"
+	"app/manager/controllers/cves"
 	"app/manager/controllers/meta"
 	"app/manager/middlewares"
 	"log"
@@ -32,10 +33,25 @@ func createMetaGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
 	return metaGroup
 }
 
+func createCveGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
+	cveGroup := router.Group("/v1/cves")
+
+	cveController := cves.Controller{
+		Conn: db,
+	}
+
+	// Cves endpoints must be authenticated
+	cveGroup.Use(middlewares.Authenticate(db))
+
+	cveGroup.GET("/", cveController.GetCves)
+	return cveGroup
+}
+
 // setMiddlewares sets middlewares for router.
 func setMiddlewares(router *gin.Engine) {
 	router.Use(gin.Recovery())
 	router.Use(middlewares.Logger())
+	router.Use(middlewares.Filterer())
 }
 
 // BuildRouter creates manager router with endpoints and middlewares.
@@ -51,6 +67,8 @@ func BuildRouter() *gin.Engine {
 
 	setMiddlewares(router)
 	createMetaGroup(router, db)
+	createCveGroup(router, db)
+
 	return router
 }
 
