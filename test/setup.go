@@ -89,7 +89,7 @@ func ResetDB() error {
 	if err != nil {
 		return err
 	}
-	_, err = plainDb.Exec("TRUNCATE TABLE account, cluster, image, cluster_image, cve, image_cve CASCADE")
+	_, err = plainDb.Exec("TRUNCATE TABLE account, cluster, image, repository, repository_image, cluster_image, cve, image_cve CASCADE")
 	if err != nil {
 		return err
 	}
