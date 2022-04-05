@@ -1,0 +1,2 @@
+REVOKE INSERT, UPDATE, DELETE ON image IN SCHEMA public FROM archive_db_writer;
+ALTER TABLE image ALTER COLUMN pyxis_id SET NOT NULL;

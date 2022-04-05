@@ -6,6 +6,7 @@ package digestwriter
 import (
 	"app/base/models"
 	"app/base/utils"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -48,8 +49,10 @@ func NewFromConnection(connection *gorm.DB, logger *logrus.Logger) *DBStorage {
 
 func prepareBulkInsertDigestsStruct(digests []string) (data []models.Image) {
 	data = make([]models.Image, len(digests))
+	modifiedAt := time.Now().UTC()
 	for idx, digest := range digests {
 		data[idx].Digest = digest
+		data[idx].ModifiedDate = modifiedAt
 	}
 	return
 }
@@ -71,7 +74,7 @@ func (storage *DBStorage) WriteDigests(digests []string) error {
 		}
 	}()
 
-	if err := tx.Omit("HealthIndex").Create(&data).Error; err != nil {
+	if err := tx.Omit("PyxisID").Create(&data).Error; err != nil {
 		storage.Logger.WithFields(logrus.Fields{
 			errorKey: err,
 		}).Debug("Couldn't insert digests.")

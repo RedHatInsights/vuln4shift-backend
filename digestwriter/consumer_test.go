@@ -15,8 +15,8 @@ import (
 // Unit test definitions for functions and methods defined in source file
 // consumer.go
 
-// NewDummyConsumer function returns a new, not running,
-//  instance of KafkaConsumer.
+// NewDummyConsumer function returns a new, not running, instance of
+// KafkaConsumer.
 func NewDummyConsumer() *digestwriter.KafkaConsumer {
 	return &digestwriter.KafkaConsumer{
 		Config:        digestwriter.KafkaConsumerConfig{},

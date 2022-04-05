@@ -1,0 +1,2 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON image TO archive_db_writer;
+ALTER TABLE image ALTER COLUMN pyxis_id DROP NOT NULL;
