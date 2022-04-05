@@ -24,9 +24,9 @@ const (
 
 func setupLogger() {
 	var err error
-	logger, err = logging.CreateLogger(utils.Getenv("LOGGING_LEVEL", "INFO"))
+	logger, err = logging.CreateLogger(utils.GetEnv("LOGGING_LEVEL", "INFO"))
 	if err != nil {
-		panic("Invalid LOGGING_LEVEL environment variable set")
+		panic("couldn't set up logger with given LOGGING_LEVEL environment variable nor default (INFO)")
 	}
 }
 

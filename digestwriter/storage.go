@@ -6,14 +6,17 @@ package digestwriter
 import (
 	"app/base/models"
 	"app/base/utils"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	WriteDigests(digests []string) error
+	WriteClusterInfo(cluster *ClusterName, account *AccountNumber, orgID *OrgID, digests []string) error
 }
 
 // DBStorage is an implementation of Storage
@@ -37,44 +40,129 @@ func NewStorage() (*DBStorage, error) {
 	return NewFromConnection(db), nil
 }
 
-// NewFromConnection function creates and initializes a new instance of Storage interface from prepared connection
+// NewFromConnection function returns a new Storage instance
+// that will use the provided connection
 func NewFromConnection(connection *gorm.DB) *DBStorage {
 	return &DBStorage{
 		connection: connection,
 	}
 }
 
-func prepareBulkInsertDigestsStruct(digests []string) (data []models.Image) {
-	data = make([]models.Image, len(digests))
+func prepareBulkInsertClusterImage(clusterID int64, digests []models.Image) (data []models.ClusterImage) {
+	data = make([]models.ClusterImage, len(digests))
 	for idx, digest := range digests {
-		data[idx].Digest = digest
+		data[idx].ClusterID = clusterID
+		data[idx].ImageID = digest.ID
 	}
 	return
 }
 
-// WriteDigests writes digests into the 'image' table
-func (storage *DBStorage) WriteDigests(digests []string) error {
-	data := prepareBulkInsertDigestsStruct(digests)
+// linkDigestsToCluster updates the 'cluster_image' table
+func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, digests []string) error {
+	//retrieve IDs of rows in image table for the received digests
 
-	logger.WithFields(logrus.Fields{
-		"num_rows": len(data),
-	}).Debug("trying to insert digests.")
+	logger.Infof("Trying to link digests to cluster with ID %d\n", clusterID)
 
-	// Begin a new transaction.
-	tx := storage.connection.Begin()
+	var existingDigests []models.Image
+	queryResult := tx.Where("digest IN ?", digests).Find(&existingDigests)
+	if err := queryResult.Error; err != nil {
+		//TODO: Maybe we prefer to check digests first, and not insert anything in cluster and cluster_image tables?
+		/*if err == gorm.ErrRecordNotFound {
+		  	logger.WithFields(logrus.Fields{
+		  		errorKey: err.Error(),
+		  		"clusterID": clusterID,
+		  	}).Infoln("no digests in image table for the cluster with the given ID. Nothing to do.")
+		  	return nil
+		  }
+		*/
 
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Omit("PyxisID").Create(&data).Error; err != nil {
 		logger.WithFields(logrus.Fields{
-			errorKey: err,
-		}).Debug("Couldn't insert digests.")
+			errorKey:    err.Error(),
+			"clusterID": clusterID,
+		}).Errorln("couldn't retrieve digests in table 'image' for the cluster with the given ID")
 		return err
 	}
 
+	if queryResult.RowsAffected == 0 {
+		logger.WithFields(logrus.Fields{
+			"clusterID": clusterID,
+		}).Infoln("no digests in image table for the cluster with the given ID. Nothing to do.")
+		return nil
+	}
+
+	logger.Infof("Found %d digests in image table (%d/%d)\n",
+		queryResult.RowsAffected, queryResult.RowsAffected, len(digests),
+	)
+
+	clusterImageData := prepareBulkInsertClusterImage(clusterID, existingDigests)
+
+	// Do nothing on conflict. It just means that we already have
+	// the info we are trying to insert
+	if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&clusterImageData).Error; err != nil {
+		logger.WithFields(logrus.Fields{
+			errorKey:    err.Error(),
+			"clusterID": clusterID,
+		}).Errorln("couldn't link cluster ID to image IDs for the given cluster")
+		return err
+	}
+
+	logger.Infoln("linked digests to cluster successfully")
+	return nil
+}
+
+// WriteClusterInfo updates the 'cluster' table with the provided info
+func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *AccountNumber, orgID *OrgID, digests []string) error {
+	// prepare data
+	clusterName := string(*cluster)
+	clusterUUID, err := uuid.Parse(clusterName)
+	if err != nil {
+		logger.Errorln("cannot convert given cluster ID to UUID. Aborting WriteClusterInfo")
+		return err
+	}
+	accountData := models.Account{
+		AccountNumber: fmt.Sprint(*account),
+		OrgID:         fmt.Sprint(orgID),
+	}
+
+	tx := storage.connection.Begin()
+
+	// Insert account info in account table if not present
+	// If present, retrieve corresponding ID
+	if err = tx.Where(accountData).FirstOrCreate(&accountData).Error; err != nil {
+		logger.WithFields(logrus.Fields{
+			errorKey: err.Error(),
+		}).Errorln("couldn't insert or retrieve cluster name in 'account' table")
+		if r := tx.Rollback(); r.Error != nil {
+			logger.WithFields(logrus.Fields{
+				errorKey: r.Error.Error(),
+			}).Errorln("couldn't rollback operation!")
+			return r.Error
+		}
+		return err
+	}
+
+	clusterInfoData := models.Cluster{
+		UUID:      clusterUUID,
+		AccountID: accountData.ID,
+	}
+
+	// Do nothing on conflict. It just means that we already have
+	// the info we are trying to insert
+	if err := tx.Omit(
+		"Status", "Version", "Provider", "CveCacheCritical",
+		"CveCacheImportant", "CveCacheModerate", "CveCacheLow").
+		Clauses(clause.OnConflict{DoNothing: true}).
+		Create(&clusterInfoData).Error; err != nil {
+		logger.WithFields(logrus.Fields{
+			errorKey: err.Error(),
+		}).Errorln("couldn't write cluster info in cluster table")
+		return err
+	}
+
+	logger.Infoln("updated cluster table successfully")
+
+	if err = storage.linkDigestsToCluster(tx, clusterInfoData.ID, digests); err != nil {
+		return tx.Rollback().Error
+	}
 	return tx.Commit().Error
 }
