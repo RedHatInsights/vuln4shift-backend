@@ -24,3 +24,13 @@ var (
 func HandleKafkaMessage(c *KafkaConsumer, msg *sarama.ConsumerMessage) {
 	c.handleMessage(msg)
 }
+
+func LinkDigestsToCluster(s *DBStorage, clusterID int64, digests []string) error {
+	tx := s.connection.Begin()
+	defer tx.Rollback()
+	err := s.linkDigestsToCluster(tx, clusterID, digests)
+	if err != nil {
+		return err
+	}
+	return tx.Commit().Error
+}
