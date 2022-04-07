@@ -1,5 +1,6 @@
 package digestwriter_test
 
+// Utility functions for the package's unit tests
 import (
 	"time"
 

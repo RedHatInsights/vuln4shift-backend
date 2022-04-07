@@ -1,5 +1,7 @@
 package digestwriter
 
+// Entry point of the digestwriter package
+
 import (
 	"app/base/logging"
 	"app/base/utils"
