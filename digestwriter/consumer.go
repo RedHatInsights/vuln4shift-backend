@@ -90,7 +90,6 @@ type KafkaConsumer struct {
 	Config                               KafkaConsumerConfig
 	ConsumerGroup                        sarama.ConsumerGroup
 	Storage                              Storage
-	Logger                               *logrus.Logger
 	numberOfSuccessfullyConsumedMessages uint64
 	numberOfErrorsConsumingMessages      uint64
 	Ready                                chan bool
@@ -103,15 +102,14 @@ type KafkaConsumer struct {
 var DefaultSaramaConfig *sarama.Config
 
 // NewConsumer constructs new implementation of Consumer interface
-func NewConsumer(storage Storage, logger *logrus.Logger) (*KafkaConsumer, error) {
-	return NewWithSaramaConfig(DefaultSaramaConfig, storage, logger)
+func NewConsumer(storage Storage) (*KafkaConsumer, error) {
+	return NewWithSaramaConfig(DefaultSaramaConfig, storage)
 }
 
 // NewWithSaramaConfig constructs new implementation of Consumer interface with custom sarama config
 func NewWithSaramaConfig(
 	saramaConfig *sarama.Config,
 	storage Storage,
-	logger *logrus.Logger,
 ) (*KafkaConsumer, error) {
 
 	brokerAddress := utils.Getenv("KAFKA_BROKER_ADDRESS", "")
@@ -153,7 +151,6 @@ func NewWithSaramaConfig(
 		},
 		ConsumerGroup:                        consumerGroup,
 		Storage:                              storage,
-		Logger:                               logger,
 		numberOfSuccessfullyConsumedMessages: 0,
 		numberOfErrorsConsumingMessages:      0,
 		Ready:                                make(chan bool),
@@ -170,41 +167,41 @@ func (consumer *KafkaConsumer) Serve() {
 	go func() {
 		for {
 			if err := consumer.ConsumerGroup.Consume(ctx, []string{consumer.Config.IncomingTopic}, consumer); err != nil {
-				consumer.Logger.WithFields(logrus.Fields{
+				logger.WithFields(logrus.Fields{
 					errorKey: err,
 				}).Errorln("Unable to recreate Kafka session")
 			}
 
 			// check if context was cancelled, signaling that the consumer should stop
 			if ctx.Err() != nil {
-				consumer.Logger.WithFields(logrus.Fields{
+				logger.WithFields(logrus.Fields{
 					errorKey: ctx.Err(),
 				}).Errorln("Stopping consumer")
 				return
 			}
 
-			consumer.Logger.Info("Created new kafka session")
+			logger.Info("Created new kafka session")
 
 			consumer.Ready = make(chan bool)
 		}
 	}()
 
 	// Wait until the consumer is ready
-	consumer.Logger.Info("Waiting for consumer to become ready")
+	logger.Info("Waiting for consumer to become ready")
 	<-consumer.Ready
-	consumer.Logger.Info("Consumer is ready")
+	logger.Info("Consumer is ready")
 
 	// Actual processing is done in goroutine created by sarama (see ConsumeClaim below)
-	consumer.Logger.Info("Started serving consumer")
+	logger.Info("Started serving consumer")
 	<-ctx.Done()
-	consumer.Logger.Info("Context cancelled, exiting")
+	logger.Info("Context cancelled, exiting")
 
 	cancel()
 }
 
 // Setup is run at the beginning of a new session, before ConsumeClaim
 func (consumer *KafkaConsumer) Setup(sarama.ConsumerGroupSession) error {
-	consumer.Logger.Info("New session has been setup")
+	logger.Info("New session has been setup")
 	// Mark the consumer as ready
 	close(consumer.Ready)
 	return nil
@@ -212,13 +209,13 @@ func (consumer *KafkaConsumer) Setup(sarama.ConsumerGroupSession) error {
 
 // Cleanup is run at the end of a session, once all ConsumeClaim goroutines have exited
 func (consumer *KafkaConsumer) Cleanup(sarama.ConsumerGroupSession) error {
-	consumer.Logger.Info("New session has been terminated")
+	logger.Info("New session has been terminated")
 	return nil
 }
 
 // ConsumeClaim starts a consumer loop of ConsumerGroupClaim's Messages().
 func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	consumer.Logger.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		offsetKey: claim.InitialOffset(),
 	}).Info("Starting messages loop")
 
@@ -238,7 +235,7 @@ func (consumer *KafkaConsumer) Close() error {
 
 	if consumer.ConsumerGroup != nil {
 		if err := consumer.ConsumerGroup.Close(); err != nil {
-			consumer.Logger.WithFields(logrus.Fields{
+			logger.WithFields(logrus.Fields{
 				errorKey: err,
 			}).Errorln("Unable to close consumer group")
 		}
@@ -262,11 +259,11 @@ func (consumer *KafkaConsumer) GetNumberOfErrorsConsumingMessages() uint64 {
 // handleMessage handles the message and does all logging, metrics, etc
 func (consumer *KafkaConsumer) handleMessage(msg *sarama.ConsumerMessage) {
 	if msg == nil {
-		consumer.Logger.Infoln("nil message")
+		logger.Infoln("nil message")
 		return
 	}
 
-	consumer.Logger.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		offsetKey:           msg.Offset,
 		partitionKey:        msg.Partition,
 		topicKey:            msg.Topic,
@@ -279,7 +276,7 @@ func (consumer *KafkaConsumer) handleMessage(msg *sarama.ConsumerMessage) {
 
 	// Something went wrong while processing the message.
 	if err != nil {
-		consumer.Logger.WithFields(logrus.Fields{
+		logger.WithFields(logrus.Fields{
 			errorKey: err,
 		}).Errorln("Error processing the message consumed from Kafka")
 		consumer.numberOfErrorsConsumingMessages++
@@ -287,7 +284,7 @@ func (consumer *KafkaConsumer) handleMessage(msg *sarama.ConsumerMessage) {
 		return
 	}
 
-	consumer.Logger.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		offsetKey:             msg.Offset,
 		partitionKey:          msg.Partition,
 		topicKey:              msg.Topic,
@@ -310,26 +307,26 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error
 
 	/* ParsedIncomingMessage.Inc() */
 
-	consumer.Logger.Infoln("Parsed incoming message successfully")
+	logger.Infoln("Parsed incoming message successfully")
 
 	if message.Digests == nil {
-		consumer.Logger.Infoln("No digests were retrieved from incoming message")
+		logger.Infoln("No digests were retrieved from incoming message")
 		return nil
 	}
 
 	// Step #2: get digests into a slice of strings
 	digests := extractDigestsFromMessage(message.Digests)
 
-	consumer.Logger.Infof("Extracted digests: %d\n", len(digests))
+	logger.Infof("Extracted digests: %d\n", len(digests))
 
 	if message.ImageCount != len(digests) {
-		consumer.Logger.Warnf("Expected number of digests: %d; Extracted digests: %d\n", message.ImageCount, len(digests))
+		logger.Warnf("Expected number of digests: %d; Extracted digests: %d\n", message.ImageCount, len(digests))
 	}
 
 	// Step #3: write the digests into storage
 	err = consumer.Storage.WriteDigests(digests)
 	if err != nil {
-		consumer.Logger.WithFields(logrus.Fields{
+		logger.WithFields(logrus.Fields{
 			errorKey: err,
 		}).Errorln("Error writing digests to database")
 		/* StoredMessagesError.Inc() */
@@ -339,7 +336,7 @@ func (consumer *KafkaConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error
 	/* StoredMessagesOk.Inc() */
 
 	// Step #5: print durations of all previous steps
-	consumer.Logger.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		processingDurationKey: time.Now().Sub(tStart).Seconds(),
 	}).Infoln("Stored digests successfully")
 

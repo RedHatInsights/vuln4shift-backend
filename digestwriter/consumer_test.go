@@ -1,7 +1,6 @@
 package digestwriter_test
 
 import (
-	"app/base/logging"
 	"app/digestwriter"
 	"regexp"
 	"testing"
@@ -18,11 +17,11 @@ import (
 // NewDummyConsumer function returns a new, not running, instance of
 // KafkaConsumer.
 func NewDummyConsumer() *digestwriter.KafkaConsumer {
+	digestwriter.SetupLogger()
 	return &digestwriter.KafkaConsumer{
 		Config:        digestwriter.KafkaConsumerConfig{},
 		ConsumerGroup: nil,
 		Storage:       nil,
-		Logger:        nil,
 		Ready:         nil,
 		Cancel:        nil,
 	}
@@ -181,18 +180,16 @@ func TestProcessWrongMessageEmptyImages(t *testing.T) {
 func TestProcessMessageWithExpectedFields(t *testing.T) {
 	// construct dummy consumer
 	dummyConsumer := NewDummyConsumer()
-
-	logger, _ := logging.CreateLogger("ERROR")
-	dummyConsumer.Logger = logger
-
-	storage, mock := NewMockStorage(t, "ERROR")
+	storage, mock := NewMockStorage(t)
 	dummyConsumer.Storage = storage
+
+	patchCurrentTime()
+
 	// expected SQL statements during this test
-	expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1) RETURNING "id"`
+	expectedStatement := `INSERT INTO "image" ("modified_date","digest") VALUES ($1,$2) RETURNING "id"`
 	mock.ExpectBegin()
-	//mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectQuery(regexp.QuoteMeta(expectedStatement)).
-		WithArgs("first_digest").
+		WithArgs(time.Now().UTC(), "first_digest").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 	mock.ExpectCommit()
 
@@ -229,19 +226,17 @@ func TestProcessMessageWithExpectedFields(t *testing.T) {
 func TestHandleMessageCheckCounters(t *testing.T) {
 	// construct dummy consumer
 	dummyConsumer := NewDummyConsumer()
-
-	logger, _ := logging.CreateLogger("ERROR")
-	dummyConsumer.Logger = logger
-
-	storage, mock := NewMockStorage(t, "ERROR")
+	storage, mock := NewMockStorage(t)
 	dummyConsumer.Storage = storage
 
+	patchCurrentTime()
+
 	// expected SQL statements during this test
-	expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1) RETURNING "id"`
+	expectedStatement := `INSERT INTO "image" ("modified_date","digest") VALUES ($1,$2) RETURNING "id"`
 	mock.ExpectBegin()
 	//mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectQuery(regexp.QuoteMeta(expectedStatement)).
-		WithArgs("first_digest").
+		WithArgs(time.Now().UTC(), "first_digest").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 	mock.ExpectCommit()
 

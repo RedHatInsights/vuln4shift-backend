@@ -34,6 +34,7 @@ var (
 	// functions from consumer.go source file
 	ExtractDigestsFromMessage = extractDigestsFromMessage
 	ParseMessage              = parseMessage
+	SetupLogger               = setupLogger
 )
 
 func HandleKafkaMessage(c *KafkaConsumer, msg *sarama.ConsumerMessage) {

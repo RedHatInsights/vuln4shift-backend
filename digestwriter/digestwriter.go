@@ -7,6 +7,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var (
+	logger *logrus.Logger
+)
+
 const (
 	// ExitStatusOK means that the tool finished with success
 	ExitStatusOK = iota
@@ -16,9 +20,17 @@ const (
 	ExitStatusConsumerError
 )
 
+func setupLogger() {
+	var err error
+	logger, err = logging.CreateLogger(utils.Getenv("LOGGING_LEVEL", "INFO"))
+	if err != nil {
+		panic("Invalid LOGGING_LEVEL environment variable set")
+	}
+}
+
 // startConsumer function starts the Kafka consumer.
-func startConsumer(storage Storage, logger *logrus.Logger) (*KafkaConsumer, error) {
-	consumer, err := NewConsumer(storage, logger)
+func startConsumer(storage Storage) (*KafkaConsumer, error) {
+	consumer, err := NewConsumer(storage)
 	if err != nil {
 		return nil, err
 	}
@@ -28,19 +40,16 @@ func startConsumer(storage Storage, logger *logrus.Logger) (*KafkaConsumer, erro
 
 // Start function tries to start the digest writer service.
 func Start() {
-	logger, err := logging.CreateLogger(utils.Getenv("LOGGING_LEVEL", "INFO"))
-	if err != nil {
-		panic("Invalid LOGGING_LEVEL environment variable set")
-	}
+	setupLogger()
 	logger.Infoln("Initializing digest writer...")
 
-	storage, err := NewStorage(logger)
+	storage, err := NewStorage()
 	if err != nil {
 		logger.Logln(logrus.FatalLevel, "Error initializing storage")
 		logger.Exit(ExitStatusStorageError)
 	}
 
-	consumer, err := startConsumer(storage, logger)
+	consumer, err := startConsumer(storage)
 	if err != nil {
 		logger.Logln(logrus.FatalLevel, "Error initializing consumer")
 		logger.Exit(ExitStatusConsumerError)

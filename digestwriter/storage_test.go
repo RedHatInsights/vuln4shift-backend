@@ -4,11 +4,11 @@ package digestwriter_test
 // storage.go
 
 import (
-	"app/base/logging"
 	"app/digestwriter"
 	"database/sql"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"gorm.io/driver/postgres"
@@ -18,6 +18,8 @@ import (
 // mustCreateMockConnection function tries to create a new mock connection and
 // checks if the operation was finished without problems.
 func mustCreateMockConnection(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
+	//initialize logger
+	digestwriter.SetupLogger()
 	// try to initialize new mock connection
 	connection, mock, err := sqlmock.New()
 
@@ -39,7 +41,7 @@ func createGormMockPostgresConnection(db *sql.DB) (*gorm.DB, error) {
 	return gorm.Open(dialector, &gorm.Config{})
 }
 
-func NewMockStorage(t *testing.T, logLevel string) (*digestwriter.DBStorage, sqlmock.Sqlmock) {
+func NewMockStorage(t *testing.T) (*digestwriter.DBStorage, sqlmock.Sqlmock) {
 	// prepare new mocked connection to database
 	connection, mock := mustCreateMockConnection(t)
 	DB, err := createGormMockPostgresConnection(connection)
@@ -47,12 +49,8 @@ func NewMockStorage(t *testing.T, logLevel string) (*digestwriter.DBStorage, sql
 		t.Errorf("error was not expected while creating mock connection: %s", err)
 	}
 
-	logger, err := logging.CreateLogger(logLevel)
-	if err != nil {
-		t.Errorf("error was not expected while creating logger: %s", err)
-	}
 	// prepare connection to mocked database
-	return digestwriter.NewFromConnection(DB, logger), mock
+	return digestwriter.NewFromConnection(DB), mock
 }
 
 // checkAllExpectations function checks if all database-related operations have
@@ -70,16 +68,15 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 // TestWriteSingleDigest function tests the method Storage.WriteDigests
 // when only one digest is passed in the slice
 func TestWriteSingleDigest(t *testing.T) {
-	storage, mock := NewMockStorage(t, "DEBUG")
-
+	storage, mock := NewMockStorage(t)
+	patchCurrentTime()
 	// expected SQL statements during this test
-	//expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1);`
-	expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1) RETURNING "id"`
+	expectedStatement := `INSERT INTO "image" ("modified_date","digest") VALUES ($1,$2) RETURNING "id"`
 
 	mock.ExpectBegin()
 	//mock.ExpectExec(expectedStatement).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectQuery(regexp.QuoteMeta(expectedStatement)).
-		WithArgs("digest1").
+		WithArgs(time.Now().UTC(), "digest1").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 	mock.ExpectCommit()
 
@@ -96,14 +93,14 @@ func TestWriteSingleDigest(t *testing.T) {
 // TestWriteSingleDigest function tests the method Storage.WriteDigests
 // when multiple digests are passed in the slice
 func TestWriteMultipleDigest(t *testing.T) {
-	storage, mock := NewMockStorage(t, "DEBUG")
-
+	storage, mock := NewMockStorage(t)
+	patchCurrentTime()
 	// expected SQL statements during this test
-	expectedStatement := `INSERT INTO "image" ("digest") VALUES ($1),($2) RETURNING "id"`
+	expectedStatement := `INSERT INTO "image" ("modified_date","digest") VALUES ($1,$2),($3,$4) RETURNING "id"`
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(expectedStatement)).
-		WithArgs("digest1", "digest2").
+		WithArgs(time.Now().UTC(), "digest1", time.Now().UTC(), "digest2").
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1).AddRow(2))
 	mock.ExpectCommit()
 
