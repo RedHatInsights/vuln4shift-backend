@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -71,11 +70,7 @@ func Start() {
 
 	m.Log = logger{} // Set custom logger
 
-	schemaMigration := utils.GetEnv("SCHEMA_MIGRATION", "-1") // Check env variable to migrate to specific version
-	schemaMigrationInt, err := strconv.Atoi(schemaMigration)
-	if err != nil {
-		log.Fatalf("Unable to convert to int: %s\n", schemaMigration)
-	}
+	schemaMigrationInt := utils.GetEnv("SCHEMA_MIGRATION", -1) // Check env variable to migrate to specific version
 
 	if schemaMigrationInt < 0 {
 		err = m.Up() // Upgrade to the latest

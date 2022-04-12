@@ -3,13 +3,12 @@ package vmsync
 import (
 	"app/base/api"
 	"app/base/utils"
-	"encoding/json"
 	"net/http"
 	"time"
 )
 
 var (
-	PageSize     = utils.GetIntEnv("PAGE_SIZE", 5000)
+	PageSize     = utils.GetEnv("PAGE_SIZE", 5000)
 	VmaasCvesURL = utils.GetEnv("BASE_URL", "http://localhost:8080/api/v3/cves")
 )
 
@@ -72,15 +71,8 @@ func getAPICves() (map[string]APICve, error) {
 			return cveMap, err
 		}
 
-		cveList, err := json.Marshal(&vmaasResponse.CveList)
-		if err != nil {
-			logger.Warningf("CVE metadata parsing failed, err=%s", err)
-			return cveMap, err
-		}
-
-		if err = json.Unmarshal(cveList, &cveMap); err != nil {
-			logger.Warningf("CVE metadata parsing failed, err=%s", err)
-			return cveMap, err
+		for cveName, cveMD := range vmaasResponse.CveList {
+			cveMap[cveName] = cveMD
 		}
 
 		totalPages = vmaasResponse.Pages

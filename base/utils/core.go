@@ -5,24 +5,35 @@ import (
 	"strconv"
 )
 
-// GetEnv Load string environment variable or return default value
-func GetEnv(key, def string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return def
+// DefValueType value types for default value of environment variables string | int | bool
+type DefValueType interface {
+	string | int | bool
 }
 
-// GetIntEnv Load integer environment variable or return default value
-func GetIntEnv(key string, def int) int {
-	value := os.Getenv(key)
-	if value == "" {
+// GetEnv Load environment variable or return default value of DefValueType
+func GetEnv[T DefValueType](key string, def T) T {
+	var ret T
+	v, ok := os.LookupEnv(key)
+	if !ok {
 		return def
 	}
-	parsedInt, err := strconv.Atoi(value)
-	if err != nil {
-		panic(err)
-	}
 
-	return parsedInt
+	// switch on the pointer types of T
+	switch p := any(&ret).(type) {
+	case *string:
+		*p = v
+	case *int:
+		iv, err := strconv.Atoi(v)
+		if err != nil {
+			panic(err)
+		}
+		*p = iv
+	case *bool:
+		bv, err := strconv.ParseBool(v)
+		if err != nil {
+			panic(err)
+		}
+		*p = bv
+	}
+	return ret
 }
