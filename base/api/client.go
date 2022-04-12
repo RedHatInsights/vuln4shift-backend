@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/sirupsen/logrus"
 
@@ -17,7 +16,7 @@ import (
 
 var (
 	logger  *logrus.Logger
-	retries = 3
+	retries = utils.GetEnv("API_RETRIES", 3)
 )
 
 type Client struct {
@@ -35,15 +34,6 @@ func init() {
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
-
-	retriesStr, ok := os.LookupEnv("API_RETRIES")
-	if ok {
-		retriesInt, err := strconv.Atoi(retriesStr)
-		if err != nil {
-			logger.Fatalf("Unable to convert API_RETRIES to int: %s", retriesStr)
-		}
-		retries = retriesInt
-	}
 }
 
 func (c *Client) Request(method, url string, requestPtr, responsePtr interface{}) (int, error) {

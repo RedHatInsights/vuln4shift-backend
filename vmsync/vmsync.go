@@ -16,7 +16,7 @@ import (
 
 var (
 	logger    *logrus.Logger
-	BatchSize = utils.GetIntEnv("BATCH_SIZE", 5000)
+	BatchSize = utils.GetEnv("BATCH_SIZE", 5000)
 )
 
 func init() {
@@ -38,7 +38,6 @@ func syncCveMetadata() {
 	if err != nil {
 		logger.Fatalf("Unable to get CVEs from VMaaS: %s", err)
 	}
-	logger.Infof("CVEs in VMaaS: %d", len(apiCveMap))
 
 	toSyncCves := make([]models.Cve, 0, len(apiCveMap))
 	for cveName, apiCve := range apiCveMap {
@@ -48,8 +47,14 @@ func syncCveMetadata() {
 			severity = models.NotSet
 		}
 
-		cvss2Score, _ := strconv.ParseFloat(apiCve.Cvss2Score, 32)
-		cvss3Score, _ := strconv.ParseFloat(apiCve.Cvss3Score, 32)
+		cvss2Score, err := strconv.ParseFloat(apiCve.Cvss2Score, 32)
+		if err != nil {
+			cvss2Score = 0.0
+		}
+		cvss3Score, err := strconv.ParseFloat(apiCve.Cvss3Score, 32)
+		if err != nil {
+			cvss3Score = 0.0
+		}
 
 		toSyncCves = append(toSyncCves, models.Cve{
 			Name:         cveName,
@@ -79,7 +84,7 @@ func syncCveMetadata() {
 	logger.Infof("CVEs to delete: %d", len(toDeleteCves))
 
 	if err = syncCves(toSyncCves, toDeleteCves); err != nil {
-		logger.Infof("Error during syncing CVEs into database: %s", err)
+		logger.Fatalf("Error during syncing CVEs into database: %s", err)
 	}
 
 	logger.Infof("Metadata sync finished successfully")
@@ -100,15 +105,15 @@ func syncCves(toSyncCves, toDeleteCves []models.Cve) error {
 		}
 	}
 
-	if len(toDeleteCves) > 0 {
-		if err := deleteCves(toDeleteCves, tx); err != nil {
-			return errors.Wrap(err, "Unable to delete cves in database")
-		}
+	toDeleteCount := len(toDeleteCves)
+	if toDeleteCount > 0 {
+		logger.Infof("Skip %d CVEs to delete", toDeleteCount)
 	}
 
 	return tx.Commit().Error
 }
 
+//nolint: deadcode
 func deleteCves(toDeleteCves []models.Cve, tx *gorm.DB) error {
 	logger.Debugf("CVEs to delete: %d", len(toDeleteCves))
 
