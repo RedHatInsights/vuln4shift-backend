@@ -1,4 +1,4 @@
-ARG BUILDIMG=registry.access.redhat.com/ubi8/go-toolset
+ARG BUILDIMG=golang:1.18
 ARG RUNIMG=registry.access.redhat.com/ubi8-minimal
 # ---------------------------------------
 # build image
