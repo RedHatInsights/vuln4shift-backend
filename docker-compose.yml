@@ -54,6 +54,7 @@ services:
     env_file:
       - ./conf/db.env
       - ./conf/digestwriter.env
+      - ./conf/kafka.env
     depends_on:
       vuln4shift_database:
         condition: service_started
