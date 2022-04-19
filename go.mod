@@ -3,6 +3,7 @@ module app
 go 1.18
 
 require (
+	bou.ke/monkey v1.0.2
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Shopify/sarama v1.32.0
 	github.com/gin-gonic/gin v1.7.7

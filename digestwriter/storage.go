@@ -20,11 +20,10 @@ type Storage interface {
 // It is possible to configure connection via Configuration structure.
 type DBStorage struct {
 	connection *gorm.DB
-	Logger     *logrus.Logger
 }
 
 // NewStorage function creates and initializes a new instance of Storage interface
-func NewStorage(logger *logrus.Logger) (*DBStorage, error) {
+func NewStorage() (*DBStorage, error) {
 	logger.Info("Initializing connection to storage.")
 
 	db, err := models.GetGormConnection(utils.GetDbURL())
@@ -35,14 +34,13 @@ func NewStorage(logger *logrus.Logger) (*DBStorage, error) {
 	}
 
 	logger.Infoln("Connection to storage established")
-	return NewFromConnection(db, logger), nil
+	return NewFromConnection(db), nil
 }
 
 // NewFromConnection function creates and initializes a new instance of Storage interface from prepared connection
-func NewFromConnection(connection *gorm.DB, logger *logrus.Logger) *DBStorage {
+func NewFromConnection(connection *gorm.DB) *DBStorage {
 	return &DBStorage{
 		connection: connection,
-		Logger:     logger,
 	}
 }
 
@@ -58,7 +56,7 @@ func prepareBulkInsertDigestsStruct(digests []string) (data []models.Image) {
 func (storage *DBStorage) WriteDigests(digests []string) error {
 	data := prepareBulkInsertDigestsStruct(digests)
 
-	storage.Logger.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		"num_rows": len(data),
 	}).Debug("trying to insert digests.")
 
@@ -71,8 +69,8 @@ func (storage *DBStorage) WriteDigests(digests []string) error {
 		}
 	}()
 
-	if err := tx.Omit("HealthIndex").Create(&data).Error; err != nil {
-		storage.Logger.WithFields(logrus.Fields{
+	if err := tx.Omit("PyxisID").Create(&data).Error; err != nil {
+		logger.WithFields(logrus.Fields{
 			errorKey: err,
 		}).Debug("Couldn't insert digests.")
 		return err
