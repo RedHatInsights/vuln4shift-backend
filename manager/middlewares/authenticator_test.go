@@ -18,8 +18,8 @@ import (
 
 var (
 	identityMock = identity.XRHID{Identity: identity.Identity{
-		Type:  "User",
-		OrgID: "3340851",
+		Type:          "User",
+		AccountNumber: "13",
 		User: identity.User{
 			Username:  "unit@test.com",
 			Email:     "unit@test.com",
@@ -31,9 +31,7 @@ var (
 			Locale:    "en_US",
 			UserID:    "1337",
 		},
-		Internal: identity.Internal{
-			OrgID: "3340851",
-		},
+		Internal: identity.Internal{},
 	}}
 )
 
@@ -41,7 +39,8 @@ var authenticator gin.HandlerFunc
 
 func TestAuthenticatorValid(t *testing.T) {
 	// valid account in db
-	identityMock.Identity.AccountNumber = "13"
+	identityMock.Identity.OrgID = "013"
+	identityMock.Identity.Internal.OrgID = "013"
 	buf, _ := json.Marshal(identityMock)
 
 	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
@@ -49,13 +48,14 @@ func TestAuthenticatorValid(t *testing.T) {
 	ctx.Request.Header.Set("x-rh-identity", base64.StdEncoding.EncodeToString(buf))
 	authenticator(ctx)
 
-	assert.Equal(t, int64(13), ctx.GetInt64("account_id"), "account number must be translated to the acc ID")
-	assert.Equal(t, identityMock.Identity.AccountNumber, ctx.GetString("account_number"), "Account number must be taken from identity header")
+	assert.Equal(t, int64(13), ctx.GetInt64("account_id"), "org_id must be translated to the acc ID")
+	assert.Equal(t, identityMock.Identity.OrgID, ctx.GetString("org_id"), "org_id must be taken from identity header")
 }
 
 func TestAuthenticatorNonExisting(t *testing.T) {
 	// Non existing account in db
-	identityMock.Identity.AccountNumber = "1337"
+	identityMock.Identity.OrgID = "1337"
+	identityMock.Identity.Internal.OrgID = "1337"
 	buf, _ := json.Marshal(identityMock)
 
 	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
@@ -63,8 +63,8 @@ func TestAuthenticatorNonExisting(t *testing.T) {
 	ctx.Request.Header.Set("x-rh-identity", base64.StdEncoding.EncodeToString(buf))
 	authenticator(ctx)
 
-	assert.Equal(t, int64(-1), ctx.GetInt64("account_id"), "Non-existing account number must be translated to the account ID '-1'")
-	assert.Equal(t, identityMock.Identity.AccountNumber, ctx.GetString("account_number"), "Account number must be taken from identity header")
+	assert.Equal(t, int64(-1), ctx.GetInt64("account_id"), "Non-existing org_id must be translated to the account ID '-1'")
+	assert.Equal(t, identityMock.Identity.OrgID, ctx.GetString("org_id"), "org_id must be taken from identity header")
 }
 
 func TestAuthenticatorInvalid(t *testing.T) {
@@ -79,7 +79,7 @@ func TestAuthenticatorInvalid(t *testing.T) {
 }
 
 func TestAuthenticatorEmptyNumber(t *testing.T) {
-	header := []byte("{\"account_number\":null}")
+	header := []byte("{\"org_id\":null}")
 
 	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 	ctx.Request, _ = http.NewRequest("GET", "/test", nil)

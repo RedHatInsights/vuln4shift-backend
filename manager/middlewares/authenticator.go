@@ -68,15 +68,15 @@ func Authenticate(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		var acc models.Account
-		res := db.Where("name = ?", id.Identity.AccountNumber).Find(&acc)
+		res := db.Where("org_id = ?", id.Identity.OrgID).Find(&acc)
 
 		if res.RowsAffected > 0 {
 			ctx.Set("account_id", acc.ID)
-			ctx.Set("account_number", id.Identity.AccountNumber)
+			ctx.Set("org_id", id.Identity.OrgID)
 		} else {
 			// set non-existing account_id, so account with empty systems, can still get response with empty data
 			ctx.Set("account_id", int64(-1))
-			ctx.Set("account_number", id.Identity.AccountNumber)
+			ctx.Set("org_id", id.Identity.OrgID)
 		}
 	}
 }

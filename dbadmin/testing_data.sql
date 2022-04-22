@@ -5,11 +5,11 @@
 -- This is intended to be temporary until we get full flow working with
 -- real data.
 -- ----------------------------------------------------------------------------
-INSERT INTO account (id, name) VALUES
-(13, '13'),
-(14, '14'),
-(30, '30'),
-(31, '31');
+INSERT INTO account (id, account_number, org_id) VALUES
+(13, '13', '013'),
+(14, '14', '014'),
+(30, '30', '030'),
+(31, '31', '031');
 
 INSERT INTO cluster (id, uuid, status, version, provider, account_id, cve_cache_critical, cve_cache_important, cve_cache_moderate, cve_cache_low) VALUES
 (15, 'daac83ee-a390-420d-b892-cb9e1d006eca', 'ready'   , 'v_01', 'prov_1', 13, 0, 0, 0, 0),
