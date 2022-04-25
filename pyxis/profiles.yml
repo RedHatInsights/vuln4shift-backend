@@ -1,0 +1,12 @@
+- name: testing
+  registries:
+    - name: registry.access.redhat.com
+      repositories:
+        - ubi7/ubi
+        - ubi7/ubi-minimal
+        - ubi8/ubi
+        - ubi8/ubi-minimal
+        - ubi8/ubi-micro
+        - ubi9-beta/ubi
+        - ubi9-beta/ubi-minimal
+        - ubi9-beta/ubi-micro

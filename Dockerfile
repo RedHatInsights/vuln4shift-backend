@@ -38,3 +38,4 @@ USER 1001
 COPY --from=buildimg /vuln4shift/main                       /vuln4shift/
 COPY --from=buildimg /vuln4shift/dbadmin/migrations         /vuln4shift/dbadmin/migrations
 COPY --from=buildimg /vuln4shift/manager/docs/swagger.json  /vuln4shift/manager/docs/swagger.json
+COPY --from=buildimg /vuln4shift/pyxis/profiles.yml         /vuln4shift/pyxis/profiles.yml
