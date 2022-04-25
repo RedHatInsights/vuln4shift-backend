@@ -28,6 +28,8 @@ func init() {
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
+
+	parseProfiles() // Parse static yaml file with profiles (list of repositories)
 }
 
 func registerMissingCves(tx *gorm.DB, apiImageCves map[string]struct{}) error {
@@ -235,7 +237,9 @@ func syncRepos() {
 	toSyncRepos := []models.Repository{}
 
 	for pyxisID, apiRepo := range apiRepoMap {
-		if dbRepo, found := dbRepoMap[pyxisID]; !found {
+		if passed := repositoryInProfile(apiRepo.Registry, apiRepo.Repository); !passed {
+			continue
+		} else if dbRepo, found := dbRepoMap[pyxisID]; !found {
 			toSyncRepos = append(toSyncRepos, models.Repository{PyxisID: apiRepo.PyxisID,
 				ModifiedDate: apiRepo.ModifiedDate, Registry: apiRepo.Registry, Repository: apiRepo.Repository})
 		} else if apiRepo.ModifiedDate.After(dbRepo.ModifiedDate) {
@@ -250,8 +254,13 @@ func syncRepos() {
 	}
 
 	toSyncReposCnt := len(toSyncRepos)
-	logger.Infof("Repositories to sync: %d", toSyncReposCnt)
-	logger.Infof("Repositories in DB not known to Pyxis: %d", len(dbRepoMap))
+	if profile != "" {
+		logger.Infof("Repositories to sync (profile=%s): %d", profile, toSyncReposCnt)
+		logger.Infof("Repositories in DB not known to Pyxis or not in current profile (profile=%s): %d", profile, len(dbRepoMap))
+	} else {
+		logger.Infof("Repositories to sync: %d", toSyncReposCnt)
+		logger.Infof("Repositories in DB not known to Pyxis: %d", len(dbRepoMap))
+	}
 
 	for i, repo := range toSyncRepos {
 		logger.Infof("Syncing repo: repo=%s/%s [%d/%d]", repo.Registry, repo.Repository, i+1, toSyncReposCnt)
@@ -279,4 +288,6 @@ func Start() {
 	logger.Infof("CVEs in DB: %d", len(dbCveMap))
 
 	syncRepos()
+
+	logger.Info("Finished Pyxis sync.")
 }
