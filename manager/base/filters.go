@@ -187,13 +187,13 @@ type SortItem struct {
 // SortArgs represents an argument for Sort filter
 // SortableColumns represents mapping from user selected column
 // to the correct sql expression column
-// DefaultSortable contains an default sorting defined by controller
+// DefaultSortable contains a default sorting defined by controller
 type SortArgs struct {
 	SortableColumns map[string]string
 	DefaultSortable []SortItem
 }
 
-// Sort filter sorts an query by given list of sort item expressions
+// Sort filter sorts a query by given list of sort item expressions
 // ex. sort=synopsis,cvss_score
 type Sort struct {
 	RawFilter
@@ -250,7 +250,7 @@ func GetRequestedFilters(ctx *gin.Context) map[string]Filter {
 	return map[string]Filter{}
 }
 
-// ApplyFilters, applies requested filters from query params on created query from controller,
+// ApplyFilters applies requested filters from query params on created query from controller,
 // filters needs to be allowed from controller in allowedFilters array
 func ApplyFilters(query *gorm.DB, allowedFilters []string, requestedFilters map[string]Filter, args map[string]interface{}) error {
 	for _, allowedFilter := range allowedFilters {
