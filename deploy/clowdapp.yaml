@@ -1,0 +1,379 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: vuln4shift-backend
+objects:
+- apiVersion: v1
+  data:
+    manager-db-passwd: bWFuYWdlcl9wd2Q=
+    vmaas-gatherer-db-passwd: dm1hYXNfZ2F0aGVyZXJfcHdk
+    pyxis-gatherer-db-passwd: cHl4aXNfZ2F0aGVyZXJfcHdk
+    archive-writer-db-passwd: YXJjaGl2ZV9kYl93cml0ZXJfcHdk
+    cve-aggregator-db-passwd: Y3ZlX2FnZ3JlZ2F0b3JfcHdk
+  kind: Secret
+  metadata:
+    name: vuln4shift-db-passwds
+    namespace: test  # namespace is overwritten by bonfire
+  type: Opaque
+
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: vuln4shift-backend
+  spec:
+    database:
+      name: vuln4shift
+      version: 13  # docker-compose is using 14! but 14 is not supported by clowder yet
+    envName: ${ENV_NAME}
+    kafkaTopics:
+    - replicas: 3
+      partitions: 3
+      topicName: ${KAFKA_BROKER_INCOMING_TOPIC}
+    dependencies: []
+
+    deployments:
+    - name: manager
+      minReplicas: ${{REPLICAS_MANAGER}}
+      webServices:
+        public:
+          enabled: true
+          apiPath: vuln4shift
+          whitelistPaths:
+          - /api/vuln4shift/v1/openapi.json
+        private:
+          enabled: false
+        metrics:
+          enabled: false
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        initContainers:
+        - command:
+          - /vuln4shift/main
+          - dbadmin  # golang-migrate acquires a lock so running init concurrently for each manager pod should be fine
+          env:
+          - name: LOGGING_LEVEL
+            value: ${LOGGING_LEVEL}
+          - name: USER_MANAGER_PASS
+            valueFrom:
+              secretKeyRef:
+                key: manager-db-passwd
+                name: vuln4shift-db-passwds
+          - name: USER_VMAAS_GATHERER_PASS
+            valueFrom:
+              secretKeyRef:
+                key: vmaas-gatherer-db-passwd
+                name: vuln4shift-db-passwds
+          - name: USER_PYXIS_GATHERER_PASS
+            valueFrom:
+              secretKeyRef:
+                key: pyxis-gatherer-db-passwd
+                name: vuln4shift-db-passwds
+          - name: USER_ARCHIVE_DB_WRITER_PASS
+            valueFrom:
+              secretKeyRef:
+                key: archive-writer-db-passwd
+                name: vuln4shift-db-passwds
+          - name: USER_CVE_AGGREGATOR_PASS
+            valueFrom:
+              secretKeyRef:
+                key: cve-aggregator-db-passwd
+                name: vuln4shift-db-passwds
+          - name: SCHEMA_MIGRATION
+            value: ${SCHEMA_MIGRATION}
+        command:
+        - /vuln4shift/main
+        - manager
+        env:
+        - name: POSTGRES_USER
+          value: manager
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: manager-db-passwd
+              name: vuln4shift-db-passwds
+        - name: LOGGING_LEVEL
+          value: ${LOGGING_LEVEL}
+        - name: GIN_MODE
+          value: ${MANAGER_GIN_MODE}
+        resources:
+          limits:
+            cpu: ${{CPU_LIMIT_MANAGER}}
+            memory: ${{MEMORY_LIMIT_MANAGER}}
+          requests:
+            cpu: ${{CPU_REQUEST_MANAGER}}
+            memory: ${{MEMORY_REQUEST_MANAGER}}
+
+    - name: digest-writer
+      minReplicas: ${{REPLICAS_DIGEST_WRITER}}
+      webServices:
+        public:
+          enabled: false
+        private:
+          enabled: false
+        metrics:
+          enabled: false
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        command:
+        - /vuln4shift/main
+        - digestwriter
+        env:
+        - name: POSTGRES_USER
+          value: archive_db_writer
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: archive-writer-db-passwd
+              name: vuln4shift-db-passwds
+        - name: LOGGING_LEVEL
+          value: ${LOGGING_LEVEL}
+        - name: KAFKA_BROKER_INCOMING_TOPIC
+          value: ${KAFKA_BROKER_INCOMING_TOPIC}
+        - name: KAFKA_BROKER_CONSUMER_GROUP
+          value: ${KAFKA_BROKER_CONSUMER_GROUP}
+        - name: KAFKA_CONSUMER_TIMEOUT
+          value: ${KAFKA_CONSUMER_TIMEOUT}
+        resources:
+          limits:
+            cpu: ${{CPU_LIMIT_DIGEST_WRITER}}
+            memory: ${{MEMORY_LIMIT_DIGEST_WRITER}}
+          requests:
+            cpu: ${{CPU_REQUEST_DIGEST_WRITER}}
+            memory: ${{MEMORY_REQUEST_DIGEST_WRITER}}
+
+    jobs:
+    - name: vmaas-sync
+      schedule: ${SCHEDULE_VMAAS_SYNC}
+      suspend: ${{SUSPEND_VMAAS_SYNC}}
+      concurrencyPolicy: "Forbid"
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        command:
+        - /vuln4shift/main
+        - vmsync
+        env:
+        - name: POSTGRES_USER
+          value: vmaas_gatherer
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: vmaas-gatherer-db-passwd
+              name: vuln4shift-db-passwds
+        - name: LOGGING_LEVEL
+          value: ${LOGGING_LEVEL}
+        - name: API_RETRIES
+          value: ${API_RETRIES}
+        - name: VMAAS_BASE_URL
+          value: ${VMAAS_BASE_URL}
+        - name: VMAAS_BATCH_SIZE
+          value: ${VMAAS_BATCH_SIZE}
+        - name: VMAAS_PAGE_SIZE
+          value: ${VMAAS_PAGE_SIZE}
+        resources:
+          limits:
+            cpu: ${{CPU_LIMIT_VMAAS_SYNC}}
+            memory: ${{MEMORY_LIMIT_VMAAS_SYNC}}
+          requests:
+            cpu: ${{CPU_REQUEST_VMAAS_SYNC}}
+            memory: ${{MEMORY_REQUEST_VMAAS_SYNC}}
+
+    - name: pyxis-gatherer
+      schedule: ${SCHEDULE_PYXIS_GATHERER}
+      suspend: ${{SUSPEND_PYXIS_GATHERER}}
+      concurrencyPolicy: "Forbid"
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        command:
+        - /vuln4shift/main
+        - pyxis
+        env:
+        - name: POSTGRES_USER
+          value: pyxis_gatherer
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: pyxis-gatherer-db-passwd
+              name: vuln4shift-db-passwds
+        - name: LOGGING_LEVEL
+          value: ${LOGGING_LEVEL}
+        - name: API_RETRIES
+          value: ${API_RETRIES}
+        - name: PYXIS_BASE_URL
+          value: ${PYXIS_BASE_URL}
+        - name: PYXIS_PROFILE
+          value: ${PYXIS_PROFILE}
+        resources:
+          limits:
+            cpu: ${{CPU_LIMIT_PYXIS_GATHERER}}
+            memory: ${{MEMORY_LIMIT_PYXIS_GATHERER}}
+          requests:
+            cpu: ${{CPU_REQUEST_PYXIS_GATHERER}}
+            memory: ${{MEMORY_REQUEST_PYXIS_GATHERER}}
+
+parameters:
+# IMAGE AND CLOWDER
+- name: IMAGE_TAG
+  description: Image tag
+  required: true
+- name: IMAGE
+  description: Image name
+  required: true
+  value: quay.io/jdobes/vuln4shift-backend  # for now
+- name: ENV_NAME
+  description: ClowdEnv Name
+  required: false
+
+# REPLICAS
+- name: REPLICAS_MANAGER
+  description: manager replica count
+  required: true
+  value: "3"
+- name: REPLICAS_DIGEST_WRITER
+  description: digest writer replica count
+  required: true
+  value: "3"
+
+# RESOURCES
+- name: CPU_REQUEST_MANAGER
+  description: Requested CPU for pod
+  required: true
+  value: 250m
+- name: CPU_LIMIT_MANAGER
+  description: Maximum CPU limit for pod
+  required: true
+  value: 500m
+- name: MEMORY_REQUEST_MANAGER
+  description: Requested memory for pod
+  required: true
+  value: "256Mi"
+- name: MEMORY_LIMIT_MANAGER
+  description: Maximum memory limit for pod
+  required: true
+  value: "512Mi"
+- name: CPU_REQUEST_DIGEST_WRITER
+  description: Requested CPU for pod
+  required: true
+  value: 250m
+- name: CPU_LIMIT_DIGEST_WRITER
+  description: Maximum CPU limit for pod
+  required: true
+  value: 500m
+- name: MEMORY_REQUEST_DIGEST_WRITER
+  description: Requested memory for pod
+  required: true
+  value: "256Mi"
+- name: MEMORY_LIMIT_DIGEST_WRITER
+  description: Maximum memory limit for pod
+  required: true
+  value: "512Mi"
+- name: CPU_REQUEST_VMAAS_SYNC
+  description: Requested CPU for pod
+  required: true
+  value: 250m
+- name: CPU_LIMIT_VMAAS_SYNC
+  description: Maximum CPU limit for pod
+  required: true
+  value: 500m
+- name: MEMORY_REQUEST_VMAAS_SYNC
+  description: Requested memory for pod
+  required: true
+  value: "256Mi"
+- name: MEMORY_LIMIT_VMAAS_SYNC
+  description: Maximum memory limit for pod
+  required: true
+  value: "512Mi"
+- name: CPU_REQUEST_PYXIS_GATHERER
+  description: Requested CPU for pod
+  required: true
+  value: 250m
+- name: CPU_LIMIT_PYXIS_GATHERER
+  description: Maximum CPU limit for pod
+  required: true
+  value: 500m
+- name: MEMORY_REQUEST_PYXIS_GATHERER
+  description: Requested memory for pod
+  required: true
+  value: "256Mi"
+- name: MEMORY_LIMIT_PYXIS_GATHERER
+  description: Maximum memory limit for pod
+  required: true
+  value: "512Mi"
+
+# CRON SCHEDULES
+- name: SCHEDULE_VMAAS_SYNC
+  description: Cronjob schedule definition
+  required: true
+  value: "0 */4 * * *"
+- name: SUSPEND_VMAAS_SYNC
+  description: Disable Cronjob
+  required: true
+  value: "false"
+- name: SCHEDULE_PYXIS_GATHERER
+  description: Cronjob schedule definition
+  required: true
+  value: "30 */4 * * *"
+- name: SUSPEND_PYXIS_GATHERER
+  description: Disable Cronjob
+  required: true
+  value: "false"
+
+# COMMON APP CONFIG
+- name: LOGGING_LEVEL
+  description: Logging level in app code
+  required: true
+  value: INFO
+- name: API_RETRIES
+  description: Number of API retries before giving up
+  required: true
+  value: "3"
+
+# DB ADMIN CONFIG
+- name: SCHEMA_MIGRATION
+  description: Target schema version, value < 1 migrates to the latest
+  required: true
+  value: "-1"
+
+# MANAGER CONFIG
+- name: MANAGER_GIN_MODE
+  description: Mode of Gin Web Framework
+  required: true
+  value: release
+
+# DIGEST WRITER CONFIG
+- name: KAFKA_BROKER_CONSUMER_GROUP
+  description: Consumer group for the kafka
+  required: true
+  value: vuln4shift
+- name: KAFKA_BROKER_INCOMING_TOPIC
+  description: Topic with incoming cluster data from sha-extractor
+  required: true
+  value: ccx.image.sha.results
+- name: KAFKA_CONSUMER_TIMEOUT
+  description: Timeout for kafka consumer
+  required: true
+  value: "0s"
+
+# VMAAS SYNC CONFIG
+- name: VMAAS_BASE_URL
+  description: Base URL of VMaaS
+  required: true
+  value: https://console.redhat.com/api/vmaas/v3/cves
+- name: VMAAS_BATCH_SIZE
+  description: Number of items processed in one batch
+  required: true
+  value: "5000"
+- name: VMAAS_PAGE_SIZE
+  description: Number of items returned by the API
+  required: true
+  value: "5000"
+
+# PYXIS GATHERER CONFIG
+- name: PYXIS_BASE_URL
+  description: Base URL of Pyxis
+  required: true
+  value: https://catalog.redhat.com/api/containers/v1
+- name: PYXIS_PROFILE
+  description: Pyxis sync profile
+  required: true
+  value: testing
