@@ -14,8 +14,8 @@ var (
 	dbCveMap   map[string]models.Cve
 
 	// Objects to add to the cached maps above after succesful commit
-	dbImageMapPending map[string]models.Image
-	dbCveMapPending   map[string]models.Cve
+	dbImageMapPending = map[string]models.Image{}
+	dbCveMapPending   = map[string]models.Cve{}
 )
 
 func dbConfigure() error {
