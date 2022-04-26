@@ -51,7 +51,7 @@ func TestFiltererValidSearch(t *testing.T) {
 	filters := base.GetRequestedFilters(ctx)
 	f, e := filters[base.SearchQuery]
 	assert.Equal(t, e, true, "Should be cve search filter")
-	filter, ok := f.(*base.CveSearch)
+	filter, ok := f.(*base.Search)
 
 	assert.Equal(t, true, ok, "Should be cve search filter")
 	assert.Equal(t, filter.RawValues, []string{"CVE-2022"}, "Filter should contain CVE-2022 infix")

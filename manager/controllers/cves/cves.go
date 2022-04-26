@@ -16,15 +16,18 @@ var getCvesAllowedFilters = []string{base.SortQuery, base.LimitQuery, base.Offse
 
 var getCvesFilterArgs = map[string]interface{}{
 	base.SortFilterArgs: base.SortArgs{
-		SortableColums: map[string]string{
+		SortableColumns: map[string]string{
 			"id":               "cve.id",
 			"cvss_score":       "COALESCE(cve.cvss3_score, cve.cvss2_score, 0.0)",
 			"severity":         "cve.severity",
 			"publish_date":     "cve.public_date",
 			"synopsis":         "cve.name",
 			"clusters_exposed": "clusters_exposed",
-			"images_exposed":   "images_exposed"},
-		DefaultSortable: []base.SortItem{{Column: "id", Desc: false}}},
+			"images_exposed":   "images_exposed",
+		},
+		DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
+	},
+	base.SearchQuery: base.CveSearch,
 }
 
 type GetCvesSelect struct {

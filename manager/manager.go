@@ -49,6 +49,7 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	cveGroup.Use(middlewares.Authenticate(db))
 
 	cveGroup.GET("/", cveController.GetCves)
+	cveGroup.GET("/:cveName/exposed_clusters", cveController.GetExposedClusters)
 	return cveGroup
 }
 
