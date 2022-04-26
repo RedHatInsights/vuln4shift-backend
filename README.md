@@ -9,6 +9,9 @@ Vulnerabilities detection for OpenShift images.
     docker-compose down          # Stop and delete containers
     docker-compose down -v       # Stop and delete containers + delete persistent volumes
 
+    # Sync CVE data
+    docker-compose run --rm vuln4shift_vmsync
+
     # Sync Pyxis data
     docker-compose run --rm vuln4shift_pyxis
 
