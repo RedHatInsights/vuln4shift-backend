@@ -8,27 +8,27 @@ import (
 	"time"
 )
 
-// ParseBoolArray, parses bool array in query arguments,
+// ParseBoolArray parses bool array in query arguments,
 // array can be checked for max values by limit
 func ParseBoolArray(rawValues []string, limit *int) ([]bool, error) {
 	if limit != nil && len(rawValues) != *limit {
-		return []bool{}, errors.New("Invalid bool array format")
+		return []bool{}, errors.New("invalid bool array format")
 	}
 	var res []bool
 	for _, rawVal := range rawValues {
 		val, err := strconv.ParseBool(rawVal)
 		if err != nil {
-			return res, errors.New("Invalid bool value in bool array")
+			return res, errors.New("invalid bool value in bool array")
 		}
 		res = append(res, val)
 	}
 	return res, nil
 }
 
-// ParseDateRange, parses 2 member array with date range
+// ParseDateRange parses 2 member array with date range
 func ParseDateRange(rawValues []string) ([]time.Time, error) {
 	if len(rawValues) != 2 {
-		return []time.Time{}, errors.New("Invalid date range format")
+		return []time.Time{}, errors.New("invalid date range format")
 	}
 
 	var dateFrom time.Time
@@ -37,7 +37,7 @@ func ParseDateRange(rawValues []string) ([]time.Time, error) {
 	} else {
 		d, err := time.Parse(DateFormat, rawValues[0])
 		if err != nil {
-			return []time.Time{}, errors.New("Invalid date format")
+			return []time.Time{}, errors.New("invalid date format")
 		}
 		dateFrom = d
 	}
@@ -48,7 +48,7 @@ func ParseDateRange(rawValues []string) ([]time.Time, error) {
 	} else {
 		d, err := time.Parse(DateFormat, rawValues[1])
 		if err != nil {
-			return []time.Time{}, errors.New("Invalid date format")
+			return []time.Time{}, errors.New("invalid date format")
 		}
 		dateTo = d
 	}
@@ -56,7 +56,7 @@ func ParseDateRange(rawValues []string) ([]time.Time, error) {
 	return []time.Time{dateFrom, dateTo}, nil
 }
 
-// ParseSeverity, parses array of severity strings
+// ParseSeverity parses array of severity strings
 func ParseSeverity(rawValues []string) ([]models.Severity, error) {
 	var res []models.Severity
 	for _, raw := range rawValues {
@@ -79,7 +79,7 @@ func ParseSeverity(rawValues []string) ([]models.Severity, error) {
 		case "critical":
 			res = append(res, models.Critical)
 		default:
-			return res, errors.New("Invalid severity argument")
+			return res, errors.New("invalid severity argument")
 		}
 	}
 	return res, nil
@@ -88,7 +88,7 @@ func ParseSeverity(rawValues []string) ([]models.Severity, error) {
 // ParseCvssScoreRange parses array of two member range of cvss score floats
 func ParseCvssScoreRange(rawValues []string) ([]float32, error) {
 	if len(rawValues) != 2 {
-		return []float32{}, errors.New("Invalid cvss_score range format")
+		return []float32{}, errors.New("invalid cvss_score range format")
 	}
 
 	var scoreFrom float32
@@ -97,7 +97,7 @@ func ParseCvssScoreRange(rawValues []string) ([]float32, error) {
 	} else {
 		f, err := strconv.ParseFloat(rawValues[0], 32)
 		if err != nil {
-			return []float32{}, errors.New("Invalid cvss score from value")
+			return []float32{}, errors.New("invalid cvss score from value")
 		}
 		scoreFrom = float32(f)
 	}
@@ -108,7 +108,7 @@ func ParseCvssScoreRange(rawValues []string) ([]float32, error) {
 	} else {
 		f, err := strconv.ParseFloat(rawValues[1], 32)
 		if err != nil {
-			return []float32{}, errors.New("Invalid cvss score from value")
+			return []float32{}, errors.New("invalid cvss score from value")
 		}
 		scoreTo = float32(f)
 	}
@@ -116,7 +116,7 @@ func ParseCvssScoreRange(rawValues []string) ([]float32, error) {
 	return []float32{float32(scoreFrom), float32(scoreTo)}, nil
 }
 
-// ParseInt parses string to int64
+// ParseUint parses string to int64
 func ParseUint(rawValues []string) (uint64, error) {
 	if len(rawValues) != 1 {
 		return 0, errors.New("Invalid integer")
@@ -125,7 +125,7 @@ func ParseUint(rawValues []string) (uint64, error) {
 	return res, err
 }
 
-// ParseSortArray, parses sort params
+// ParseSortArray parses sort params
 // +column -> order by column asc
 // -column / column -> order by column desc
 func ParseSortArray(rawValues []string) []SortItem {
@@ -144,23 +144,23 @@ func ParseSortArray(rawValues []string) []SortItem {
 	return res
 }
 
-// ErrInvalidFilterArgument, represents error when invalid argument is recieved
-var ErrInvalidFilterArgument = errors.New("Invalid filter argument")
+// ErrInvalidFilterArgument represents error when invalid argument is recieved
+var ErrInvalidFilterArgument = errors.New("invalid filter argument")
 
-// ParseFilter, parses query argument with name rawName and with rawValues
+// ParseFilter parses query argument with name rawName and with rawValues
 // filter=1,2,3&filter=cve -> rawName="filter" , rawValues=["1", "2", "3", "cve"]
 func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 	raw := strings.ToLower(rawName)
 	switch raw {
 	case SearchQuery:
 		if len(rawValues) != 1 {
-			return &CveSearch{}, errors.New("Invalid search parameter")
+			return &Search{}, errors.New("invalid search parameter")
 		}
-		return &CveSearch{RawFilter{raw, rawValues}, rawValues[0]}, nil
+		return &Search{RawFilter{raw, rawValues}, rawValues[0]}, nil
 	case PublishedQuery:
 		dateRange, err := ParseDateRange(rawValues)
 		if err != nil {
-			return &CvePublishDate{}, errors.New("Invalid published parameter format")
+			return &CvePublishDate{}, errors.New("invalid published parameter format")
 		}
 		return &CvePublishDate{RawFilter{raw, rawValues}, dateRange[0], dateRange[1]}, nil
 	case SeverityQuery:
@@ -179,32 +179,32 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 		arrLen := 2
 		boolArr, err := ParseBoolArray(rawValues, &arrLen)
 		if err != nil {
-			return &AffectingClusters{}, errors.New("Invalid affected_clusters bool parameter")
+			return &AffectingClusters{}, errors.New("invalid affected_clusters bool parameter")
 		}
 		return &AffectingClusters{RawFilter{raw, rawValues}, boolArr[0], boolArr[1]}, nil
 	case AffectedImagesQuery:
 		arrLen := 2
 		boolArr, err := ParseBoolArray(rawValues, &arrLen)
 		if err != nil {
-			return &AffectingImages{}, errors.New("Invalid affected_images bool parameter")
+			return &AffectingImages{}, errors.New("invalid affected_images bool parameter")
 		}
 		return &AffectingImages{RawFilter{raw, rawValues}, boolArr[0], boolArr[1]}, nil
 	case LimitQuery:
 		limit, err := ParseUint(rawValues)
 		if err != nil {
-			return &Limit{}, errors.New("Invalid limit parameter")
+			return &Limit{}, errors.New("invalid limit parameter")
 		}
 		return &Limit{RawFilter{raw, rawValues}, limit}, nil
 	case OffsetQuery:
 		offset, err := ParseUint(rawValues)
 		if err != nil {
-			return &Offset{}, errors.New("Invalid offset parameter")
+			return &Offset{}, errors.New("invalid offset parameter")
 		}
 		return &Offset{RawFilter{raw, rawValues}, offset}, nil
 	case SortQuery:
 		sortArr := ParseSortArray(rawValues)
 		return &Sort{RawFilter{raw, rawValues}, sortArr}, nil
 	default:
-		return &CveSearch{}, ErrInvalidFilterArgument
+		return &Search{}, ErrInvalidFilterArgument
 	}
 }

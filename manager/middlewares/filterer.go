@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Golang HTTP module does not parse query
+// ParseCommaParams Golang HTTP module does not parse query
 // array arguments such as -> filter=1,2,3&filter=4 -> ["1,2,3", "4"]
 // which should be ["1", "2", "3", "4"]
 func ParseCommaParams(values []string) []string {

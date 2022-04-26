@@ -29,6 +29,11 @@ const (
 	SortFilterArgs = "sort_filter"
 )
 
+const (
+	CveSearch             string = "CveSearch"
+	ExposedClustersSearch string = "ExposedClustersSearch"
+)
+
 // Filter interface, represents filter obtained from
 // query argument in request link.
 type Filter interface {
@@ -46,7 +51,7 @@ type RawFilter struct {
 	RawValues []string
 }
 
-// RawParamName getter to the parameter name in query
+// RawQueryName getter to the parameter name in query
 func (b *RawFilter) RawQueryName() string {
 	return b.RawParam
 }
@@ -61,17 +66,25 @@ func (b *RawFilter) RawQueryVals() []string {
 	return b.RawValues
 }
 
-// CveSearch represents filter for CVE substring search
+// Search represents filter for CVE substring search
 // ex. search=CVE-2022
-type CveSearch struct {
+type Search struct {
 	RawFilter
 	value string
 }
 
 // ApplyQuery filters CVEs by their substring match name or description
-func (c *CveSearch) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+func (c *Search) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 	regex := fmt.Sprintf("%%%s%%", c.value)
-	tx.Where("cve.name LIKE ? OR cve.description LIKE ?", regex, regex)
+
+	switch args[SearchQuery] {
+	case ExposedClustersSearch:
+		tx.Where("cve.name LIKE ? OR cve.description LIKE ?", regex, regex)
+		return nil
+	case CveSearch:
+		tx.Where("cluster.uuid LIKE ?", regex)
+		return nil
+	}
 	return nil
 }
 
@@ -176,7 +189,7 @@ type SortItem struct {
 // to the correct sql expression column
 // DefaultSortable contains an default sorting defined by controller
 type SortArgs struct {
-	SortableColums  map[string]string
+	SortableColumns map[string]string
 	DefaultSortable []SortItem
 }
 
@@ -199,19 +212,19 @@ func (s *Sort) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 		// Sort by user selected columns
 		for _, item := range s.Values {
 			// Check if selected user column is mappable to sortable column sql expression
-			if col, exists := sortArgs.SortableColums[item.Column]; exists {
+			if col, exists := sortArgs.SortableColumns[item.Column]; exists {
 				if item.Desc {
 					tx.Order(fmt.Sprintf("%s DESC NULLS LAST", col))
 				} else {
 					tx.Order(fmt.Sprintf("%s ASC NULLS LAST", col))
 				}
 			} else {
-				return errors.New("Invalid sort column selected")
+				return errors.New("invalid sort column selected")
 			}
 		}
 		// Sort by default sortable
 		for _, item := range sortArgs.DefaultSortable {
-			if col, exists := sortArgs.SortableColums[item.Column]; exists {
+			if col, exists := sortArgs.SortableColumns[item.Column]; exists {
 				// Always add the default sort parameter, so user can see default sort
 				if item.Desc {
 					tx.Order(fmt.Sprintf("%s DESC NULLS LAST", col))
