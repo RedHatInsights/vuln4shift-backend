@@ -133,12 +133,8 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 func syncRepo(repo models.Repository) error {
 	// Repository is our database unit, commit once per every repo
 	tx := DB.Begin()
-	// Do a rollback by default (don't need to specify on every return), will do nothing when everything is commited
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	// Do a rollback by default (don't need to specify on every return), will do nothing when everything is committed
+	defer tx.Rollback()
 
 	if repo.ID == 0 {
 		if err := tx.Create(&repo).Error; err != nil {

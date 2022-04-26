@@ -93,11 +93,7 @@ func syncCveMetadata() {
 func syncCves(toSyncCves, toDeleteCves []models.Cve) error {
 	tx := DB.Begin()
 	// Do a rollback by default (don't need to specify on every return), will do nothing when everything is committed
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	defer tx.Rollback()
 
 	if len(toSyncCves) > 0 {
 		if err := insertUpdateCves(toSyncCves, tx); err != nil {
