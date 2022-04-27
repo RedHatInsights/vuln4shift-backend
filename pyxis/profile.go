@@ -14,7 +14,7 @@ const (
 
 var (
 	profileMap map[string]map[string]map[string]struct{}
-	profile    = utils.GetEnv("PYXIS_PROFILE", "")
+	profile    = utils.Cfg.PyxisProfile
 )
 
 type Profile struct {

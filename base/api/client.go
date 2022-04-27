@@ -16,7 +16,7 @@ import (
 
 var (
 	logger  *logrus.Logger
-	retries = utils.GetEnv("API_RETRIES", 3)
+	retries = utils.Cfg.APIRetries
 )
 
 type Client struct {
@@ -24,9 +24,8 @@ type Client struct {
 }
 
 func init() {
-	logLevel := utils.GetEnv("LOGGING_LEVEL", "INFO")
 	var err error
-	logger, err = logging.CreateLogger(logLevel)
+	logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		fmt.Println("Error setting up logger.")
 		os.Exit(1)

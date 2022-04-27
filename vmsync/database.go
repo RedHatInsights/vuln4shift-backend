@@ -13,7 +13,7 @@ var (
 )
 
 func dbConfigure() error {
-	dsn := utils.GetDbURL()
+	dsn := utils.GetDbURL(false)
 	var err error
 	DB, err = models.GetGormConnection(dsn)
 

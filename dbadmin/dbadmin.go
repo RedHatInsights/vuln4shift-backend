@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -27,9 +26,9 @@ func (t logger) Verbose() bool {
 	return true
 }
 
-func setDbUserPassword(conn *sql.DB, user string, passEnvVar string) {
-	if password, ok := os.LookupEnv(passEnvVar); !ok {
-		log.Fatalf("Unable to get env var: %s.\n", passEnvVar)
+func setDbUserPassword(conn *sql.DB, user, password string) {
+	if password == "" {
+		log.Fatalf("Unable to get password for user: %s.\n", user)
 	} else {
 		if _, err := conn.Exec(fmt.Sprintf("ALTER USER %s WITH PASSWORD '%s'", user, password)); err != nil {
 			log.Printf("Setting password failed: %s", err) // Log but do not fail if user doesn't exist
@@ -38,15 +37,15 @@ func setDbUserPassword(conn *sql.DB, user string, passEnvVar string) {
 }
 
 func setDbUsersPasswords(conn *sql.DB) {
-	setDbUserPassword(conn, "archive_db_writer", "USER_ARCHIVE_DB_WRITER_PASS")
-	setDbUserPassword(conn, "pyxis_gatherer", "USER_PYXIS_GATHERER_PASS")
-	setDbUserPassword(conn, "vmaas_gatherer", "USER_VMAAS_GATHERER_PASS")
-	setDbUserPassword(conn, "cve_aggregator", "USER_CVE_AGGREGATOR_PASS")
-	setDbUserPassword(conn, "manager", "USER_MANAGER_PASS")
+	setDbUserPassword(conn, "archive_db_writer", utils.Cfg.ArchiveDbWriterPass)
+	setDbUserPassword(conn, "pyxis_gatherer", utils.Cfg.PyxisGathererPass)
+	setDbUserPassword(conn, "vmaas_gatherer", utils.Cfg.VmaasGathererPass)
+	setDbUserPassword(conn, "cve_aggregator", utils.Cfg.CveAggregatorPass)
+	setDbUserPassword(conn, "manager", utils.Cfg.ManagerPass)
 }
 
 func Start() {
-	conn, err := utils.GetStandardDbConnection()
+	conn, err := utils.GetStandardDbConnection(true)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %s\n", err)
 	}
@@ -63,19 +62,19 @@ func Start() {
 		}
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(migrationFiles, utils.GetEnv("POSTGRES_DB", ""), driver)
+	m, err := migrate.NewWithDatabaseInstance(migrationFiles, utils.Cfg.DbName, driver)
 	if err != nil {
 		log.Fatalf("Unable to get migration interface: %s\n", err)
 	}
 
 	m.Log = logger{} // Set custom logger
 
-	schemaMigrationInt := utils.GetEnv("SCHEMA_MIGRATION", -1) // Check env variable to migrate to specific version
+	schemaMigration := utils.Cfg.SchemaMigration // Check env variable to migrate to specific version
 
-	if schemaMigrationInt < 0 {
+	if schemaMigration < 0 {
 		err = m.Up() // Upgrade to the latest
 	} else {
-		err = m.Migrate(uint(schemaMigrationInt)) // Upgrade/Downgrade to the specific version
+		err = m.Migrate(uint(schemaMigration)) // Upgrade/Downgrade to the specific version
 	}
 
 	if err != nil {

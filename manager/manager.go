@@ -1,11 +1,6 @@
 package manager
 
 import (
-	"app/base/models"
-	"app/base/utils"
-	"app/manager/controllers/cves"
-	"app/manager/controllers/meta"
-	"app/manager/middlewares"
 	"fmt"
 	"log"
 
@@ -13,6 +8,12 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
+
+	"app/base/models"
+	"app/base/utils"
+	"app/manager/controllers/cves"
+	"app/manager/controllers/meta"
+	"app/manager/middlewares"
 )
 
 var (
@@ -62,7 +63,7 @@ func setMiddlewares(router *gin.Engine) {
 func BuildRouter() *gin.Engine {
 	router := gin.New()
 
-	dsn := utils.GetDbURL()
+	dsn := utils.GetDbURL(false)
 	db, err := models.GetGormConnection(dsn)
 
 	if err != nil {
@@ -94,7 +95,7 @@ func BuildRouter() *gin.Engine {
 // @schemes http
 func Start() {
 	router := BuildRouter()
-	err := router.Run(":8000")
+	err := router.Run(fmt.Sprintf(":%d", utils.Cfg.PublicPort))
 
 	if err != nil {
 		panic(err)

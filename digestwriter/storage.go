@@ -29,7 +29,7 @@ type DBStorage struct {
 func NewStorage() (*DBStorage, error) {
 	logger.Info("Initializing connection to storage.")
 
-	db, err := models.GetGormConnection(utils.GetDbURL())
+	db, err := models.GetGormConnection(utils.GetDbURL(false))
 
 	if err != nil {
 		logger.Errorf("Unable to connect to database: %s\n", err)

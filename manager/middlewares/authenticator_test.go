@@ -90,7 +90,7 @@ func TestAuthenticatorEmptyNumber(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	db, err := models.GetGormConnection(utils.GetDbURL())
+	db, err := models.GetGormConnection(utils.GetDbURL(false))
 	if err != nil {
 		panic(err)
 	}
