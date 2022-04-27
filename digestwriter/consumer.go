@@ -116,15 +116,15 @@ func NewWithSaramaConfig(
 	storage Storage,
 ) (*KafkaConsumer, error) {
 
-	brokerAddress := utils.GetEnv("KAFKA_BROKER_ADDRESS", "")
+	brokerAddress := utils.Cfg.KafkaBrokerAddress
 	if brokerAddress == "" {
 		logger.Errorln("Unable to get env var: KAFKA_BROKER_ADDRESS")
 	}
-	group := utils.GetEnv("KAFKA_BROKER_CONSUMER_GROUP", "")
+	group := utils.Cfg.KafkaBrokerConsumerGroup
 	if group == "" {
 		logger.Errorln("Unable to get env var: KAFKA_BROKER_CONSUMER_GROUP")
 	}
-	topic := utils.GetEnv("KAFKA_BROKER_INCOMING_TOPIC", "")
+	topic := utils.Cfg.KafkaBrokerIncomingTopic
 	if topic == "" {
 		logger.Errorln("Unable to get env var: KAFKA_BROKER_INCOMING_TOPIC")
 	}
@@ -132,7 +132,7 @@ func NewWithSaramaConfig(
 		saramaConfig = sarama.NewConfig()
 		saramaConfig.Version = sarama.V0_10_2_0
 
-		timeout, err := time.ParseDuration(utils.GetEnv("KAFKA_CONSUMER_TIMEOUT", ""))
+		timeout, err := time.ParseDuration(utils.Cfg.KafkaConsumerTimeout)
 		if err == nil && timeout != 0 {
 			saramaConfig.Net.DialTimeout = timeout
 			saramaConfig.Net.ReadTimeout = timeout

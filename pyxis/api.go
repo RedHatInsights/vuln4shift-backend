@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	PyxisBaseURL       = utils.GetEnv("BASE_URL", "https://catalog.redhat.com/api/containers/v1")
+	PyxisBaseURL       = utils.Cfg.PyxisBaseURL
 	PyxisReposURL      = fmt.Sprintf("%s/repositories", PyxisBaseURL)
 	PyxisRepoImagesURL = fmt.Sprintf("%s/repositories/registry/%%s/repository/%%s/images", PyxisBaseURL)
 	PyxisImageCvesURL  = fmt.Sprintf("%s/images/id/%%s/vulnerabilities", PyxisBaseURL)

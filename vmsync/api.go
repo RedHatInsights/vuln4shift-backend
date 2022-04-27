@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	PageSize     = utils.GetEnv("PAGE_SIZE", 5000)
-	VmaasCvesURL = utils.GetEnv("BASE_URL", "http://localhost:8080/api/v3/cves")
+	PageSize     = utils.Cfg.VmaasPageSize
+	VmaasCvesURL = utils.Cfg.VmaasBaseURL
 )
 
 type APICveRequest struct {

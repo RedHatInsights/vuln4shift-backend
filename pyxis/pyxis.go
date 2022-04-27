@@ -18,9 +18,8 @@ var (
 )
 
 func init() {
-	logLevel := utils.GetEnv("LOGGING_LEVEL", "INFO")
 	var err error
-	logger, err = logging.CreateLogger(logLevel)
+	logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		fmt.Println("Error setting up logger.")
 		os.Exit(1)
@@ -28,8 +27,6 @@ func init() {
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
-
-	parseProfiles() // Parse static yaml file with profiles (list of repositories)
 }
 
 func registerMissingCves(tx *gorm.DB, apiImageCves map[string]struct{}) error {
@@ -271,6 +268,8 @@ func syncRepos() {
 
 func Start() {
 	logger.Info("Starting Pyxis sync.")
+
+	parseProfiles() // Parse static yaml file with profiles (list of repositories)
 
 	if err := dbConfigure(); err != nil {
 		logger.Fatalf("Unable to get GORM connection: %s", err)

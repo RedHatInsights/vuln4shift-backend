@@ -9,23 +9,26 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib" // Needed to make pgx work with database/sql
 )
 
-func GetDbURL() string {
-	dbHost := GetEnv("POSTGRES_HOST", "vuln4shift_database")
-	dbPort := GetEnv("POSTGRES_PORT", "5432")
-	dbName := GetEnv("POSTGRES_DB", "vuln4shift")
-	dbUser := GetEnv("POSTGRES_USER", "vuln4shift_admin")
-	dbPassword := GetEnv("POSTGRES_PASSWORD", "vuln4shift_admin_pwd")
-	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
+func GetDbURL(admin bool) string {
+	var dbUser, dbPassword string
+	if admin {
+		dbUser = Cfg.DbAdminUser
+		dbPassword = Cfg.DbAdminPassword
+	} else {
+		dbUser = Cfg.DbUser
+		dbPassword = Cfg.DbPassword
+	}
+	return fmt.Sprintf("postgresql://%s:%s@%s:%d/%s", dbUser, dbPassword, Cfg.DbHost, Cfg.DbPort, Cfg.DbName)
 }
 
-func GetDbConnection() (*pgx.Conn, error) {
-	dbURL := GetDbURL()
+func GetDbConnection(admin bool) (*pgx.Conn, error) {
+	dbURL := GetDbURL(admin)
 	conn, err := pgx.Connect(context.Background(), dbURL)
 	return conn, err
 }
 
-func GetStandardDbConnection() (*sql.DB, error) {
-	dbURL := GetDbURL()
+func GetStandardDbConnection(admin bool) (*sql.DB, error) {
+	dbURL := GetDbURL(admin)
 	conn, err := sql.Open("pgx", dbURL)
 	return conn, err
 }

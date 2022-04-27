@@ -37,7 +37,7 @@ func checkIdentity(id *identity.XRHID) error {
 // has x-rh-identity sent and upserts
 // the user to the db
 func Authenticate(db *gorm.DB) gin.HandlerFunc {
-	logger, err := logging.CreateLogger(utils.GetEnv("LOGGING_LEVEL", "DEBUG"))
+	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		panic("Invalid LOGGING_LEVEL enviroment variable set")
 	}

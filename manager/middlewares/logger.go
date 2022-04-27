@@ -14,7 +14,7 @@ import (
 // Function sets up a logger which is later used for every
 // request on the API to be logged.
 func Logger() gin.HandlerFunc {
-	logger, err := logging.CreateLogger(utils.GetEnv("LOGGING_LEVEL", "DEBUG"))
+	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		panic("Invalid LOGGING_LEVEL environment variable set")
 	}

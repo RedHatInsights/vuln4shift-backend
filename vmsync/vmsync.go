@@ -16,13 +16,12 @@ import (
 
 var (
 	logger    *logrus.Logger
-	BatchSize = utils.GetEnv("BATCH_SIZE", 5000)
+	BatchSize = utils.Cfg.VmaasBatchSize
 )
 
 func init() {
-	logLevel := utils.GetEnv("LOGGING_LEVEL", "INFO")
 	var err error
-	logger, err = logging.CreateLogger(logLevel)
+	logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		fmt.Println("Error setting up logger.")
 		os.Exit(1)
