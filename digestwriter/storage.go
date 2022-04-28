@@ -77,15 +77,15 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, dig
 		*/
 
 		logger.WithFields(logrus.Fields{
-			errorKey:    err.Error(),
-			"clusterID": clusterID,
-		}).Errorln("couldn't retrieve digests in table 'image' for the cluster with the given ID")
+			errorKey:     err.Error(),
+			clusterIDKey: clusterID,
+		}).Errorln("couldn't retrieve any digest from table 'image' for the cluster with the given ID")
 		return err
 	}
 
 	if queryResult.RowsAffected == 0 {
 		logger.WithFields(logrus.Fields{
-			"clusterID": clusterID,
+			clusterIDKey: clusterID,
 		}).Infoln("no digests in image table for the cluster with the given ID. Nothing to do.")
 		return nil
 	}
