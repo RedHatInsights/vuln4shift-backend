@@ -6,6 +6,7 @@ import (
 	"app/manager/controllers/cves"
 	"app/manager/controllers/meta"
 	"app/manager/middlewares"
+	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var openAPILocation = "/api/vuln4shift/v1/openapi.json"
+var (
+	apiPrefix       = "/api/vuln4shift"
+	openAPILocation = fmt.Sprintf("%s/v1/openapi.json", apiPrefix)
+)
 
 // createMetaGroup adds meta endpoints to the router.
 func createMetaGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
@@ -28,12 +32,12 @@ func createMetaGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
 	metaGroup.GET("apistatus", metaController.GetApistatus)
 
 	openAPIURL := ginSwagger.URL(openAPILocation)
-	metaGroup.GET("openapi/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, openAPIURL))
+	metaGroup.GET(fmt.Sprintf("%s/openapi/*any", apiPrefix), ginSwagger.WrapHandler(swaggerFiles.Handler, openAPIURL))
 	metaGroup.StaticFile(openAPILocation, "./manager/docs/swagger.json")
 	return metaGroup
 }
 
-func createCveGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
+func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	cveGroup := router.Group("/v1/cves")
 
 	cveController := cves.Controller{
@@ -67,7 +71,9 @@ func BuildRouter() *gin.Engine {
 
 	setMiddlewares(router)
 	createMetaGroup(router, db)
-	createCveGroup(router, db)
+
+	api := router.Group(apiPrefix)
+	createCveGroup(api, db)
 
 	return router
 }
