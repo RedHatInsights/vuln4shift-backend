@@ -2,7 +2,7 @@ name: Run unit tests
 
 on:
   push:
-    braches:
+    branches:
       - "master"
   pull_request:
     branches:
@@ -19,7 +19,15 @@ jobs:
         run: docker-compose build vuln4shift_unit_tests
 
       - name: Run unit tests
-        run: docker-compose run --rm vuln4shift_unit_tests
+        run: docker-compose run vuln4shift_unit_tests
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.0
+        with:
+          files: ./coverage.txt
+          flags: unittests
+          name: codecov-umbrella
+          verbose: true
 
       - name: Cleanup
         run: docker-compose down
