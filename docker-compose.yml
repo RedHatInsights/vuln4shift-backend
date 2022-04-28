@@ -63,7 +63,7 @@ services:
   # --------------------------------------------------
   # unit tests profile containers
   vuln4shift_unit_tests:
-    command: go test -v ./...
+    command: go test -v -p 1 -coverprofile=coverage.txt -covermode=atomic ./...
     container_name: vuln4shift-unit-tests
     build:
       context: .
@@ -82,6 +82,8 @@ services:
         condition: service_completed_successfully
     profiles:
       - unit-tests
+    volumes:
+      - ./:/vuln4shift
 
   vuln4shift_pyxis:
     command: /vuln4shift/main pyxis
