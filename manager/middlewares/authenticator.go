@@ -17,20 +17,15 @@ import (
 	"gorm.io/gorm"
 )
 
-func checkIdentity(id *identity.XRHID) error {
-	if id.Identity.Type == "Associate" && id.Identity.AccountNumber == "" {
-		return nil
+func getOrgID(id *identity.XRHID) (string, error) {
+	// FIXME: keycloak in ephemeral currently sets only the internal org_id,
+	// this may be fixed in future, so we'll not need to check both
+	if id.Identity.OrgID != "" {
+		return id.Identity.OrgID, nil
+	} else if id.Identity.Internal.OrgID != "" {
+		return id.Identity.Internal.OrgID, nil
 	}
-	if id.Identity.AccountNumber == "" || id.Identity.AccountNumber == "-1" {
-		return errors.New("x-rh-identity header has an invalid or missing account number")
-	}
-	if id.Identity.OrgID == "" || id.Identity.Internal.OrgID == "" {
-		return errors.New("x-rh-identity header has an invalid or missing org_id")
-	}
-	if id.Identity.Type == "" {
-		return errors.New("x-rh-identity header is missing type")
-	}
-	return nil
+	return "", errors.New("x-rh-identity header has an invalid or missing org_id")
 }
 
 // Authenticate checks if user
@@ -60,7 +55,7 @@ func Authenticate(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		err = checkIdentity(&id)
+		orgID, err := getOrgID(&id)
 		if err != nil {
 			logger.Debug(fmt.Sprintf("Invalid x-rh-identity obtained: %s, %s", idS, err.Error()))
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
@@ -68,15 +63,15 @@ func Authenticate(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		var acc models.Account
-		res := db.Where("org_id = ?", id.Identity.OrgID).Find(&acc)
+		res := db.Where("org_id = ?", orgID).Find(&acc)
 
 		if res.RowsAffected > 0 {
 			ctx.Set("account_id", acc.ID)
-			ctx.Set("org_id", id.Identity.OrgID)
+			ctx.Set("org_id", orgID)
 		} else {
 			// set non-existing account_id, so account with empty systems, can still get response with empty data
 			ctx.Set("account_id", int64(-1))
-			ctx.Set("org_id", id.Identity.OrgID)
+			ctx.Set("org_id", orgID)
 		}
 	}
 }
