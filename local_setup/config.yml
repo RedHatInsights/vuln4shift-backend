@@ -1,0 +1,6 @@
+pg_username: "pyxis_gatherer"
+pg_password: "pyxis_gatherer_pwd"
+pg_host: "localhost"
+pg_port: 25432
+pg_db_name: "vuln4shift"
+pg_params: "sslmode=disable"

@@ -1,6 +1,44 @@
 version: '3.7'
 
 services:
+  zookeeper:
+    container_name: zookeeper
+    image: docker.io/bitnami/zookeeper:3.6
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    env_file:
+      - ./conf/local/zookeeper.env
+  kafka:
+    container_name: kafka
+    image: docker.io/bitnami/kafka:3.1
+    ports:
+      - "9093:9093"
+    volumes:
+      - "kafka_data:/bitnami"
+    env_file:
+      - ./conf/local/kafka.env
+    depends_on:
+      - zookeeper
+
+  kafka_init_topics:
+    image: docker.io/bitnami/kafka:3.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics.sh --bootstrap-server kafka:9092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic test_sha --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics.sh --bootstrap-server kafka:9092 --list
+      "
+
   vuln4shift_database:
     container_name: vuln4shift-database
     image: docker.io/library/postgres:14
@@ -17,8 +55,8 @@ services:
     command: /vuln4shift/main dbadmin
     container_name: vuln4shift-dbadmin
     build:
-        context: .
-        dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./Dockerfile
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -54,11 +92,12 @@ services:
     env_file:
       - ./conf/common.env
       - ./conf/digestwriter.env
-      - ./conf/kafka.env
     depends_on:
       vuln4shift_database:
         condition: service_started
       vuln4shift_dbadmin:
+        condition: service_completed_successfully
+      kafka_init_topics:
         condition: service_completed_successfully
   # --------------------------------------------------
   # unit tests profile containers
@@ -119,3 +158,5 @@ services:
 
 volumes:
   vuln4shift-db-data:
+  zookeeper_data:
+  kafka_data:

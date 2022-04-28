@@ -18,6 +18,8 @@ const (
 	accountKey = "account"
 	// key for cluster in structured log messages
 	clusterKey = "cluster"
+	// key for cluster ID retrieved from DB in structured log messages
+	clusterIDKey = "clusterID"
 	// key for consumed message version in structured log messages
 	versionKey = "version"
 	// key for request ID in structured log messages
