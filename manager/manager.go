@@ -49,7 +49,7 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	cveGroup.Use(middlewares.Authenticate(db))
 
 	cveGroup.GET("/", cveController.GetCves)
-	cveGroup.GET("/:cveName/exposed_clusters", cveController.GetExposedClusters)
+	cveGroup.GET("/:cve_name/exposed_clusters", cveController.GetExposedClusters)
 	return cveGroup
 }
 
@@ -92,7 +92,7 @@ func BuildRouter() *gin.Engine {
 // @name x-rh-identity
 //
 // @query.collection.format multi
-// @basepath /
+// @basePath /api/vuln4shift/v1
 // @schemes http
 func Start() {
 	router := BuildRouter()
