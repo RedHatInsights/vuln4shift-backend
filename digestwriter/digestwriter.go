@@ -5,6 +5,8 @@ package digestwriter
 import (
 	"app/base/logging"
 	"app/base/utils"
+	"fmt"
+	"os"
 
 	"github.com/sirupsen/logrus"
 )
@@ -23,15 +25,21 @@ const (
 )
 
 func setupLogger() {
-	var err error
-	logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
-	if err != nil {
-		panic("couldn't set up logger with given LOGGING_LEVEL environment variable nor default (INFO)")
+	if logger == nil {
+		var err error
+		logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
+		if err != nil {
+			fmt.Println("Error setting up logger.")
+			os.Exit(1)
+		}
+		logger.SetFormatter(&logrus.TextFormatter{
+			FullTimestamp: true,
+		})
 	}
 }
 
 // startConsumer function starts the Kafka consumer.
-func startConsumer(storage Storage) (*KafkaConsumer, error) {
+func startConsumer(storage Storage) (*utils.KafkaConsumer, error) {
 	consumer, err := NewConsumer(storage)
 	if err != nil {
 		return nil, err
