@@ -1,8 +1,6 @@
 package digestwriter
 
-import (
-	"github.com/Shopify/sarama"
-)
+import "app/base/utils"
 
 // Export for testing
 //
@@ -21,9 +19,22 @@ var (
 	SetupLogger               = setupLogger
 )
 
-func HandleKafkaMessage(c *KafkaConsumer, msg *sarama.ConsumerMessage) {
-	c.handleMessage(msg)
+// kafka-related functions
+
+// NewDummyConsumerWithProcessor has the same arguments as NewConsumer
+// but returns a non-configured utils.KafkaConsumer and the DigestConsumer object for testing purposes
+func NewDummyConsumerWithProcessor(storage Storage) (*utils.KafkaConsumer, *DigestConsumer) {
+	processor := DigestConsumer{
+		storage,
+		0,
+	}
+	consumer := utils.KafkaConsumer{
+		Processor: &processor,
+	}
+	return &consumer, &processor
 }
+
+// storage-related functions
 
 func LinkDigestsToCluster(s *DBStorage, clusterID int64, digests []string) error {
 	tx := s.connection.Begin()

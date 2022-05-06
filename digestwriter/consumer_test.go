@@ -4,6 +4,7 @@ package digestwriter_test
 // consumer.go
 
 import (
+	"app/base/utils"
 	"app/digestwriter"
 	"regexp"
 	"testing"
@@ -17,29 +18,20 @@ import (
 // Unit test definitions for functions and methods defined in source file
 // consumer.go
 
-// NewDummyConsumer function returns a new, not running, instance of
-// KafkaConsumer.
-func NewDummyConsumer() *digestwriter.KafkaConsumer {
+func init() {
+	// needed because init function from utils/kafka is run way before this file,
+	// so the Cfg object is empty.
+	utils.Cfg.LoggingLevel = "DEBUG"
+	// init the logger so it does not have to be initialized in each test
 	digestwriter.SetupLogger()
-	return &digestwriter.KafkaConsumer{
-		Config:        digestwriter.KafkaConsumerConfig{},
-		ConsumerGroup: nil,
-		Storage:       nil,
-		Ready:         nil,
-		Cancel:        nil,
-	}
 }
 
-func NewDummyConsumerWithStorage(t *testing.T) (*digestwriter.KafkaConsumer, sqlmock.Sqlmock) {
-	digestwriter.SetupLogger()
+// NewDummyConsumerWithProcessor function returns a new, not running, instance of
+// KafkaConsumer as well as the Processor it uses.
+func NewDummyConsumerWithProcessor(t *testing.T) (*utils.KafkaConsumer, *digestwriter.DigestConsumer, sqlmock.Sqlmock) {
 	storage, mock := NewMockStorage(t)
-	return &digestwriter.KafkaConsumer{
-		Config:        digestwriter.KafkaConsumerConfig{},
-		ConsumerGroup: nil,
-		Storage:       storage,
-		Ready:         nil,
-		Cancel:        nil,
-	}, mock
+	consumer, processor := digestwriter.NewDummyConsumerWithProcessor(storage)
+	return consumer, processor, mock
 }
 
 // TestParseEmptyMessage checks how empty message is handled by
@@ -98,7 +90,6 @@ func TestParseMessageMissingRequiredFields(t *testing.T) {
 // TestParseMessageNoDigests checks that a valid message with no digests
 // is handled successfully by the consumer.
 func TestParseMessageNoDigests(t *testing.T) {
-	digestwriter.SetupLogger()
 	// message to be parsed
 	jsonMessage := []byte(`{
 		"AccountNumber": 2,
@@ -119,7 +110,6 @@ func TestParseMessageNoDigests(t *testing.T) {
 
 // TestExtractDigestsFromMessage verify extraction of digests from correct message
 func TestExtractDigestsFromMessage(t *testing.T) {
-	digestwriter.SetupLogger()
 	// message to be parsed
 	jsonMessage := []byte(`{
 		"any_other_field": "whatever",
@@ -168,26 +158,20 @@ func TestExtractDigestsFromMessage(t *testing.T) {
 // TestProcessEmptyMessage check the behaviour of function processMessage with
 // empty message on input.
 func TestProcessEmptyMessage(t *testing.T) {
-	// construct dummy consumer
-	dummyConsumer := NewDummyConsumer()
-
+	processor := digestwriter.DigestConsumer{}
 	// prepare an empty message
 	message := sarama.ConsumerMessage{}
-
 	// try to process the message
-	err := dummyConsumer.ProcessMessage(&message)
-
+	err := processor.ProcessMessage(&message)
 	// check for errors - it should be reported
 	assert.EqualError(t, err, "unexpected end of JSON input")
 }
 
-// TestProcessWrongMessageMissingFields check the behaviour of function processMessage when
-// received message does not contain the 'images' field.
+// TestProcessWrongMessageMissingFields check the behaviour of the ProcessMessage
+// function when received message does not contain the required fields.
 func TestProcessWrongMessageMissingFields(t *testing.T) {
-	// construct dummy consumer
-	dummyConsumer := NewDummyConsumer()
-
-	// prepare a message with a required filed missing
+	processor := digestwriter.DigestConsumer{}
+	// prepare a message with a required field missing
 	message := sarama.ConsumerMessage{}
 	ConsumerMessageNoAccount := `{
 		"pods": 1,
@@ -218,31 +202,29 @@ func TestProcessWrongMessageMissingFields(t *testing.T) {
 	}`
 	// try to process the messages and check for errors
 	message.Value = []byte(ConsumerMessageNoAccount)
-	err := dummyConsumer.ProcessMessage(&message)
+	err := processor.ProcessMessage(&message)
 	assert.EqualError(t, err, "missing required attribute 'AccountNumber'")
 
 	message.Value = []byte(ConsumerMessageNoOrgID)
-	err = dummyConsumer.ProcessMessage(&message)
+	err = processor.ProcessMessage(&message)
 	assert.EqualError(t, err, "missing required attribute 'OrgID'")
 
 	message.Value = []byte(ConsumerMessageNoClusterName)
-	err = dummyConsumer.ProcessMessage(&message)
+	err = processor.ProcessMessage(&message)
 	assert.EqualError(t, err, "missing required attribute 'ClusterName'")
 
 	message.Value = []byte(ConsumerMessageNoImages)
-	err = dummyConsumer.ProcessMessage(&message)
+	err = processor.ProcessMessage(&message)
 	assert.EqualError(t, err, "missing required attribute 'Images'")
 }
 
-// TestProcessWrongMessageEmptyImages check the behaviour of function processMessage when
-// received message does not contain any digest.
+// TestProcessWrongMessageEmptyImages check the behaviour of the ProcessMessage function
+// when received message does not contain any digest.
 func TestProcessWrongMessageEmptyImages(t *testing.T) {
-	// construct dummy consumer
-	dummyConsumer, mock := NewDummyConsumerWithStorage(t)
-
-	// prepare a message with empty 'images' field
+	// construct dummy consumer just to make sure the processor is correctly set
+	dummyConsumer, processor, mock := NewDummyConsumerWithProcessor(t)
+	// prepare a message with empty 'Images' field
 	message := sarama.ConsumerMessage{}
-	// fill in a message payload
 	ConsumerMessage := `{
 		"pods": 1,
 		"clusters": 2,
@@ -252,14 +234,15 @@ func TestProcessWrongMessageEmptyImages(t *testing.T) {
 		"OrgID": 4,
 		"Images": {}
 	}`
-
 	message.Value = []byte(ConsumerMessage)
-	// try to process the message
-	err := dummyConsumer.ProcessMessage(&message)
+
+	// try to process the message using the consumer's Processor pointer
+	err := dummyConsumer.Processor.ProcessMessage(&message)
 
 	// check for errors - nothing should be reported
 	assert.Nil(t, err, "received message does not need to contain any digest")
-	assert.Equal(t, 1, int(dummyConsumer.GetNumberOfMessagesWithEmptyDigests()))
+	// check that the counters are incremented accordingly
+	assert.Equal(t, 1, int(processor.GetNumberOfMessagesWithEmptyDigests()))
 
 	//check that no processMessage is aborted without any call to Storage
 	assert.Nil(t, mock.ExpectationsWereMet(), "no SQL queries should have been made")
@@ -295,7 +278,7 @@ func setHappyPathExpectations(mock sqlmock.Sqlmock) {
 // received message contains the 'images' field.
 func TestProcessMessageWithRequiredFields(t *testing.T) {
 	// construct dummy consumer
-	dummyConsumer, mock := NewDummyConsumerWithStorage(t)
+	dummyConsumer, processor, mock := NewDummyConsumerWithProcessor(t)
 	setHappyPathExpectations(mock)
 
 	message := sarama.ConsumerMessage{}
@@ -321,82 +304,12 @@ func TestProcessMessageWithRequiredFields(t *testing.T) {
 	}`
 	message.Value = []byte(ConsumerMessage)
 
-	err := dummyConsumer.ProcessMessage(&message)
+	err := dummyConsumer.Processor.ProcessMessage(&message)
+
+	// check for errors - nothing should be reported
 	assert.Nil(t, err, "input message should be processed correctly")
+	// check that the counters are incremented accordingly
+	assert.Equal(t, 0, int(processor.GetNumberOfMessagesWithEmptyDigests()))
 	// check  all SQL-related expectations were met
-	checkAllExpectations(t, mock)
-}
-
-func TestHandleMessageCheckCounters(t *testing.T) {
-	// construct dummy consumer
-	dummyConsumer, mock := NewDummyConsumerWithStorage(t)
-	setHappyPathExpectations(mock)
-
-	// check initial counters
-	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
-	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfMessagesWithEmptyDigests())
-	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfErrorsConsumingMessages())
-
-	message := sarama.ConsumerMessage{}
-
-	WrongInputMessage := `{
-		"pods": 1,
-		"clusters": 2,
-		"timestamp": "` + time.Now().UTC().Format(time.RFC3339) + `"
-	}`
-
-	NoDigestsMessage := `{
-		"OrgID": 4,
-		"AccountNumber": 3,
-		"ClusterName": "84f7eedc-0000-0000-9d4d-000000000000",
-		"Images": {
-			"pods": 1,
-			"clusters": 2,
-			"timestamp": "` + time.Now().UTC().Format(time.RFC3339) + `",
-			"images": {}
-		}
-	}`
-
-	CorrectMessage := `{
-		"OrgID": 5,
-		"AccountNumber": 3,
-		"ClusterName": "84f7eedc-0000-0000-9d4d-000000000000",
-		"Images": {
-			"pods": 1,
-			"clusters": 2,
-			"timestamp": "` + time.Now().UTC().Format(time.RFC3339) + `",
-			"images": {
-				"first_digest": {
-				  "extra_content": [
-					"more_content_1",
-					"more_content_2",
-					"more_content_3"
-				  ],
-				  "extra_content": "extra_content_value"
-				}
-			}
-		}
-	}`
-
-	// process message then check counters
-	message.Value = []byte(WrongInputMessage)
-	digestwriter.HandleKafkaMessage(dummyConsumer, &message)
-	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
-	assert.Equal(t, uint64(0), dummyConsumer.GetNumberOfMessagesWithEmptyDigests())
-	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfErrorsConsumingMessages())
-
-	message.Value = []byte(NoDigestsMessage)
-	digestwriter.HandleKafkaMessage(dummyConsumer, &message)
-	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
-	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfMessagesWithEmptyDigests())
-	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfErrorsConsumingMessages())
-
-	message.Value = []byte(CorrectMessage)
-	digestwriter.HandleKafkaMessage(dummyConsumer, &message)
-	assert.Equal(t, uint64(2), dummyConsumer.GetNumberOfSuccessfullyConsumedMessages())
-	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfMessagesWithEmptyDigests())
-	assert.Equal(t, uint64(1), dummyConsumer.GetNumberOfErrorsConsumingMessages())
-
-	// check if all expectations were met
 	checkAllExpectations(t, mock)
 }
