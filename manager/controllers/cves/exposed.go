@@ -44,8 +44,6 @@ var (
 		},
 		base.SearchQuery: base.ExposedClustersSearch,
 	}
-
-	logger *logrus.Logger
 )
 
 func init() {
