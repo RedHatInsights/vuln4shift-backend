@@ -16,6 +16,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// GetCveDetailsSelect
+// @Description CVE details data
+// @Description presents in response
 type GetCveDetailsSelect struct {
 	Cvss2Score   *float32        `json:"cvss2_score"`
 	Cvss2Metrics *string         `json:"cvss2_metrics"`
@@ -27,10 +30,6 @@ type GetCveDetailsSelect struct {
 	Name         string          `json:"synopsis"`
 	RedhatURL    *string         `json:"redhat_url"`
 }
-
-var (
-	logger *logrus.Logger
-)
 
 func init() {
 	var err error
@@ -44,8 +43,21 @@ func init() {
 	})
 }
 
+// GetCveDetails represents CVE detail endpoint controller.
+//
+// @id GetExposedClusters
+// @summary CVE details
+// @Tags cves
+// @description Endpoint return details for given CVE
+// @accept */*
+// @produce json
+// @Param cve_name path  string true  "CVE name"
+// @router /cves/{cve_name} [get]
+// @success 200 {array}  base.Response{data=GetCveDetailsSelect}
+// @failure 404 {object} base.Error{error=base.ErrorDetail{detail=string,status=int}} "{cve_name} not found"
+// @failure 500 {object} base.Error{error=base.ErrorDetail{detail=string,status=int}} "Internal server error
 func (c *Controller) GetCveDetails(ctx *gin.Context) {
-	cveName := ctx.Param("cveName")
+	cveName := ctx.Param("cve_name")
 	query := c.BuildCveDetailsQuery(cveName)
 
 	var cveDetails GetCveDetailsSelect
