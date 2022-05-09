@@ -45,7 +45,7 @@ func init() {
 
 // GetCveDetails represents CVE detail endpoint controller.
 //
-// @id GetExposedClusters
+// @id GetCveDetails
 // @summary CVE details
 // @Tags cves
 // @description Endpoint return details for given CVE
@@ -53,9 +53,9 @@ func init() {
 // @produce json
 // @Param cve_name path  string true  "CVE name"
 // @router /cves/{cve_name} [get]
-// @success 200 {array}  base.Response{data=GetCveDetailsSelect}
-// @failure 404 {object} base.Error{error=base.ErrorDetail{detail=string,status=int}} "{cve_name} not found"
-// @failure 500 {object} base.Error{error=base.ErrorDetail{detail=string,status=int}} "Internal server error
+// @success 200 {object} base.Response{data=GetCveDetailsSelect}
+// @failure 404 {object} base.Error "{cve_name} not found"
+// @failure 500 {object} base.Error
 func (c *Controller) GetCveDetails(ctx *gin.Context) {
 	cveName := ctx.Param("cve_name")
 	query := c.BuildCveDetailsQuery(cveName)

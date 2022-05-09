@@ -63,7 +63,7 @@ func init() {
 // @id GetExposedClusters
 // @summary List of exposed clusters for CVE
 // @Tags cves
-// @description Endpoint return exposed clusters for given CVE and account id
+// @description Endpoint return exposed clusters for given CVE
 // @accept */*
 // @produce json
 // @Param cve_name path  string true  "CVE name"
@@ -72,8 +72,9 @@ func init() {
 // @Param limit    query int      false "limit per page"       example(10)
 // @Param offset   query int      false "page offset"          example(10)
 // @router /cves/{cve_name}/exposed_clusters [get]
-// @success 200 {array}  base.Response{data=GetExposedClustersSelect}
-// @failure 404 {object} base.Error
+// @success 200 {object} base.Response{data=GetExposedClustersSelect}
+// @failure 400 {object} base.Error
+// @failure 404 {object} base.Error "{cve_name} not found"
 // @failure 500 {object} base.Error
 func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	cveName := ctx.Param("cve_name")
