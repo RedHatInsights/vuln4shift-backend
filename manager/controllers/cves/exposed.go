@@ -24,6 +24,8 @@ type GetExposedClustersSelect struct {
 	Provider string `json:"provider"`
 }
 
+type GetExposedClustersResponse []GetExposedClustersSelect
+
 var (
 	getExposedClustersAllowedFilters = []string{
 		base.SortQuery,
@@ -72,7 +74,7 @@ func init() {
 // @Param limit    query int      false "limit per page"       example(10)
 // @Param offset   query int      false "page offset"          example(10)
 // @router /cves/{cve_name}/exposed_clusters [get]
-// @success 200 {object} base.Response{data=GetExposedClustersSelect}
+// @success 200 {object} base.Response{data=GetExposedClustersResponse}
 // @failure 400 {object} base.Error
 // @failure 404 {object} base.Error "{cve_name} not found"
 // @failure 500 {object} base.Error
@@ -80,17 +82,10 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	cveName := ctx.Param("cve_name")
 	accountID := ctx.GetInt64("account_id")
 
-	filters := base.GetRequestedFilters(ctx)
-
-	query := c.BuildExposedClustersQuery(cveName, accountID)
-	err := base.ApplyFilters(query, getExposedClustersAllowedFilters, filters, getExposedClustersFilterArgs)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
-		return
-	}
-
-	var exposedClusters GetExposedClustersSelect
-	result := query.First(&exposedClusters)
+	// Check if CVE exists first
+	query := c.BuildCveDetailsQuery(cveName)
+	var cveDetails GetCveDetailsSelect
+	result := query.First(&cveDetails)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			ctx.AbortWithStatusJSON(
@@ -99,11 +94,32 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 			)
 			return
 		}
-		logger.Errorf("Database error: %s", result.Error)
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
+		logger.Errorf("Database error: %s", result.Error)
+		return
+	}
+
+	// If yes, select clusters
+	filters := base.GetRequestedFilters(ctx)
+
+	query = c.BuildExposedClustersQuery(cveName, accountID)
+	err := base.ApplyFilters(query, getExposedClustersAllowedFilters, filters, getExposedClustersFilterArgs)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
+		return
+	}
+
+	exposedClusters := []GetExposedClustersSelect{}
+	result = query.Find(&exposedClusters)
+	if result.Error != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+		)
+		logger.Errorf("Database error: %s", result.Error)
 		return
 	}
 
