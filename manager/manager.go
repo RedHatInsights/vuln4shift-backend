@@ -33,7 +33,7 @@ func createMetaGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
 	metaGroup.GET("apistatus", metaController.GetApistatus)
 
 	openAPIURL := ginSwagger.URL(openAPILocation)
-	metaGroup.GET(fmt.Sprintf("%s/openapi/*any", apiPrefix), ginSwagger.WrapHandler(swaggerFiles.Handler, openAPIURL))
+	metaGroup.GET(fmt.Sprintf("%s/v1/openapi/*any", apiPrefix), ginSwagger.WrapHandler(swaggerFiles.Handler, openAPIURL))
 	metaGroup.StaticFile(openAPILocation, "./manager/docs/swagger.json")
 	return metaGroup
 }
