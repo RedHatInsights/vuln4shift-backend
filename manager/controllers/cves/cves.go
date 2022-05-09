@@ -30,6 +30,9 @@ var getCvesFilterArgs = map[string]interface{}{
 	base.SearchQuery: base.CveSearch,
 }
 
+// GetCvesSelect
+// @Description CVE in workload data
+// @Description presents in response
 type GetCvesSelect struct {
 	Cvss2Score      *float32         `json:"cvss2_score"`
 	Cvss3Score      *float32         `json:"cvss3_score"`
@@ -43,6 +46,21 @@ type GetCvesSelect struct {
 
 type GetCvesResponse []GetCvesSelect
 
+// GetCves represents CVEs endpoint controller.
+//
+// @id GetCves
+// @summary List of CVEs affecting the workload
+// @Tags cves
+// @description Endpoint returning CVEs affecting the current workload
+// @accept */*
+// @produce json
+// @Param sort     query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
+// @Param search   query string   false "cve name/desc search" example(CVE-2021-)
+// @Param limit    query int      false "limit per page"       example(10)
+// @Param offset   query int      false "page offset"          example(10)
+// @router /cves [get]
+// @success 200 {object} base.Response{data=GetCvesResponse}
+// @failure 400 {object} base.Error
 func (c *Controller) GetCves(ctx *gin.Context) {
 	accountID := ctx.GetInt64("account_id")
 
@@ -54,13 +72,9 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
-	var sel []GetCvesSelect
-	query.Find(&sel)
-
 	dataRes := []GetCvesSelect{}
-	for _, row := range sel {
-		dataRes = append(dataRes, row)
-	}
+	query.Find(&dataRes)
+
 	ctx.JSON(http.StatusOK, base.BuildResponse(dataRes, base.BuildMeta(filters, getCvesAllowedFilters)))
 }
 

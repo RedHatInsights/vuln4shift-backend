@@ -48,7 +48,7 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	// Cves endpoints must be authenticated
 	cveGroup.Use(middlewares.Authenticate(db))
 
-	cveGroup.GET("/", cveController.GetCves)
+	cveGroup.GET("", cveController.GetCves)
 	cveGroup.GET("/:cve_name/exposed_clusters", cveController.GetExposedClusters)
 	cveGroup.GET("/:cve_name", cveController.GetCveDetails)
 	return cveGroup
