@@ -1,7 +1,7 @@
 package base
 
 type Error struct {
-	Error ErrorDetail `json:"errors"`
+	Error ErrorDetail `json:"error"`
 }
 
 type ErrorDetail struct {
