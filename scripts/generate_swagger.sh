@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 CONVERT_URL="https://converter.swagger.io/api/convert"
 DOCS_TMP="/tmp"
 
