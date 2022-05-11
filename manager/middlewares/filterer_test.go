@@ -38,8 +38,8 @@ func TestFiltererInvalidParam(t *testing.T) {
 
 	filterer(ctx)
 
-	filters := base.GetRequestedFilters(ctx)
-	assert.Equal(t, 3, len(filters), "Should be 3 filters, the default ones - sort, limit, offset, nonexisting are ignored")
+	base.GetRequestedFilters(ctx)
+	assert.Equal(t, http.StatusBadRequest, ctx.Writer.Status(), "Unknown arguments are caught as error")
 }
 
 func TestFiltererValidSearch(t *testing.T) {
