@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"app/manager/base"
-	"errors"
 	"net/http"
 	"strings"
 
@@ -49,9 +48,7 @@ func Filterer() gin.HandlerFunc {
 		for param, rawValues := range ctx.Request.URL.Query() {
 			values := ParseCommaParams(rawValues)
 			filter, err := base.ParseFilter(param, values)
-			if err != nil && errors.Is(err, base.ErrInvalidFilterArgument) {
-				continue
-			} else if err != nil {
+			if err != nil {
 				ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
 				return
 			}
