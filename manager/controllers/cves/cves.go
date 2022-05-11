@@ -55,10 +55,11 @@ type GetCvesResponse []GetCvesSelect
 // @description Endpoint returning CVEs affecting the current workload
 // @accept */*
 // @produce json
-// @Param sort     query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
-// @Param search   query string   false "cve name/desc search" example(CVE-2021-)
-// @Param limit    query int      false "limit per page"       example(10)
-// @Param offset   query int      false "page offset"          example(10)
+// @Param sort     			query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
+// @Param search   			query string   false "cve name/desc search" example(CVE-2021-)
+// @Param limit    			query int      false "limit per page"       example(10)
+// @Param offset   			query int      false "page offset"          example(10)
+// @Param affected_clusters query []bool   false "bool array"
 // @router /cves [get]
 // @success 200 {object} base.Response{data=GetCvesResponse}
 // @failure 400 {object} base.Error
@@ -83,10 +84,10 @@ func (c *Controller) BuildCvesQuery(accountID int64) *gorm.DB {
 	return c.Conn.Table("cve").
 		Select(`cve.name, cve.description, cve.public_date, cve.severity,
 							cve.cvss2_score, cve.cvss3_score,
-							14 AS clusters_exposed, 8 AS images_exposed`).
-		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
-		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
-		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
-		Where("cluster.account_id = ?", accountID).
-		Group("cve.id, cve.name, cve.description, cve.public_date, cve.severity, cve.cvss3_score, cve.cvss2_score")
+							COUNT(DISTINCT cluster_image.cluster_id) AS clusters_exposed,
+							COUNT(DISTINCT cluster_image.image_id) AS images_exposed`).
+		Joins("LEFT JOIN image_cve ON cve.id = image_cve.cve_id").
+		Joins("LEFT JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
+		Joins("LEFT JOIN cluster ON (cluster_image.cluster_id = cluster.id AND cluster.account_id = ?)", accountID).
+		Group("cve.id")
 }
