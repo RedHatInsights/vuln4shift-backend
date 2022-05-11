@@ -47,6 +47,7 @@ func init() {
 //
 // @id GetCveDetails
 // @summary CVE details
+// @security RhIdentity
 // @Tags cves
 // @description Endpoint return details for given CVE
 // @accept */*
