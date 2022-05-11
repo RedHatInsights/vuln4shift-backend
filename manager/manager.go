@@ -94,7 +94,7 @@ func BuildRouter() *gin.Engine {
 //
 // @query.collection.format multi
 // @basePath /api/vuln4shift/v1
-// @schemes http
+// @schemes http https
 func Start() {
 	router := BuildRouter()
 	err := router.Run(fmt.Sprintf(":%d", utils.Cfg.PublicPort))
