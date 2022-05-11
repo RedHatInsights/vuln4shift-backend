@@ -129,18 +129,27 @@ func (c *CvssScore) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 	return nil
 }
 
-// To be implemented
+// AffectingClusters represents filter for count of affected clusters
+// ex. clusters_exposed=true,true
 type AffectingClusters struct {
 	RawFilter
 	OneOrMore bool
 	None      bool
 }
 
+// ApplyQuery filters rows by count of affected clusters
 func (a *AffectingClusters) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if a.None {
+		tx.Having("COUNT(DISTINCT cluster_image.cluster_id) = 0")
+	}
+	if a.OneOrMore {
+		tx.Having("COUNT(DISTINCT cluster_image.cluster_id) > 0")
+	}
 	return nil
 }
 
-// To be implemented
+// AffectingImages represents filter
+// ex. images_exposed=false,true
 type AffectingImages struct {
 	RawFilter
 	OneOrMore bool
@@ -148,6 +157,12 @@ type AffectingImages struct {
 }
 
 func (a *AffectingImages) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if a.None {
+		tx.Having("COUNT(DISTINCT cluster_image.image_id) = 0")
+	}
+	if a.OneOrMore {
+		tx.Having("COUNT(DISTINCT cluster_image.image_id) > 0")
+	}
 	return nil
 }
 
