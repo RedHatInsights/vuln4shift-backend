@@ -64,7 +64,7 @@ func init() {
 //
 // @id GetExposedClusters
 // @summary List of exposed clusters for CVE
-// @security RhIdentity
+// @security RhIdentity || BasicAuth
 // @Tags cves
 // @description Endpoint return exposed clusters for given CVE
 // @accept */*

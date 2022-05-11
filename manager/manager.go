@@ -92,6 +92,8 @@ func BuildRouter() *gin.Engine {
 // @in header
 // @name x-rh-identity
 //
+// @securityDefinitions.basic BasicAuth
+//
 // @query.collection.format multi
 // @basePath /api/vuln4shift/v1
 // @schemes http https

@@ -50,7 +50,7 @@ type GetCvesResponse []GetCvesSelect
 //
 // @id GetCves
 // @summary List of CVEs affecting the workload
-// @security RhIdentity
+// @security RhIdentity || BasicAuth
 // @Tags cves
 // @description Endpoint returning CVEs affecting the current workload
 // @accept */*
