@@ -40,7 +40,7 @@ objects:
           enabled: true
           apiPath: vuln4shift
           whitelistPaths:
-          - /api/vuln4shift/v1/openapi.json
+          - /api/vuln4shift/v1/openapi*
         private:
           enabled: false
         metrics:
