@@ -86,23 +86,20 @@ type KafkaConsumer struct {
 // the default sarama config if none is provided
 func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaConsumer, error) {
 	setupLogger()
-	brokerAddress := GetEnv("KAFKA_BROKER_ADDRESS", "")
-	if brokerAddress == "" {
+	if Cfg.KafkaBrokerAddress == "" {
 		return nil, errors.New("unable to get env var: KAFKA_BROKER_ADDRESS")
 	}
-	group := GetEnv("KAFKA_BROKER_CONSUMER_GROUP", "")
-	if group == "" {
+	if Cfg.KafkaBrokerConsumerGroup == "" {
 		return nil, errors.New("unable to get env var: KAFKA_BROKER_CONSUMER_GROUP")
 	}
-	topic := GetEnv("KAFKA_BROKER_INCOMING_TOPIC", "")
-	if topic == "" {
+	if Cfg.KafkaBrokerIncomingTopic == "" {
 		return nil, errors.New("unable to get env var: KAFKA_BROKER_INCOMING_TOPIC")
 	}
 	if saramaConfig == nil {
 		saramaConfig = sarama.NewConfig()
 		saramaConfig.Version = sarama.V0_10_2_0
 
-		timeout, err := time.ParseDuration(GetEnv("KAFKA_CONSUMER_TIMEOUT", ""))
+		timeout, err := time.ParseDuration(Cfg.KafkaConsumerTimeout)
 		if err == nil && timeout != 0 {
 			saramaConfig.Net.DialTimeout = timeout
 			saramaConfig.Net.ReadTimeout = timeout
@@ -110,16 +107,16 @@ func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaC
 		}
 	}
 
-	consumerGroup, err := sarama.NewConsumerGroup([]string{brokerAddress}, group, saramaConfig)
+	consumerGroup, err := sarama.NewConsumerGroup([]string{Cfg.KafkaBrokerAddress}, Cfg.KafkaBrokerConsumerGroup, saramaConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	consumer := &KafkaConsumer{
 		Config: &KafkaConsumerConfig{
-			Address:       brokerAddress,
-			IncomingTopic: topic,
-			Group:         group,
+			Address:       Cfg.KafkaBrokerAddress,
+			IncomingTopic: Cfg.KafkaBrokerIncomingTopic,
+			Group:         Cfg.KafkaBrokerConsumerGroup,
 		},
 		ConsumerGroup:                        consumerGroup,
 		numberOfSuccessfullyConsumedMessages: 0,
