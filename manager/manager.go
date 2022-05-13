@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"app/manager/controllers/clusters"
 	"fmt"
 	"log"
 
@@ -54,6 +55,17 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	return cveGroup
 }
 
+func createClustersGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
+	clustersGroup := router.Group("/v1/clusters")
+
+	clustersController := clusters.Controller{Conn: db}
+
+	clustersGroup.Use(middlewares.Authenticate(db))
+
+	clustersGroup.GET("", clustersController.GetClusters)
+	return clustersGroup
+}
+
 // setMiddlewares sets middlewares for router.
 func setMiddlewares(router *gin.Engine) {
 	router.Use(gin.Recovery())
@@ -77,6 +89,7 @@ func BuildRouter() *gin.Engine {
 
 	api := router.Group(apiPrefix)
 	createCveGroup(api, db)
+	createClustersGroup(api, db)
 
 	return router
 }
