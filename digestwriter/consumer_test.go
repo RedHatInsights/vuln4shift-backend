@@ -253,16 +253,18 @@ func setHappyPathExpectations(mock sqlmock.Sqlmock) {
 	// expected SQL statements during this test [SIMPLIFIED. This behavior is tested in storage_test.go]
 	expectedSelectFromAccount := `SELECT * FROM "account"`
 	expectedInsertIntoAccount := `INSERT INTO "account"`
+	expectedSelectFromCluster := `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id" FROM "cluster"`
 	expectedInsertIntoCluster := `INSERT INTO "cluster"`
 	expectedSelectFromImage := `SELECT * FROM "image"`
 	expectedInsertIntoClusterImage := `INSERT INTO "cluster_image"`
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelectFromAccount)).
-		WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg()).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}))
 	mock.ExpectQuery(regexp.QuoteMeta(expectedInsertIntoAccount)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+	mock.ExpectQuery(regexp.QuoteMeta(expectedSelectFromCluster)).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}))
 	mock.ExpectQuery(regexp.QuoteMeta(expectedInsertIntoCluster)).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelectFromImage)).
