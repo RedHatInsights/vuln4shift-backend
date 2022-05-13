@@ -67,15 +67,6 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, dig
 	queryResult := tx.Where("digest IN ?", digests).Find(&existingDigests)
 	if err := queryResult.Error; err != nil {
 		//TODO: Maybe we prefer to check digests first, and not insert anything in cluster and cluster_image tables?
-		/*if err == gorm.ErrRecordNotFound {
-		  	logger.WithFields(logrus.Fields{
-		  		errorKey: err.Error(),
-		  		"clusterID": clusterID,
-		  	}).Infoln("no digests in image table for the cluster with the given ID. Nothing to do.")
-		  	return nil
-		  }
-		*/
-
 		logger.WithFields(logrus.Fields{
 			errorKey:     err.Error(),
 			clusterIDKey: clusterID,
@@ -128,7 +119,7 @@ func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *Accoun
 
 	// Insert account info in account table if not present
 	// If present, retrieve corresponding ID
-	if err = tx.Where(accountData).FirstOrCreate(&accountData).Error; err != nil {
+	if err = tx.Clauses(clause.OnConflict{DoNothing: true}).FirstOrCreate(&accountData).Error; err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err.Error(),
 		}).Errorln("couldn't insert or retrieve cluster name in 'account' table")
@@ -152,7 +143,7 @@ func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *Accoun
 		"Status", "Version", "Provider", "CveCacheCritical",
 		"CveCacheImportant", "CveCacheModerate", "CveCacheLow").
 		Clauses(clause.OnConflict{DoNothing: true}).
-		Create(&clusterInfoData).Error; err != nil {
+		FirstOrCreate(&clusterInfoData).Error; err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err.Error(),
 		}).Errorln("couldn't write cluster info in cluster table")

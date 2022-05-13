@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -43,7 +44,7 @@ type DatabaseConfig struct {
 
 // CliFlags holds all the allowed command line arguments and flags.
 type CliFlags struct {
-	OrgId         int
+	OrgID         int
 	AccountNumber int
 	ClusterName   string
 	NumMessages   int
@@ -178,14 +179,16 @@ func setupDB() (dataSource string) {
 func prepareInsertDigestsStatement(shas []string) (statement string, statementArgs []interface{}) {
 	statement = `INSERT INTO image (digest, pyxis_id, modified_date) VALUES %s`
 
+	rand.Seed(time.Now().UnixNano())
 	var valuesIdx []string
 	statementIdx := 0
 	modifiedDate := time.Now()
+
 	for _, sha := range shas {
-		statementArgs = append(statementArgs, sha, statementIdx, modifiedDate)
+		statementArgs = append(statementArgs, sha, rand.Int(), modifiedDate)
 		statementIdx = len(statementArgs)
 		valuesIdx = append(valuesIdx, "($"+fmt.Sprint(statementIdx-2)+
-			", $"+fmt.Sprint(statementIdx-1)+ ", $"+fmt.Sprint(statementIdx)+")")
+			", $"+fmt.Sprint(statementIdx-1)+", $"+fmt.Sprint(statementIdx)+")")
 	}
 	statement = fmt.Sprintf(statement, strings.Join(valuesIdx, ","))
 	return
@@ -214,14 +217,16 @@ func store(shas []string, dataSource string) {
 	if _, err = tx.Exec(statement, args...); err != nil {
 		fmt.Println(err.Error())
 		fmt.Println("unable to insert the digests")
+		_ = tx.Rollback()
 	}
+	_ = tx.Commit()
 
 	fmt.Printf("inserted %d digests in the 'image' table\n", len(shas))
 }
 func main() {
 	if len(os.Args) > 1 {
 		var flags CliFlags
-		flag.IntVar(&flags.OrgId, "org", 1, "organization ID to include in generated message")
+		flag.IntVar(&flags.OrgID, "org", 1, "organization ID to include in generated message")
 		flag.IntVar(&flags.AccountNumber, "account", 1, "account number to include in generated message")
 		flag.StringVar(&flags.ClusterName, "cluster", "84f7eedc-0000-0000-9d4d-000000000000", "cluster name to include in generated message")
 		flag.IntVar(&flags.NumMessages, "num", 1, "number of SHA256 messages to generate")
@@ -243,7 +248,7 @@ func main() {
 			os.Exit(ExitStatusOK)
 		}
 
-		produce(shas, flags.OrgId, flags.AccountNumber, flags.ClusterName, flags.KafkaBroker, flags.KafkaTopic)
+		produce(shas, flags.OrgID, flags.AccountNumber, flags.ClusterName, flags.KafkaBroker, flags.KafkaTopic)
 		os.Exit(ExitStatusOK)
 	}
 
