@@ -5,6 +5,7 @@ import sys
 import json
 import base64
 import argparse
+from uuid import UUID
 
 
 DEFAULT_IDENTITY_FILE = os.environ['HOME'] + "/.3scale-mock"
@@ -24,6 +25,7 @@ DEFAULT_IDENTITY = """
       "is_internal" : false,
       "locale" : "en_US"
     },
+    "system": {},
     "internal" : {
       "org_id" : "0",
       "auth_type" : "basic-auth",
@@ -58,6 +60,13 @@ def save_identity(identity, filepath):
     with open(filepath, 'w') as identity_file:
         identity_file.write(json.dumps(identity))
 
+def is_valid_uuid(uuid_to_test, version=4):
+    try:
+        uuid_obj = UUID(uuid_to_test, version=version)
+    except ValueError:
+        return False
+    return str(uuid_obj) == uuid_to_test
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -76,6 +85,8 @@ if __name__ == "__main__":
                         help='output additional information and details')
     parser.add_argument('-n', '--no-insights-entitlement', action='store_true',
                         help='user does not have insights entitlement')
+    parser.add_argument('-c', '--cluster-id',
+                        help='set system cluster UUID in identity')
     subparsers = parser.add_subparsers(help='commands', dest='command')
     parser_save = subparsers.add_parser('save', help='save identity')
     parser_save.add_argument('output_file', nargs='?',
@@ -106,6 +117,11 @@ if __name__ == "__main__":
         identity['identity']['user']['is_internal'] = True
     if options.no_insights_entitlement:
         identity['entitlements']['insights']['is_entitled'] = False
+    if options.cluster_id:
+        if not is_valid_uuid(options.cluster_id):
+            print('Invalid cluster UUID: %s' % options.cluster_id)
+            sys.exit(1)
+        identity['identity']['system']['cluster_id'] = options.cluster_id
 
     if options.command == 'save':
         if remaining:
