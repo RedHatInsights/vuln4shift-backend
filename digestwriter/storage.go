@@ -112,14 +112,14 @@ func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *Accoun
 	}
 	accountData := models.Account{
 		AccountNumber: fmt.Sprint(*account),
-		OrgID:         fmt.Sprint(orgID),
+		OrgID:         fmt.Sprint(*orgID),
 	}
 
 	tx := storage.connection.Begin()
 
 	// Insert account info in account table if not present
 	// If present, retrieve corresponding ID
-	if err = tx.Clauses(clause.OnConflict{DoNothing: true}).FirstOrCreate(&accountData).Error; err != nil {
+	if err = tx.Clauses(clause.OnConflict{DoNothing: true}).FirstOrCreate(&accountData, accountData).Error; err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err.Error(),
 		}).Errorln("couldn't insert or retrieve cluster name in 'account' table")
@@ -143,7 +143,7 @@ func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *Accoun
 		"Status", "Version", "Provider", "CveCacheCritical",
 		"CveCacheImportant", "CveCacheModerate", "CveCacheLow").
 		Clauses(clause.OnConflict{DoNothing: true}).
-		FirstOrCreate(&clusterInfoData).Error; err != nil {
+		FirstOrCreate(&clusterInfoData, clusterInfoData).Error; err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err.Error(),
 		}).Errorln("couldn't write cluster info in cluster table")
