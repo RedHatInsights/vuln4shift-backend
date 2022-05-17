@@ -8,7 +8,6 @@ import (
 
 	"app/base/models"
 
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -252,17 +251,6 @@ func (s *Sort) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 		}
 	}
 	return nil
-}
-
-// GetRequestedFilters gets requested parsed filters from gin context
-// returns empty map if not exists
-func GetRequestedFilters(ctx *gin.Context) map[string]Filter {
-	if f, exists := ctx.Get("filters"); exists {
-		if f, ok := f.(map[string]Filter); ok {
-			return f
-		}
-	}
-	return map[string]Filter{}
 }
 
 // ApplyFilters applies requested filters from query params on created query from controller,

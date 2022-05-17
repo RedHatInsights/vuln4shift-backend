@@ -63,6 +63,7 @@ func createClustersGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup 
 	clustersGroup.Use(middlewares.Authenticate(db))
 
 	clustersGroup.GET("", clustersController.GetClusters)
+	clustersGroup.GET("/:cluster_id/cves", clustersController.GetClusterCves)
 	return clustersGroup
 }
 
