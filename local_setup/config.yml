@@ -1,5 +1,10 @@
-pg_username: "pyxis_gatherer"
-pg_password: "pyxis_gatherer_pwd"
+pg_table_params:
+  - image:
+      pg_username: "pyxis_gatherer"
+      pg_password: "pyxis_gatherer_pwd"
+  - account:
+      pg_username: "archive_db_writer"
+      pg_password: "archive_db_writer_pwd"
 pg_host: "localhost"
 pg_port: 25432
 pg_db_name: "vuln4shift"

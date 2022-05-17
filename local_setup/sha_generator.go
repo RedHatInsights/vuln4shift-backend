@@ -32,14 +32,19 @@ const (
 	ExitStatusDBConnectionError
 )
 
-// DBConfig holds config for connecting to a postgreSQL DB
-type DatabaseConfig struct {
+type DatabaseUsernamePerTable struct {
 	PGUsername string `mapstructure:"pg_username" toml:"pg_username"`
 	PGPassword string `mapstructure:"pg_password" toml:"pg_password"`
-	PGHost     string `mapstructure:"pg_host" toml:"pg_host"`
-	PGPort     int    `mapstructure:"pg_port" toml:"pg_port"`
-	PGDBName   string `mapstructure:"pg_db_name" toml:"pg_db_name"`
-	PGParams   string `mapstructure:"pg_params" toml:"pg_params"`
+}
+
+// DBConfig holds config for connecting to a postgreSQL DB
+type DatabaseConfig struct {
+	PGHost   string `mapstructure:"pg_host" toml:"pg_host"`
+	PGPort   int    `mapstructure:"pg_port" toml:"pg_port"`
+	PGDBName string `mapstructure:"pg_db_name" toml:"pg_db_name"`
+	PGParams string `mapstructure:"pg_params" toml:"pg_params"`
+
+	PGTableParams map[string]DatabaseUsernamePerTable `mapstructure:"pg_table_params" toml:"pg_table_params"`
 }
 
 // CliFlags holds all the allowed command line arguments and flags.
@@ -147,8 +152,7 @@ func produce(shas []string, account, org int, cluster, broker, topic string) {
 	}
 }
 
-// Setup DB gets the environment variables ONLY from config.yml
-func setupDB() (dataSource string) {
+func readYamlConfig() {
 	viper.AddConfigPath(".")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
@@ -164,11 +168,14 @@ func setupDB() (dataSource string) {
 		fmt.Println("Unable to decode into config struct")
 		os.Exit(ExitStatusDBConfigError)
 	}
+}
 
+// Setup DB gets the environment variables ONLY from config.yml
+func setupDB(table string) (dataSource string) {
 	dataSource = fmt.Sprintf(
 		"postgresql://%v:%v@%v:%v/%v?%v",
-		DBCONFIG.PGUsername,
-		DBCONFIG.PGPassword,
+		DBCONFIG.PGTableParams[table].PGUsername,
+		DBCONFIG.PGTableParams[table].PGPassword,
 		DBCONFIG.PGHost,
 		DBCONFIG.PGPort,
 		DBCONFIG.PGDBName,
@@ -176,6 +183,32 @@ func setupDB() (dataSource string) {
 	)
 	return
 }
+
+func getSQLConnection(dataSource string) *sql.DB {
+	connection, err := sql.Open("postgres", dataSource)
+	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println("failed to connect to provided database")
+		os.Exit(ExitStatusDBConnectionError)
+	}
+	if err = connection.Ping(); err != nil {
+		fmt.Println(err.Error())
+		fmt.Println("failed to connect to provided database")
+		os.Exit(ExitStatusDBConnectionError)
+	}
+	fmt.Println("connected to PostgreSQL database successfully")
+	return connection
+}
+
+func executeSqlStatement(connection *sql.DB, statement string, args []interface{}) error {
+	tx, err := connection.Begin()
+	if _, err = tx.Exec(statement, args...); err != nil {
+		fmt.Println(err.Error())
+		return tx.Rollback()
+	}
+	return tx.Commit()
+}
+
 func prepareInsertDigestsStatement(shas []string) (statement string, statementArgs []interface{}) {
 	statement = `INSERT INTO image (digest, pyxis_id, modified_date) VALUES %s`
 
@@ -195,34 +228,35 @@ func prepareInsertDigestsStatement(shas []string) (statement string, statementAr
 }
 
 func store(shas []string, dataSource string) {
-	connection, err := sql.Open("postgres", dataSource)
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("failed to connect to provided database")
-		os.Exit(ExitStatusDBConnectionError)
-	}
-	if err = connection.Ping(); err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("failed to connect to provided database")
-		os.Exit(ExitStatusDBConnectionError)
-	}
-	fmt.Println("connected to PostgreSQL database successfully")
+	connection := getSQLConnection(dataSource)
 	statement, args := prepareInsertDigestsStatement(shas)
 	if VERBOSE {
 		fmt.Printf("insert digests SQL statement:\n\t%v\n\t%v\n", statement, args)
 	}
 
-	tx, err := connection.Begin()
-	fmt.Println(tx)
-	if _, err = tx.Exec(statement, args...); err != nil {
+	if err := executeSqlStatement(connection, statement, args); err != nil {
+		fmt.Println("Something went wrong while inserting digests")
 		fmt.Println(err.Error())
-		fmt.Println("unable to insert the digests")
-		_ = tx.Rollback()
 	}
-	_ = tx.Commit()
-
 	fmt.Printf("inserted %d digests in the 'image' table\n", len(shas))
+	_ = connection.Close()
 }
+
+func writeAccountAndOrg(accountNumber, orgId int, dataSource string) {
+	connection := getSQLConnection(dataSource)
+	statement := `INSERT INTO account (account_number, org_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`
+	args := []interface{}{accountNumber, orgId}
+	if VERBOSE {
+		fmt.Printf("insert account SQL statement:\n\t%v\n\t%v\n", statement, args)
+	}
+	if err := executeSqlStatement(connection, statement, args); err != nil {
+		fmt.Println("Something went wrong while writing account data")
+		fmt.Println(err.Error())
+	}
+
+	_ = connection.Close()
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		var flags CliFlags
@@ -241,7 +275,9 @@ func main() {
 		fmt.Println(shas)
 
 		if flags.Store {
-			store(shas, setupDB())
+			readYamlConfig()
+			writeAccountAndOrg(flags.AccountNumber, flags.OrgID, setupDB("account"))
+			store(shas, setupDB("image"))
 		}
 
 		if !flags.Produce {
