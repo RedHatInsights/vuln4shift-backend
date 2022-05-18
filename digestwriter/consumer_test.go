@@ -251,7 +251,7 @@ func TestProcessWrongMessageEmptyImages(t *testing.T) {
 // expect these SQL statements to be called when consumed message is valid and has at least 1 digest
 func setHappyPathExpectations(mock sqlmock.Sqlmock) {
 	// expected SQL statements during this test [SIMPLIFIED. This behavior is tested in storage_test.go]
-	expectedSelectFromAccount := `SELECT * FROM "account"`
+	expectedSelectFromAccount := `SELECT * FROM "account" WHERE`
 	expectedInsertIntoAccount := `INSERT INTO "account"`
 	expectedSelectFromCluster := `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id" FROM "cluster"`
 	expectedInsertIntoCluster := `INSERT INTO "cluster"`

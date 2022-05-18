@@ -104,8 +104,7 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, dig
 // WriteClusterInfo updates the 'cluster' table with the provided info
 func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *AccountNumber, orgID *OrgID, digests []string) error {
 	// prepare data
-	clusterName := string(*cluster)
-	clusterUUID, err := uuid.Parse(clusterName)
+	clusterUUID, err := uuid.Parse(string(*cluster))
 	if err != nil {
 		logger.Errorln("cannot convert given cluster ID to UUID. Aborting WriteClusterInfo")
 		return err
@@ -115,11 +114,19 @@ func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *Accoun
 		OrgID:         fmt.Sprint(*orgID),
 	}
 
+	logger.WithFields(logrus.Fields{
+		rowIDKey:   accountData.ID,
+		accountKey: accountData.AccountNumber,
+		orgKey:     accountData.OrgID,
+	}).Debugln("account data to insert")
+
 	tx := storage.connection.Begin()
 
 	// Insert account info in account table if not present
 	// If present, retrieve corresponding ID
-	if err = tx.Clauses(clause.OnConflict{DoNothing: true}).FirstOrCreate(&accountData, accountData).Error; err != nil {
+	if err = tx.Where(accountData).
+		Clauses(clause.OnConflict{DoNothing: true}).
+		FirstOrCreate(&accountData).Error; err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err.Error(),
 		}).Errorln("couldn't insert or retrieve cluster name in 'account' table")
@@ -132,25 +139,34 @@ func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *Accoun
 		return err
 	}
 
+	logger.WithFields(logrus.Fields{
+		rowIDKey:   accountData.ID,
+		accountKey: accountData.AccountNumber,
+		orgKey:     accountData.OrgID,
+	}).Debugln("inserted account data successfully")
+
 	clusterInfoData := models.Cluster{
 		UUID:      clusterUUID,
 		AccountID: accountData.ID,
 	}
 
-	// Do nothing on conflict. It just means that we already have
-	// the info we are trying to insert
 	if err := tx.Omit(
 		"Status", "Version", "Provider", "CveCacheCritical",
 		"CveCacheImportant", "CveCacheModerate", "CveCacheLow").
+		Where(clusterInfoData).
 		Clauses(clause.OnConflict{DoNothing: true}).
-		FirstOrCreate(&clusterInfoData, clusterInfoData).Error; err != nil {
+		FirstOrCreate(&clusterInfoData).Error; err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err.Error(),
 		}).Errorln("couldn't write cluster info in cluster table")
 		return err
 	}
 
-	logger.Infoln("updated cluster table successfully")
+	logger.WithFields(logrus.Fields{
+		rowIDKey:   clusterInfoData.ID,
+		clusterKey: clusterInfoData.UUID,
+		accountKey: clusterInfoData.AccountID,
+	}).Debugln("updated cluster table successfully")
 
 	if err = storage.linkDigestsToCluster(tx, clusterInfoData.ID, digests); err != nil {
 		return tx.Rollback().Error
