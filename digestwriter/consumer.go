@@ -10,20 +10,23 @@ import (
 )
 
 const (
-	// key for organization ID in structure log messages
-	orgKey = "orgID"
-	// key for account in structured log messages
+	// Keys used in structured log messages
+	// key for organization ID
+	orgKey = "org_id"
+	// key for account
 	accountKey = "account"
-	// key for cluster in structured log messages
+	// key for cluster
 	clusterKey = "cluster"
-	// key for cluster ID retrieved from DB in structured log messages
-	clusterIDKey = "clusterID"
-	// key for consumed message version in structured log messages
+	// key for cluster ID
+	clusterIDKey = "cluster_id"
+	// key for consumed message version
 	versionKey = "version"
-	// key for request ID in structured log messages
-	requestIDKey = "requestID"
-	// key for error message used in structured log messages
+	// key for request ID
+	requestIDKey = "request_id"
+	// key for error message
 	errorKey = "error"
+	// key for created row's ID in database table
+	rowIDKey = "row_id"
 )
 
 // OrgID data type represents organization ID.
@@ -115,7 +118,7 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 	// Step #2: get digests into a slice of strings
 	digests := extractDigestsFromMessage(message.Images.Digests)
 
-	logger.Debugf("extracted digests: %d\n", len(digests))
+	logger.Debugf("number of extracted digests: %d\n", len(digests))
 
 	if message.Images.ImageCount != len(digests) {
 		logger.Warnf("Expected number of digests: %d; Extracted digests: %d\n",
@@ -175,9 +178,9 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	logger.WithFields(logrus.Fields{
 		requestIDKey: deserialized.RequestID,
 		versionKey:   deserialized.Version,
-		orgKey:       deserialized.Organization,
-		accountKey:   deserialized.AccountNumber,
-		clusterKey:   deserialized.ClusterName,
+		orgKey:       *deserialized.Organization,
+		accountKey:   *deserialized.AccountNumber,
+		clusterKey:   *deserialized.ClusterName,
 	}).Debugln("parsed incoming message correctly")
 
 	return deserialized, nil

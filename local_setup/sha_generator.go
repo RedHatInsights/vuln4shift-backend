@@ -55,6 +55,7 @@ type CliFlags struct {
 	NumMessages   int
 	Produce       bool
 	Store         bool
+	StoreAccount  bool
 	KafkaBroker   string
 	KafkaTopic    string
 	Digests       string
@@ -268,15 +269,18 @@ func main() {
 		flag.StringVar(&flags.KafkaBroker, "kafka-broker", "localhost:9093", "Kafka broker in the <host>:<port> format")
 		flag.StringVar(&flags.KafkaTopic, "kafka-topic", "test_sha", "Kafka topic for producer")
 		flag.BoolVar(&flags.Store, "store", false, "store generated SHAs in the 'image' table of the given DB")
+		flag.BoolVar(&flags.StoreAccount, "store-account", false, "update 'account' table of the given account and org-id")
 		flag.BoolVar(&VERBOSE, "verbose", false, "print additional information during execution")
 		flag.Parse()
 
 		shas := generateSHA256(flags.NumMessages)
 		fmt.Println(shas)
 
-		if flags.Store {
-			readYamlConfig()
+		readYamlConfig()
+		if flags.StoreAccount {
 			writeAccountAndOrg(flags.AccountNumber, flags.OrgID, setupDB("account"))
+		}
+		if flags.Store {
 			store(shas, setupDB("image"))
 		}
 
