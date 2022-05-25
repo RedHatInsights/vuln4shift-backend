@@ -15,6 +15,7 @@ DEFAULT_IDENTITY = """
     "account_number" : "0",
     "org_id" : "0",
     "type" : "User",
+    "auth_type": "basic-auth",
     "user" : {
       "username" : "jdoe@acme.com",
       "email" : "jdoe@acme.com",
