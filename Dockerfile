@@ -1,4 +1,5 @@
-ARG BUILDIMG=golang:1.18
+# Using CentOS Stream 8 because RHEL/UBI 8 doesn't have golang 1.18 yet
+ARG BUILDIMG=quay.io/centos/centos:stream8
 ARG RUNIMG=registry.access.redhat.com/ubi8-minimal
 # ---------------------------------------
 # build image
@@ -7,6 +8,8 @@ FROM ${BUILDIMG} as buildimg
 WORKDIR /vuln4shift
 
 USER root
+
+RUN dnf -y install golang git-core
 
 ADD go.mod                      /vuln4shift/
 ADD go.sum                      /vuln4shift/
