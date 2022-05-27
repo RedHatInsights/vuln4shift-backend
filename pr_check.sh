@@ -134,9 +134,5 @@ fi
 
 cp $LABELS_DIR/github_labels.txt $ARTIFACTS_DIR/github_labels.txt
 
-if [[ $exit_code != 0 ]]
-then
-    echo "PR check failed"
-    make_results_xml
-fi
+make_results_xml # Create dummy XML, no tests are runnning yet
 
