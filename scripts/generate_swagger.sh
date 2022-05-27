@@ -5,6 +5,8 @@ set -e
 CONVERT_URL="https://converter.swagger.io/api/convert"
 DOCS_DIR="./manager/docs"
 
+GOPATH=$(go env GOPATH) # Not exported in centos:stream8 image
+
 if ! which "$GOPATH"/bin/swag &> /dev/null; then
     go install github.com/swaggo/swag/cmd/swag@latest
 fi
