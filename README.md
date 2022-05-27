@@ -1,3 +1,6 @@
+[![Tests](https://github.com/RedHatInsights/vuln4shift-backend/actions/workflows/run_tests.yaml/badge.svg)](https://github.com/RedHatInsights/vuln4shift-backend/actions/workflows/run_tests.yaml)
+[![codecov](https://codecov.io/gh/RedHatInsights/vuln4shift-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/RedHatInsights/vuln4shift-backend)
+
 # vuln4shift-backend
 Vulnerabilities detection for OpenShift images.
 
