@@ -44,14 +44,20 @@ func registerMissingCves(tx *gorm.DB, apiImageCves map[string]struct{}) error {
 
 	if len(toInsertCves) > 0 {
 		// Use conflict clause as the cve table can be changed from vmaas-sync
-		// TODO: needs to be sorted insert to avoid deadlocks
-		if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "name"}}, DoNothing: true}).Create(&toInsertCves).Error; err != nil {
+		if err := tx.Clauses(
+			clause.Locking{Strength: "UPDATE"},
+			clause.OnConflict{Columns: []clause.Column{{Name: "name"}}, DoNothing: true}).
+			Create(&toInsertCves).Error; err != nil {
 			return err
 		}
 	}
 
 	// Add newly inserted CVEs to the cache after commit
 	for _, cve := range toInsertCves {
+		if cve.ID == 0 {
+			// This CVE was not inserted in DB, so we don't add it to the cache
+			continue
+		}
 		dbCveMapPending[cve.Name] = cve
 	}
 
@@ -92,11 +98,11 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 		// Lookup CVE in the cache (also in the pending cache)
 		if cve, found = dbCveMap[cveName]; !found {
 			if cve, found = dbCveMapPending[cveName]; !found {
-				err := fmt.Errorf("CVE not in cache: %s", cveName)
+				err = fmt.Errorf("CVE not in initial nor pending cache: %s", cveName)
 				return err
 			}
 		}
-		if _, found := dbImageCveMap[cve.ID]; !found {
+		if _, found = dbImageCveMap[cve.ID]; !found {
 			// image_cve pair not found
 			toInsertImageCves = append(toInsertImageCves, models.ImageCve{ImageID: image.ID, CveID: cve.ID})
 		} else {
@@ -259,7 +265,7 @@ func syncRepos() {
 		logger.Infof("Syncing repo: repo=%s/%s [%d/%d]", repo.Registry, repo.Repository, i+1, toSyncReposCnt)
 		if err := syncRepo(repo); err != nil {
 			logger.Infof("Syncing repo failed, skipping: repo=%s/%s, err=%s", repo.Registry, repo.Repository, err)
-			emptyPendingCache() // Not successfuly commited, don't update cache
+			emptyPendingCache() // Not successfully committed, don't update cache
 		} else {
 			flushPendingCache() // Update cache
 		}
