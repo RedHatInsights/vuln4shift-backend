@@ -219,7 +219,7 @@ parameters:
 - name: IMAGE
   description: Image name
   required: true
-  value: quay.io/jdobes/vuln4shift-backend  # for now
+  value: quay.io/cloudservices/vuln4shift-backend-app
 - name: ENV_NAME
   description: ClowdEnv Name
   required: false
