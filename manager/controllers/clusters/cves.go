@@ -53,13 +53,13 @@ type GetClusterCvesResponse []GetClusterCvesSelect
 // @description Endpoint returning CVEs affecting/nonaffecting the given single cluster
 // @accept */*
 // @produce json
-// @Param cluster_id      path  string   true  "Cluster ID"
+// @Param cluster_id      path  string   true  "cluster ID"
 // @Param sort            query []string false "column for sort"                                      collectionFormat(multi) collectionFormat(csv)
 // @Param search          query string   false "cve name/desc search"                                 example(CVE-2021-)
 // @Param limit           query int      false "limit per page"                                       example(10)
 // @Param offset          query int      false "page offset"                                          example(10)
 // @Param published       query []string false "CVE publish date: (from date),(to date)"              collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
-// @Param severity        query []string false "severity name"                                        enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
+// @Param severity        query []string false "array of severity names"                              enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
 // @Param cvss_score      query []number false "CVSS score of CVE: (from float),(to float)"           collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @router /clusters/{cluster_id}/cves [get]
 // @success 200 {object} base.Response{data=GetClusterCvesSelect}
