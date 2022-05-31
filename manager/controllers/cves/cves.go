@@ -55,11 +55,15 @@ type GetCvesResponse []GetCvesSelect
 // @description Endpoint returning CVEs affecting the current workload
 // @accept */*
 // @produce json
-// @Param sort     			query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
-// @Param search   			query string   false "cve name/desc search" example(CVE-2021-)
-// @Param limit    			query int      false "limit per page"       example(10)
-// @Param offset   			query int      false "page offset"          example(10)
-// @Param affected_clusters query []bool   false "bool array"
+// @Param sort              query []string false "column for sort"                              collectionFormat(multi) collectionFormat(csv)
+// @Param search            query string   false "cve name/desc search"                         example(CVE-2021-)
+// @Param limit             query int      false "limit per page"                               example(10)
+// @Param offset            query int      false "page offset"                                  example(10)
+// @Param published         query []string false "CVE publish date: (from date),(to date)"      collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
+// @Param severity          query []string false "array of severity names"                      enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
+// @Param cvss_score        query []number false "CVSS score of CVE: (from float),(to float)"   collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
+// @Param affected_clusters query []bool   false "checkbox bool array: (1 or more),(0)"         collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
+// @Param affected_images   query []bool   false "checkbox bool array: (1 or more),(0)"         collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @router /cves [get]
 // @success 200 {object} base.Response{data=GetCvesResponse}
 // @failure 400 {object} base.Error

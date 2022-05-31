@@ -69,9 +69,9 @@ func init() {
 // @description Endpoint return exposed clusters for given CVE
 // @accept */*
 // @produce json
-// @Param cve_name path  string true  "CVE name"
+// @Param cve_name path  string   true  "CVE name"
 // @Param sort     query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
-// @Param search   query string   false "cve name/desc search" example(CVE-2021-)
+// @Param search   query string   false "cluster search"       example(00000000-0000-0000-0000-000000000022)
 // @Param limit    query int      false "limit per page"       example(10)
 // @Param offset   query int      false "page offset"          example(10)
 // @router /cves/{cve_name}/exposed_clusters [get]
