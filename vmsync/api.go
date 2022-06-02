@@ -4,6 +4,7 @@ import (
 	"app/base/api"
 	"app/base/utils"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -67,6 +68,7 @@ func getAPICves() (map[string]APICve, error) {
 
 		statusCode, err := client.RetryRequest(http.MethodPost, VmaasCvesURL, &vmaasRequest, &vmaasResponse)
 		if err != nil {
+			vmaasRequestError.WithLabelValues(VmaasCvesURL, http.MethodPost, strconv.Itoa(statusCode)).Inc()
 			logger.Warningf("Request %s %s failed: statusCode=%d, err=%s", http.MethodPost, VmaasCvesURL, statusCode, err)
 			return cveMap, err
 		}

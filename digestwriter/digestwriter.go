@@ -53,6 +53,8 @@ func Start() {
 	setupLogger()
 	logger.Infoln("Initializing digest writer...")
 
+	RunMetrics()
+
 	storage, err := NewStorage()
 	if err != nil {
 		logger.Logln(logrus.FatalLevel, "Error initializing storage")

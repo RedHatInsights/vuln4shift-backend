@@ -94,14 +94,19 @@ func syncCves(toSyncCves, toDeleteCves []models.Cve) error {
 	// Do a rollback by default (don't need to specify on every return), will do nothing when everything is committed
 	defer tx.Rollback()
 
-	if len(toSyncCves) > 0 {
+	toSyncCvesCnt := len(toSyncCves)
+	if toSyncCvesCnt > 0 {
 		if err := insertUpdateCves(toSyncCves, tx); err != nil {
+			syncError.WithLabelValues(dbInsertUpdate).Inc()
 			return errors.Wrap(err, "Unable to insert/update cves in database")
 		}
+		cvesInsertedUpdated.Add(float64(toSyncCvesCnt))
 	}
 
 	toDeleteCount := len(toDeleteCves)
 	if toDeleteCount > 0 {
+		/* syncError.WithLabelValues(dbDelete).Inc() */
+		/* cvesDeleted.Add(float64(toDeleteCount)) */
 		logger.Infof("Skip %d CVEs to delete", toDeleteCount)
 	}
 
@@ -150,14 +155,22 @@ func insertUpdateCves(toSyncCves []models.Cve, tx *gorm.DB) error {
 func Start() {
 	logger.Info("Starting vmaas sync.")
 
+	pusher := GetMetricsPusher()
+
 	if err := dbConfigure(); err != nil {
+		syncError.WithLabelValues(dbConnection).Inc()
 		logger.Fatalf("Unable to get GORM connection: %s", err)
 	}
 	if err := prepareDbCvesMap(); err != nil {
+		syncError.WithLabelValues(dbFetch).Inc()
 		logger.Fatalf("Unable to fetch data from DB: %s", err)
 	}
 
 	logger.Infof("CVEs in DB: %d", len(dbCveMap))
 
 	syncCveMetadata()
+
+	if err := pusher.Add(); err != nil {
+		logger.Warningln("Could not push to Pushgateway:", err)
+	}
 }

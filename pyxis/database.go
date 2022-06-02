@@ -96,6 +96,7 @@ func flushPendingCache() {
 func getDbImageCves(imageID int64) (map[int64]models.ImageCve, error) {
 	imageCveRows := []models.ImageCve{}
 	if err := DB.Where("image_id = ?", imageID).Find(&imageCveRows).Error; err != nil {
+		syncError.WithLabelValues(dbImageCveNotFound).Inc()
 		return nil, err
 	}
 	dbImageCveMap := make(map[int64]models.ImageCve, len(imageCveRows))
@@ -108,6 +109,7 @@ func getDbImageCves(imageID int64) (map[int64]models.ImageCve, error) {
 func getDbRepositoryImages(repositoryID int64) (map[int64]models.RepositoryImage, error) {
 	repositoryImageRows := []models.RepositoryImage{}
 	if err := DB.Where("repository_id = ?", repositoryID).Find(&repositoryImageRows).Error; err != nil {
+		syncError.WithLabelValues(dbRepositoryImageNotFound).Inc()
 		return nil, err
 	}
 	dbRepositoryImageMap := make(map[int64]models.RepositoryImage, len(repositoryImageRows))

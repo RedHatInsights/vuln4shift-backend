@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"strconv"
 	"time"
 
 	"app/base/api"
@@ -76,6 +77,7 @@ func getAPIRepositories() (map[string]APIRepo, error) {
 		pyxisResponse := APIReposResponse{}
 		statusCode, err := client.RetryRequest(http.MethodGet, reposURL, nil, &pyxisResponse)
 		if err != nil {
+			pyxisRequestError.WithLabelValues(reposURL, http.MethodGet, strconv.Itoa(statusCode)).Inc()
 			logger.Warningf("Request %s %s failed: statusCode=%d, err=%s", http.MethodGet, reposURL, statusCode, err)
 			return repoMap, err
 		}
@@ -112,6 +114,7 @@ func getAPIRepoImages(registry, repository string) (map[string]APIImage, error) 
 		pyxisResponse := APIRepoImagesResponse{}
 		statusCode, err := client.RetryRequest(http.MethodGet, repoImagesPageURL, nil, &pyxisResponse)
 		if err != nil {
+			pyxisRequestError.WithLabelValues(repoImagesPageURL, http.MethodGet, strconv.Itoa(statusCode)).Inc()
 			logger.Warningf("Request %s %s failed: statusCode=%d, err=%s", http.MethodGet, repoImagesPageURL, statusCode, err)
 			return imageMap, err
 		}
@@ -146,6 +149,7 @@ func getAPIImageCves(imagePyxisID string) (map[string]struct{}, error) {
 		pyxisResponse := APIImageCvesResponse{}
 		statusCode, err := client.RetryRequest(http.MethodGet, imageCvesPageURL, nil, &pyxisResponse)
 		if err != nil {
+			pyxisRequestError.WithLabelValues(imageCvesPageURL, http.MethodGet, strconv.Itoa(statusCode)).Inc()
 			logger.Warningf("Request %s %s failed: statusCode=%d, err=%s", http.MethodGet, imageCvesPageURL, statusCode, err)
 			return cveMap, err
 		}
