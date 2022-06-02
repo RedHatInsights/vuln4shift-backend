@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/url"
 
 	"github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib" // Needed to make pgx work with database/sql
@@ -18,7 +19,7 @@ func GetDbURL(admin bool) string {
 		dbUser = Cfg.DbUser
 		dbPassword = Cfg.DbPassword
 	}
-	return fmt.Sprintf("postgresql://%s:%s@%s:%d/%s", dbUser, dbPassword, Cfg.DbHost, Cfg.DbPort, Cfg.DbName)
+	return fmt.Sprintf("postgresql://%s:%s@%s:%d/%s", dbUser, url.QueryEscape(dbPassword), Cfg.DbHost, Cfg.DbPort, Cfg.DbName)
 }
 
 func GetDbConnection(admin bool) (*pgx.Conn, error) {
