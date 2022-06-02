@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -176,7 +177,7 @@ func setupDB(table string) (dataSource string) {
 	dataSource = fmt.Sprintf(
 		"postgresql://%v:%v@%v:%v/%v?%v",
 		DBCONFIG.PGTableParams[table].PGUsername,
-		DBCONFIG.PGTableParams[table].PGPassword,
+		url.QueryEscape(DBCONFIG.PGTableParams[table].PGPassword),
 		DBCONFIG.PGHost,
 		DBCONFIG.PGPort,
 		DBCONFIG.PGDBName,
