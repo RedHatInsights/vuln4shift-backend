@@ -23,7 +23,7 @@ objects:
     name: vuln4shift-backend
   spec:
     database:
-      name: vuln4shift
+      name: ocp-vulnerability
       version: 13  # docker-compose is using 14! but 14 is not supported by clowder yet
     envName: ${ENV_NAME}
     kafkaTopics:
