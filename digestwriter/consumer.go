@@ -64,8 +64,8 @@ type IncomingMessage struct {
 	RequestID     RequestID      `json:"RequestID"`
 }
 
-// Struct that must fulfill the Processor interface defined in utils/kafka.go
-// It is specific to each service, so it can have any requried fields not
+// DigestConsumer Struct that must fulfill the Processor interface defined in utils/kafka.go
+// It is specific to each service, so it can have any required fields not
 // defined in the original Consumer interface
 type DigestConsumer struct {
 	storage                          Storage
@@ -103,11 +103,11 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 	// Step #1: parse the incoming message
 	message, err := parseMessage(msg.Value)
 	if err != nil {
-		/* ParseIncomingMessageError.Inc() */
+		parseIncomingMessageError.Inc()
 		return err
 	}
 
-	/* ParsedIncomingMessage.Inc() */
+	parsedIncomingMessage.Inc()
 
 	if message.Images.Digests == nil || len(*message.Images.Digests) == 0 {
 		logger.Infoln("no digests were retrieved from incoming message")
@@ -134,11 +134,11 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 			clusterKey: message.ClusterName,
 			errorKey:   err.Error(),
 		}).Errorln("error writing to cluster table")
-		/* StoredMessagesError.Inc() */
+		storedMessagesError.Inc()
 		return err
 	}
 
-	/* StoredMessagesOk.Inc() */
+	storedMessagesOk.Inc()
 	return nil
 }
 

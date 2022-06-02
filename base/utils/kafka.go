@@ -237,7 +237,7 @@ func (consumer *KafkaConsumer) handleMessage(msg *sarama.ConsumerMessage) {
 			errorKey: err.Error(),
 		}).Errorln("Error processing the message consumed from Kafka")
 		consumer.IncrementNumberOfErrorsConsumingMessages()
-		/* ConsumingErrors.Inc() */
+		ConsumingErrors.Inc()
 		return
 	}
 
@@ -248,7 +248,7 @@ func (consumer *KafkaConsumer) handleMessage(msg *sarama.ConsumerMessage) {
 		processingDurationKey: timeAfterProcessingMessage.Sub(startTime).Seconds(),
 	}).Debugln("Processed incoming message successfully")
 	consumer.IncrementNumberOfSuccessfullyConsumedMessages()
-	/*ConsumedMessages.Inc()*/
+	ConsumedMessages.Inc()
 }
 
 // GetNumberOfSuccessfullyConsumedMessages returns number of consumed messages

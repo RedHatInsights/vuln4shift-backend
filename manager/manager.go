@@ -121,6 +121,9 @@ func BuildRouter() *gin.Engine {
 // @schemes http https
 func Start() {
 	router := BuildRouter()
+
+	base.RunMetrics()
+
 	err := router.Run(fmt.Sprintf(":%d", utils.Cfg.PublicPort))
 
 	if err != nil {
