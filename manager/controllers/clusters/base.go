@@ -1,12 +1,9 @@
 package clusters
 
 import (
-	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
+	"app/manager/base"
 )
 
 type Controller struct {
-	Conn *gorm.DB
+	base.Controller
 }
-
-var logger *logrus.Logger

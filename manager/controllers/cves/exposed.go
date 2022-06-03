@@ -1,16 +1,12 @@
 package cves
 
 import (
-	"app/base/logging"
-	"app/base/utils"
 	"app/manager/base"
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -47,18 +43,6 @@ var (
 		base.SearchQuery: base.ExposedClustersSearch,
 	}
 )
-
-func init() {
-	var err error
-	logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
-	if err != nil {
-		fmt.Println("Error setting up logger.")
-		os.Exit(1)
-	}
-	logger.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp: true,
-	})
-}
 
 // GetExposedClusters represents exposed clusters endpoint controller.
 //
@@ -99,7 +83,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
-		logger.Errorf("Database error: %s", result.Error)
+		c.Logger.Errorf("Database error: %s", result.Error)
 		return
 	}
 
@@ -120,7 +104,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
-		logger.Errorf("Database error: %s", result.Error)
+		c.Logger.Errorf("Database error: %s", result.Error)
 		return
 	}
 
