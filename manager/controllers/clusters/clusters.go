@@ -77,7 +77,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
-		logger.Errorf("Database error: %s", result.Error)
+		c.Logger.Errorf("Database error: %s", result.Error)
 		return
 	}
 

@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"app/manager/base"
 	"app/manager/controllers/clusters"
 	"fmt"
 	"log"
@@ -43,9 +44,11 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	cveGroup := router.Group("/v1/cves")
 
 	cveController := cves.Controller{
-		Conn: db,
+		Controller: base.Controller{
+			Conn:   db,
+			Logger: base.CreateControllerLogger(),
+		},
 	}
-
 	// Cves endpoints must be authenticated
 	cveGroup.Use(middlewares.Authenticate(db))
 
@@ -58,7 +61,12 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 func createClustersGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	clustersGroup := router.Group("/v1/clusters")
 
-	clustersController := clusters.Controller{Conn: db}
+	clustersController := clusters.Controller{
+		Controller: base.Controller{
+			Conn:   db,
+			Logger: base.CreateControllerLogger(),
+		},
+	}
 
 	clustersGroup.Use(middlewares.Authenticate(db))
 
