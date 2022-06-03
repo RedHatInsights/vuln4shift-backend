@@ -79,8 +79,15 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 		return
 	}
 	dataRes := []GetCvesSelect{}
-	query.Find(&dataRes)
-
+	res := query.Find(&dataRes)
+	if res.Error != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+		)
+		c.Logger.Errorf("Database error: %s", res.Error)
+		return
+	}
 	ctx.JSON(http.StatusOK, base.BuildResponse(dataRes, base.BuildMeta(filters, getCvesAllowedFilters)))
 }
 
