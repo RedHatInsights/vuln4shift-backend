@@ -98,7 +98,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	}
 
 	exposedClusters := []GetExposedClustersSelect{}
-	result = query.Find(&exposedClusters)
+	result, totalItems := base.ListQueryFind(query, &exposedClusters)
 	if result.Error != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -108,7 +108,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, base.BuildResponse(exposedClusters, base.BuildMeta(make(map[string]base.Filter), getExposedClustersAllowedFilters)))
+	ctx.JSON(http.StatusOK, base.BuildResponse(exposedClusters, base.BuildMeta(make(map[string]base.Filter), getExposedClustersAllowedFilters, &totalItems)))
 }
 
 func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64) *gorm.DB {

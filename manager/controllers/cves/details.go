@@ -65,7 +65,7 @@ func (c *Controller) GetCveDetails(ctx *gin.Context) {
 
 	ctx.JSON(
 		http.StatusOK,
-		base.BuildResponse(cveDetails, base.BuildMeta(make(map[string]base.Filter), make([]string, 0))),
+		base.BuildResponse(cveDetails, base.BuildMeta(make(map[string]base.Filter), make([]string, 0), nil)),
 	)
 }
 
