@@ -79,7 +79,7 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 		return
 	}
 	dataRes := []GetCvesSelect{}
-	res := query.Find(&dataRes)
+	res, totalItems := base.ListQueryFind(query, &dataRes)
 	if res.Error != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -88,7 +88,7 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 		c.Logger.Errorf("Database error: %s", res.Error)
 		return
 	}
-	ctx.JSON(http.StatusOK, base.BuildResponse(dataRes, base.BuildMeta(filters, getCvesAllowedFilters)))
+	ctx.JSON(http.StatusOK, base.BuildResponse(dataRes, base.BuildMeta(filters, getCvesAllowedFilters, &totalItems)))
 }
 
 func (c *Controller) BuildCvesQuery(accountID int64) *gorm.DB {

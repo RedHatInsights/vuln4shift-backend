@@ -71,7 +71,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		return
 	}
 	clustersData := []GetClustersSelect{}
-	result := query.Find(&clustersData)
+	result, totalItems := base.ListQueryFind(query, &clustersData)
 	if result.Error != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -81,7 +81,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, base.BuildResponse(clustersData, base.BuildMeta(filters, getClustersAllowedFilters)))
+	ctx.JSON(http.StatusOK, base.BuildResponse(clustersData, base.BuildMeta(filters, getClustersAllowedFilters, &totalItems)))
 
 }
 

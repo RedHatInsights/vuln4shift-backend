@@ -102,7 +102,7 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 		return
 	}
 	dataRes := []GetClusterCvesSelect{}
-	res := query.Find(&dataRes)
+	res, totalItems := base.ListQueryFind(query, &dataRes)
 	if res.Error != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -113,7 +113,7 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK,
-		base.BuildResponse(dataRes, base.BuildMeta(filters, getClusterCvesAllowedFilters)),
+		base.BuildResponse(dataRes, base.BuildMeta(filters, getClusterCvesAllowedFilters, &totalItems)),
 	)
 }
 
