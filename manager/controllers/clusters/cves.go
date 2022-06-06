@@ -80,6 +80,7 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
+		c.Logger.Errorf("Database error: %s", err.Error())
 		return
 	} else if !exists {
 		ctx.AbortWithStatusJSON(
@@ -107,6 +108,7 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
+		c.Logger.Errorf("Database error: %s", res.Error)
 		return
 	}
 
