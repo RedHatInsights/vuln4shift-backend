@@ -1,0 +1,8 @@
+global:
+  scrape_interval:     5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: vuln4shift
+    static_configs:
+      - targets: ['vuln4shift_digestwriter:8086', 'vuln4shift_manager:8000']

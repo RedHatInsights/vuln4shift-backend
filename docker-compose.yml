@@ -156,7 +156,27 @@ services:
     profiles:
       - vmsync
 
+  vuln4shift_prometheus:
+    container_name: vuln4shift-prometheus
+    image: prom/prometheus:v2.36.0
+    volumes:
+      - vuln4shift-prometheus-data:/prometheus
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    security_opt:
+      - label=disable
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9095:9090
+    depends_on:
+      - vuln4shift_digestwriter
+      - vuln4shift_manager
+
 volumes:
   vuln4shift-db-data:
   zookeeper_data:
   kafka_data:
+  vuln4shift-prometheus-data:
