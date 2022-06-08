@@ -6,16 +6,25 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"app/base/models"
 	"app/manager/base"
 )
+
+type ClusterCveSeverities struct {
+	CriticalCount  *int64 `json:"critical"`
+	ImportantCount *int64 `json:"important"`
+	ModerateCount  *int64 `json:"moderate"`
+	LowCount       *int64 `json:"low"`
+}
 
 // GetClustersSelect
 // @Description clusters data
 type GetClustersSelect struct {
-	UUID     string `json:"uuid"`
-	Status   string `json:"status"`
-	Version  string `json:"version"`
-	Provider string `json:"provider"`
+	UUID       *string               `json:"id"`
+	Status     *string               `json:"status"`
+	Version    *string               `json:"version"`
+	Provider   *string               `json:"provider"`
+	Severities *ClusterCveSeverities `json:"cves_severity" gorm:"embedded"`
 }
 
 type GetClustersResponse []GetClustersSelect
@@ -82,12 +91,18 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, base.BuildResponse(clustersData, base.BuildMeta(filters, getClustersAllowedFilters, &totalItems)))
-
 }
 
 func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
 	return c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.status, cluster.version, cluster.provider`).
-		Where("cluster.account_id = ?", accountID)
-
+		Select(`cluster.uuid, cluster.status, cluster.version, cluster.provider,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS critical_count,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS important_count,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS moderate_count,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS low_count`,
+			models.Critical, models.Important, models.Moderate, models.Low).
+		Joins("LEFT JOIN cluster_image ON (cluster.id = cluster_image.cluster_id AND cluster.account_id = ?)", accountID).
+		Joins("LEFT JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
+		Joins("LEFT JOIN cve ON image_cve.cve_id = cve.id").
+		Group("cluster.id")
 }
