@@ -28,7 +28,7 @@ objects:
     envName: ${ENV_NAME}
     kafkaTopics:
     - replicas: 3
-      partitions: 3
+      partitions: 2
       topicName: ${KAFKA_BROKER_INCOMING_TOPIC}
     dependencies: []
 
@@ -234,7 +234,7 @@ parameters:
 - name: REPLICAS_DIGEST_WRITER
   description: digest writer replica count
   required: true
-  value: "3"
+  value: "2"
 
 # RESOURCES
 - name: CPU_REQUEST_MANAGER
