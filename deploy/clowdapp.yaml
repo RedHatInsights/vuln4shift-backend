@@ -105,7 +105,8 @@ objects:
             memory: ${{MEMORY_REQUEST_MANAGER}}
 
     - name: digest-writer
-      minReplicas: ${{REPLICAS_DIGEST_WRITER}}
+      minReplicas: ${{MIN_REPLICAS_DIGEST_WRITER}}
+      maxReplicas: ${{MAX_REPLICAS_DIGEST_WRITER}}
       webServices:
         public:
           enabled: false
@@ -231,8 +232,12 @@ parameters:
   description: manager replica count
   required: true
   value: "3"
-- name: REPLICAS_DIGEST_WRITER
-  description: digest writer replica count
+- name: MIN_REPLICAS_DIGEST_WRITER
+  description: digest writer minimum replica count
+  required: true
+  value: "2"
+- name: MAX_REPLICAS_DIGEST_WRITER
+  description: digest writer maximum replica count
   required: true
   value: "2"
 
@@ -352,10 +357,10 @@ parameters:
   required: true
   value: '29092'
 
-- name: KAFKA_BROKER_CONSUMER_GROUP
+- name: DIGEST_WRITER_CONSUMER_GROUP
   description: Consumer group for the kafka
   required: true
-  value: vuln4shift
+  value: vuln4shift_digest_writer_app
 - name: KAFKA_BROKER_INCOMING_TOPIC
   description: Topic with incoming cluster data from sha-extractor
   required: true
