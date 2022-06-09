@@ -95,7 +95,7 @@ objects:
         - name: LOGGING_LEVEL
           value: ${LOGGING_LEVEL}
         - name: GIN_MODE
-          value: ${MANAGER_GIN_MODE}
+          value: ${GIN_MODE}
         resources:
           limits:
             cpu: ${{CPU_LIMIT_MANAGER}}
@@ -136,6 +136,8 @@ objects:
           value: ${KAFKA_BROKER_CONSUMER_GROUP}
         - name: KAFKA_CONSUMER_TIMEOUT
           value: ${KAFKA_CONSUMER_TIMEOUT}
+        - name: GIN_MODE
+          value: ${GIN_MODE}
         resources:
           limits:
             cpu: ${{CPU_LIMIT_DIGEST_WRITER}}
@@ -164,6 +166,8 @@ objects:
               name: vuln4shift-db-passwds
         - name: LOGGING_LEVEL
           value: ${LOGGING_LEVEL}
+        - name: PROMETHEUS_PUSH_GATEWAY
+          value: ${PROMETHEUS_PUSH_GATEWAY}
         - name: API_RETRIES
           value: ${API_RETRIES}
         - name: VMAAS_BASE_URL
@@ -199,6 +203,8 @@ objects:
               name: vuln4shift-db-passwds
         - name: LOGGING_LEVEL
           value: ${LOGGING_LEVEL}
+        - name: PROMETHEUS_PUSH_GATEWAY
+          value: ${PROMETHEUS_PUSH_GATEWAY}
         - name: API_RETRIES
           value: ${API_RETRIES}
         - name: PYXIS_BASE_URL
@@ -329,6 +335,14 @@ parameters:
   description: Number of API retries before giving up
   required: true
   value: "3"
+- name: PROMETHEUS_PUSH_GATEWAY
+  description: Prometheus push gateway host
+  required: true
+  value: "pushgateway"
+- name: GIN_MODE
+  description: Mode of Gin Web Framework
+  required: true
+  value: release
 
 # DB ADMIN CONFIG
 - name: SCHEMA_MIGRATION
@@ -337,10 +351,7 @@ parameters:
   value: "-1"
 
 # MANAGER CONFIG
-- name: MANAGER_GIN_MODE
-  description: Mode of Gin Web Framework
-  required: true
-  value: release
+
 
 # DIGEST WRITER CONFIG
 - name: KAFKA_BOOTSTRAP_HOST

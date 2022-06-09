@@ -1,6 +1,8 @@
 package pyxis
 
 import (
+	"app/base/utils"
+
 	"github.com/prometheus/client_golang/prometheus/push"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -81,7 +83,7 @@ func GetMetricsPusher() *push.Pusher {
 		imageCvesDeleted,
 		imageCvesInserted,
 	)
-	pusher := push.New("http://pushgateway:9091", "pyxis").Gatherer(registry)
+	pusher := push.New(utils.Cfg.PrometheusPushGateway, "pyxis").Gatherer(registry)
 
 	return pusher
 }
