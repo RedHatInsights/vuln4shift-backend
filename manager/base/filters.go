@@ -81,7 +81,7 @@ func (c *Search) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 		tx.Where("cve.name LIKE ? OR cve.description LIKE ?", regex, regex)
 		return nil
 	case ExposedClustersSearch:
-		tx.Where("cluster.uuid LIKE ?", regex)
+		tx.Where("cluster.uuid::varchar LIKE ?", regex)
 		return nil
 	}
 	return nil
