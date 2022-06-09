@@ -1,6 +1,8 @@
 package vmsync
 
 import (
+	"app/base/utils"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
 )
@@ -49,7 +51,7 @@ func GetMetricsPusher() *push.Pusher {
 		vmaasRequestError,
 		cvesInsertedUpdated,
 	)
-	pusher := push.New("http://pushgateway:9091", "vmsync").Gatherer(registry)
+	pusher := push.New(utils.Cfg.PrometheusPushGateway, "vmsync").Gatherer(registry)
 
 	return pusher
 }
