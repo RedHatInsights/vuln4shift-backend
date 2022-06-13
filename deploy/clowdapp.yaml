@@ -134,7 +134,7 @@ objects:
         - name: KAFKA_BROKER_INCOMING_TOPIC
           value: ${KAFKA_BROKER_INCOMING_TOPIC}
         - name: KAFKA_BROKER_CONSUMER_GROUP
-          value: ${KAFKA_BROKER_CONSUMER_GROUP}
+          value: ${DIGEST_WRITER_CONSUMER_GROUP}
         - name: KAFKA_CONSUMER_TIMEOUT
           value: ${KAFKA_CONSUMER_TIMEOUT}
         - name: GIN_MODE
