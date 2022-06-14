@@ -35,6 +35,7 @@ var (
 		base.LimitQuery,
 		base.OffsetQuery,
 		base.SearchQuery,
+		base.ClusterSeverityQuery,
 	}
 
 	getClustersFilterArgs = map[string]interface{}{
@@ -60,10 +61,11 @@ var (
 // @description Endpoint returning Clusters
 // @accept */*
 // @produce json
-// @Param sort     			query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
-// @Param search   			query string   false "cluster UUID search"  example(123e4567-e89b-12d3-a456-426614174000)
-// @Param limit    			query int      false "limit per page"       example(10)
-// @Param offset   			query int      false "page offset"          example(10)
+// @Param sort     			query []string false "column for sort"          collectionFormat(multi) collectionFormat(csv)
+// @Param search   			query string   false "cluster UUID search"      example(123e4567-e89b-12d3-a456-426614174000)
+// @Param limit    			query int      false "limit per page"           example(10)
+// @Param offset   			query int      false "page offset"              example(10)
+// @Param cluster_severity  query []string false "array of severity names"  enums(Low,Moderate,Important,Critical)
 // @router /clusters [get]
 // @success 200 {object} base.Response{data=GetClustersResponse}
 // @failure 400 {object} base.Error
@@ -94,8 +96,8 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 }
 
 func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
-	return c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.status, cluster.version, cluster.provider,
+	subquery := c.Conn.Table("cluster").
+		Select(`cluster.id,
 				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS critical_count,
 				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS important_count,
 				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS moderate_count,
@@ -105,4 +107,9 @@ func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
 		Joins("LEFT JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
 		Joins("LEFT JOIN cve ON image_cve.cve_id = cve.id").
 		Group("cluster.id")
+
+	return c.Conn.Table("cluster").
+		Select(`cluster.uuid, cluster.status, cluster.version, cluster.provider,
+				critical_count, important_count, moderate_count, low_count`).
+		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery)
 }

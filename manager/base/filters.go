@@ -16,6 +16,7 @@ const (
 	SearchQuery           = "search"
 	PublishedQuery        = "published"
 	SeverityQuery         = "severity"
+	ClusterSeverityQuery  = "cluster_severity"
 	CvssScoreQuery        = "cvss_score"
 	AffectedClustersQuery = "affected_clusters"
 	AffectedImagesQuery   = "affected_images"
@@ -29,8 +30,8 @@ const (
 )
 
 const (
-	CveSearch             string = "CveSearch"
-	ExposedClustersSearch string = "ExposedClustersSearch"
+	CveSearch             = "CveSearch"
+	ExposedClustersSearch = "ExposedClustersSearch"
 )
 
 // Filter interface, represents filter obtained from
@@ -88,7 +89,7 @@ func (c *Search) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 }
 
 // CvePublishDate represents filter for CVE publish date filtering
-// ex: publsihed=2021-01-01,2022-02-02
+// ex: published=2021-01-01,2022-02-02
 type CvePublishDate struct {
 	RawFilter
 	From time.Time
@@ -111,6 +112,29 @@ type Severity struct {
 // ApplyQuery filters CVEs by their severity
 func (s *Severity) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 	tx.Where("cve.severity IN ?", s.Value)
+	return nil
+}
+
+// ClusterSeverity represents CVE severity filter for clusters
+// ex. cluster_severity=critical,important
+type ClusterSeverity struct {
+	RawFilter
+	Value []models.Severity
+}
+
+func (s *ClusterSeverity) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	for _, severity := range s.Value {
+		switch severity {
+		case models.Critical:
+			tx.Where("critical_count > 0")
+		case models.Important:
+			tx.Where("important_count > 0")
+		case models.Moderate:
+			tx.Where("moderate_count > 0")
+		case models.Low:
+			tx.Where("low_count > 0")
+		}
+	}
 	return nil
 }
 

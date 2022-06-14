@@ -85,6 +85,27 @@ func ParseSeverity(rawValues []string) ([]models.Severity, error) {
 	return res, nil
 }
 
+// ParseClusterSeverity parses array of cluster severity strings
+func ParseClusterSeverity(rawValues []string) ([]models.Severity, error) {
+	var res []models.Severity
+	for _, raw := range rawValues {
+		raw = strings.ToLower(raw)
+		switch raw {
+		case "low":
+			res = append(res, models.Low)
+		case "moderate":
+			res = append(res, models.Moderate)
+		case "important":
+			res = append(res, models.Important)
+		case "critical":
+			res = append(res, models.Critical)
+		default:
+			return res, errors.New("invalid cluster_severity argument")
+		}
+	}
+	return res, nil
+}
+
 // ParseCvssScoreRange parses array of two member range of cvss score floats
 func ParseCvssScoreRange(rawValues []string) ([]float32, error) {
 	if len(rawValues) != 2 {
@@ -169,6 +190,12 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 			return &Severity{}, err
 		}
 		return &Severity{RawFilter{raw, rawValues}, severities}, nil
+	case ClusterSeverityQuery:
+		severities, err := ParseClusterSeverity(rawValues)
+		if err != nil {
+			return &ClusterSeverity{}, err
+		}
+		return &ClusterSeverity{RawFilter{raw, rawValues}, severities}, nil
 	case CvssScoreQuery:
 		scoreRange, err := ParseCvssScoreRange(rawValues)
 		if err != nil {
