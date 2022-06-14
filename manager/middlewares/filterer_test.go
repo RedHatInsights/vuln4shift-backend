@@ -166,6 +166,58 @@ func TestFiltererInvalidSeverity(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, ctx.Writer.Status(), "One valid, one invalid, expecting HTTP 400 response")
 }
 
+func TestFiltererValidClusterSeverity(t *testing.T) {
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test?cluster_severity=critical,low,moderate,important", nil)
+
+	filterer(ctx)
+
+	filters := base.GetRequestedFilters(ctx)
+
+	f, e := filters[base.ClusterSeverityQuery]
+	assert.Equal(t, e, true, "Should be cluster_severity filter")
+	filter, ok := f.(*base.ClusterSeverity)
+	assert.Equal(t, true, ok, "Should be cluster_severity search filter")
+
+	assert.Equal(t, filter.Value, []models.Severity{models.Critical, models.Low, models.Moderate, models.Important},
+		"Expecting 4 severity values")
+	assert.Equal(t, 4, len(filters), "Should be 4 filters, the default ones - sort, limit, offset, severity one")
+
+	ctx, _ = gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test?cluster_severity=moderate", nil)
+
+	filterer(ctx)
+
+	filters = base.GetRequestedFilters(ctx)
+
+	f, e = filters[base.ClusterSeverityQuery]
+	assert.Equal(t, e, true, "Should be cluster_severity filter")
+	filter, ok = f.(*base.ClusterSeverity)
+	assert.Equal(t, true, ok, "Should be cluster_severity search filter")
+
+	assert.Equal(t, filter.Value, []models.Severity{models.Moderate},
+		"Expecting moderate severity value")
+	assert.Equal(t, 4, len(filters), "Should be 4 filters, the default ones - sort, limit, offset, severity one")
+}
+
+func TestFiltererInvalidClusterSeverity(t *testing.T) {
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test?cluster_severity=nonexisting", nil)
+
+	filterer(ctx)
+
+	base.GetRequestedFilters(ctx)
+	assert.Equal(t, http.StatusBadRequest, ctx.Writer.Status(), "Invalid severity, xpecting HTTP 400 response")
+
+	ctx, _ = gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test?cluster_severity=moderate,nonexisting", nil)
+
+	filterer(ctx)
+
+	base.GetRequestedFilters(ctx)
+	assert.Equal(t, http.StatusBadRequest, ctx.Writer.Status(), "One valid, one invalid, expecting HTTP 400 response")
+}
+
 func TestFiltererValidCvssScore(t *testing.T) {
 	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
 	ctx.Request, _ = http.NewRequest("GET", "/test?cvss_score=0.5,9.9", nil)
