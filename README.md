@@ -23,8 +23,8 @@ Vulnerabilities detection for OpenShift images.
 
 Manager swagger documentation is running at
 ```
-http://localhost:8000/api/vuln4shift/v1/openapi.json
-http://localhost:8000/api/vuln4shift/v1/openapi/index.html
+http://localhost:8000/api/ocp-vulnerability/v1/openapi.json
+http://localhost:8000/api/ocp-vulnerability/v1/openapi/index.html
 ```
 
 ## Unit tests

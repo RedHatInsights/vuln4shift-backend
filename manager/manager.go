@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	apiPrefix       = "/api/vuln4shift"
+	apiPrefix       = "/api/ocp-vulnerability"
 	openAPILocation = fmt.Sprintf("%s/v1/openapi.json", apiPrefix)
 )
 
@@ -117,7 +117,7 @@ func BuildRouter() *gin.Engine {
 // @securityDefinitions.basic BasicAuth
 //
 // @query.collection.format multi
-// @basePath /api/vuln4shift/v1
+// @basePath /api/ocp-vulnerability/v1
 // @schemes http https
 func Start() {
 	router := BuildRouter()
