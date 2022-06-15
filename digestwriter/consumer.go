@@ -55,13 +55,13 @@ type Image struct {
 // IncomingMessage data structure is representation of message consumed from
 // the configured topic
 type IncomingMessage struct {
-	Organization  *OrgID         `json:"OrgID"`
-	AccountNumber *AccountNumber `json:"AccountNumber"`
-	ClusterName   *ClusterName   `json:"ClusterName"`
-	Images        *Image         `json:"Images"`
-	LastChecked   string         `json:"-"`
-	Version       uint8          `json:"Version"`
-	RequestID     RequestID      `json:"RequestID"`
+	Organization  OrgID         `json:"OrgID"`
+	AccountNumber AccountNumber `json:"AccountNumber"`
+	ClusterName   ClusterName   `json:"ClusterName"`
+	Images        *Image        `json:"Images"`
+	LastChecked   string        `json:"-"`
+	Version       uint8         `json:"Version"`
+	RequestID     RequestID     `json:"RequestID"`
 }
 
 // DigestConsumer Struct that must fulfill the Processor interface defined in utils/kafka.go
@@ -162,15 +162,9 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	if err != nil {
 		return deserialized, err
 	}
-	if deserialized.AccountNumber == nil {
-		return deserialized, errors.New("missing required attribute 'AccountNumber'")
-	}
-	if deserialized.Organization == nil {
-		return deserialized, errors.New("missing required attribute 'OrgID'")
-	}
-	if deserialized.ClusterName == nil {
-		return deserialized, errors.New("missing required attribute 'ClusterName'")
-	}
+
+	logger.Debugf("deserialized message: %v", deserialized)
+
 	if deserialized.Images == nil {
 		return deserialized, errors.New("missing required attribute 'Images'")
 	}
@@ -178,9 +172,9 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	logger.WithFields(logrus.Fields{
 		requestIDKey: deserialized.RequestID,
 		versionKey:   deserialized.Version,
-		orgKey:       *deserialized.Organization,
-		accountKey:   *deserialized.AccountNumber,
-		clusterKey:   *deserialized.ClusterName,
+		orgKey:       deserialized.Organization,
+		accountKey:   deserialized.AccountNumber,
+		clusterKey:   deserialized.ClusterName,
 	}).Debugln("parsed incoming message correctly")
 
 	return deserialized, nil

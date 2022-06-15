@@ -16,7 +16,7 @@ import (
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	WriteClusterInfo(cluster *ClusterName, account *AccountNumber, orgID *OrgID, digests []string) error
+	WriteClusterInfo(cluster ClusterName, account AccountNumber, orgID OrgID, digests []string) error
 }
 
 // DBStorage is an implementation of Storage
@@ -102,16 +102,16 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, dig
 }
 
 // WriteClusterInfo updates the 'cluster' table with the provided info
-func (storage *DBStorage) WriteClusterInfo(cluster *ClusterName, account *AccountNumber, orgID *OrgID, digests []string) error {
+func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, account AccountNumber, orgID OrgID, digests []string) error {
 	// prepare data
-	clusterUUID, err := uuid.Parse(string(*cluster))
+	clusterUUID, err := uuid.Parse(string(cluster))
 	if err != nil {
 		logger.Errorln("cannot convert given cluster ID to UUID. Aborting WriteClusterInfo")
 		return err
 	}
 	accountData := models.Account{
-		AccountNumber: fmt.Sprint(*account),
-		OrgID:         fmt.Sprint(*orgID),
+		AccountNumber: fmt.Sprint(account),
+		OrgID:         fmt.Sprint(orgID),
 	}
 
 	logger.WithFields(logrus.Fields{
