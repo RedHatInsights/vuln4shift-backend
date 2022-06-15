@@ -147,7 +147,7 @@ func TestWriteClusterInfoWrongClusterName(t *testing.T) {
 	storage, mock := NewMockStorage(t)
 
 	// call the tested method
-	err := storage.WriteClusterInfo(&invalidClusterName, &testAccountNumber, &testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(invalidClusterName, testAccountNumber, testOrgID, []string{firstDigest})
 	assert.Error(t, err, "the given UUID should not have been parsed")
 
 	// check that no SQL operations are done
@@ -186,7 +186,7 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 	mock.ExpectCommit()
 
 	// call the tested method
-	err := storage.WriteClusterInfo(&clusterName, &testAccountNumber, &testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(clusterName, testAccountNumber, testOrgID, []string{firstDigest})
 	assert.Nil(t, err, "No error expected")
 
 	// check that no SQL operations are done
@@ -241,7 +241,7 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 	mock.ExpectCommit()
 
 	// call the tested method
-	err := storage.WriteClusterInfo(&clusterName, &testAccountNumber, &testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(clusterName, testAccountNumber, testOrgID, []string{firstDigest})
 	assert.Nil(t, err, "No error expected")
 
 	// check that no SQL operations are done
@@ -265,7 +265,7 @@ func TestWriteClusterInfoErrorWritingAccount(t *testing.T) {
 	mock.ExpectRollback()
 
 	// call the tested method
-	err := storage.WriteClusterInfo(&clusterName, &testAccountNumber, &testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(clusterName, testAccountNumber, testOrgID, []string{firstDigest})
 	assert.Error(t, err, "account table shouldn't be updated and WriteClusterInfo should abort")
 
 	// check that no SQL operations are done

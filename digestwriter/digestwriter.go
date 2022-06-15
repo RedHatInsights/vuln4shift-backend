@@ -27,7 +27,7 @@ const (
 func setupLogger() {
 	if logger == nil {
 		var err error
-		logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
+		logger, err = logging.CreateLogger("DEBUG")
 		if err != nil {
 			fmt.Println("Error setting up logger.")
 			os.Exit(1)
