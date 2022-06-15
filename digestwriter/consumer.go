@@ -159,6 +159,14 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	var deserialized IncomingMessage
 	err := json.Unmarshal(messageValue, &deserialized)
 
+	logger.WithFields(logrus.Fields{
+		requestIDKey: deserialized.RequestID,
+		versionKey:   deserialized.Version,
+		orgKey:       *deserialized.Organization,
+		accountKey:   *deserialized.AccountNumber,
+		clusterKey:   *deserialized.ClusterName,
+	}).Debugln("parsed incoming message correctly")
+
 	if err != nil {
 		return deserialized, err
 	}
@@ -174,14 +182,6 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 	if deserialized.Images == nil {
 		return deserialized, errors.New("missing required attribute 'Images'")
 	}
-
-	logger.WithFields(logrus.Fields{
-		requestIDKey: deserialized.RequestID,
-		versionKey:   deserialized.Version,
-		orgKey:       *deserialized.Organization,
-		accountKey:   *deserialized.AccountNumber,
-		clusterKey:   *deserialized.ClusterName,
-	}).Debugln("parsed incoming message correctly")
 
 	return deserialized, nil
 }
