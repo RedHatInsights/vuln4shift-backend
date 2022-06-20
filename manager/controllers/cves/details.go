@@ -27,6 +27,11 @@ type GetCveDetailsSelect struct {
 	RedhatURL    *string         `json:"redhat_url"`
 }
 
+type GetCveDetailsResponse struct {
+	Data GetCveDetailsSelect `json:"data"`
+	Meta interface{}         `json:"meta"`
+}
+
 // GetCveDetails represents CVE detail endpoint controller.
 //
 // @id GetCveDetails
@@ -38,7 +43,7 @@ type GetCveDetailsSelect struct {
 // @produce json
 // @Param cve_name path  string true  "CVE name"
 // @router /cves/{cve_name} [get]
-// @success 200 {object} base.Response{data=GetCveDetailsSelect}
+// @success 200 {object} GetCveDetailsResponse
 // @failure 404 {object} base.Error "{cve_name} not found"
 // @failure 500 {object} base.Error
 func (c *Controller) GetCveDetails(ctx *gin.Context) {
@@ -65,7 +70,7 @@ func (c *Controller) GetCveDetails(ctx *gin.Context) {
 
 	ctx.JSON(
 		http.StatusOK,
-		base.BuildResponse(cveDetails, base.BuildMeta(make(map[string]base.Filter), make([]string, 0), nil)),
+		GetCveDetailsResponse{cveDetails, base.BuildMeta(make(map[string]base.Filter), make([]string, 0), nil)},
 	)
 }
 

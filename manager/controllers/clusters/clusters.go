@@ -27,7 +27,10 @@ type GetClustersSelect struct {
 	Severities *ClusterCveSeverities `json:"cves_severity" gorm:"embedded"`
 }
 
-type GetClustersResponse []GetClustersSelect
+type GetClustersResponse struct {
+	Data []GetClustersSelect `json:"data"`
+	Meta interface{}         `json:"meta"`
+}
 
 var (
 	getClustersAllowedFilters = []string{
@@ -65,7 +68,7 @@ var (
 // @Param limit    			query int      false "limit per page"       example(10)
 // @Param offset   			query int      false "page offset"          example(10)
 // @router /clusters [get]
-// @success 200 {object} base.Response{data=GetClustersResponse}
+// @success 200 {object} GetClustersResponse
 // @failure 400 {object} base.Error
 // @failure 500 {object} base.Error
 func (c *Controller) GetClusters(ctx *gin.Context) {
@@ -90,7 +93,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, base.BuildResponse(clustersData, base.BuildMeta(filters, getClustersAllowedFilters, &totalItems)))
+	ctx.JSON(http.StatusOK, GetClustersResponse{clustersData, base.BuildMeta(filters, getClustersAllowedFilters, &totalItems)})
 }
 
 func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
