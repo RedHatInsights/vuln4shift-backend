@@ -9,11 +9,6 @@ type ErrorDetail struct {
 	Status int    `json:"status"`
 }
 
-type Response struct {
-	Data interface{} `json:"data"`
-	Meta interface{} `json:"meta"`
-}
-
 func BuildErrorResponse(status int, detail string) Error {
 	return Error{Error: ErrorDetail{Detail: detail, Status: status}}
 }
@@ -31,8 +26,4 @@ func BuildMeta(requestedFilters map[string]Filter, allowedFilters []string, tota
 		meta["total_items"] = *totalItems
 	}
 	return meta
-}
-
-func BuildResponse(data interface{}, meta interface{}) Response {
-	return Response{data, meta}
 }

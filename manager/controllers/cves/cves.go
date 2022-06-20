@@ -44,7 +44,10 @@ type GetCvesSelect struct {
 	ImagesExposed   *int64           `json:"images_exposed"`
 }
 
-type GetCvesResponse []GetCvesSelect
+type GetCvesResponse struct {
+	Data []GetCvesSelect `json:"data"`
+	Meta interface{}     `json:"meta"`
+}
 
 // GetCves represents CVEs endpoint controller.
 //
@@ -65,7 +68,7 @@ type GetCvesResponse []GetCvesSelect
 // @Param affected_clusters query []bool   false "checkbox bool array: (1 or more),(0)"         collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @Param affected_images   query []bool   false "checkbox bool array: (1 or more),(0)"         collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @router /cves [get]
-// @success 200 {object} base.Response{data=GetCvesResponse}
+// @success 200 {object} GetCvesResponse
 // @failure 400 {object} base.Error
 func (c *Controller) GetCves(ctx *gin.Context) {
 	accountID := ctx.GetInt64("account_id")
@@ -88,7 +91,7 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 		c.Logger.Errorf("Database error: %s", res.Error)
 		return
 	}
-	ctx.JSON(http.StatusOK, base.BuildResponse(dataRes, base.BuildMeta(filters, getCvesAllowedFilters, &totalItems)))
+	ctx.JSON(http.StatusOK, GetCvesResponse{dataRes, base.BuildMeta(filters, getCvesAllowedFilters, &totalItems)})
 }
 
 func (c *Controller) BuildCvesQuery(accountID int64) *gorm.DB {

@@ -20,7 +20,10 @@ type GetExposedClustersSelect struct {
 	Provider string `json:"provider"`
 }
 
-type GetExposedClustersResponse []GetExposedClustersSelect
+type GetExposedClustersResponse struct {
+	Data []GetExposedClustersSelect `json:"data"`
+	Meta interface{}                `json:"meta"`
+}
 
 var (
 	getExposedClustersAllowedFilters = []string{
@@ -59,7 +62,7 @@ var (
 // @Param limit    query int      false "limit per page"       example(10)
 // @Param offset   query int      false "page offset"          example(10)
 // @router /cves/{cve_name}/exposed_clusters [get]
-// @success 200 {object} base.Response{data=GetExposedClustersResponse}
+// @success 200 {object} GetExposedClustersResponse
 // @failure 400 {object} base.Error
 // @failure 404 {object} base.Error "{cve_name} not found"
 // @failure 500 {object} base.Error
@@ -108,7 +111,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, base.BuildResponse(exposedClusters, base.BuildMeta(make(map[string]base.Filter), getExposedClustersAllowedFilters, &totalItems)))
+	ctx.JSON(http.StatusOK, GetExposedClustersResponse{exposedClusters, base.BuildMeta(make(map[string]base.Filter), getExposedClustersAllowedFilters, &totalItems)})
 }
 
 func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64) *gorm.DB {

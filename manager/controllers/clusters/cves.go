@@ -42,7 +42,10 @@ type GetClusterCvesSelect struct {
 	ImagesExposed *int64           `json:"images_exposed"`
 }
 
-type GetClusterCvesResponse []GetClusterCvesSelect
+type GetClusterCvesResponse struct {
+	Data []GetClusterCvesSelect `json:"data"`
+	Meta interface{}            `json:"meta"`
+}
 
 // GetClusterCves represents /clusters/{cluster_id}/cves endpoint controller.
 //
@@ -62,7 +65,7 @@ type GetClusterCvesResponse []GetClusterCvesSelect
 // @Param severity        query []string false "array of severity names"                              enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
 // @Param cvss_score      query []number false "CVSS score of CVE: (from float),(to float)"           collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @router /clusters/{cluster_id}/cves [get]
-// @success 200 {object} base.Response{data=GetClusterCvesSelect}
+// @success 200 {object} GetClusterCvesResponse
 // @failure 400 {object} base.Error
 // @failure 404 {object} base.Error "cluster does not exist"
 // @failure 500 {object} base.Error
@@ -113,7 +116,7 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK,
-		base.BuildResponse(dataRes, base.BuildMeta(filters, getClusterCvesAllowedFilters, &totalItems)),
+		GetClusterCvesResponse{dataRes, base.BuildMeta(filters, getClusterCvesAllowedFilters, &totalItems)},
 	)
 }
 
