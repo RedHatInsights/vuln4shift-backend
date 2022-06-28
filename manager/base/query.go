@@ -4,14 +4,26 @@ import (
 	"gorm.io/gorm"
 )
 
-// Performs Find on query to given response, and overrides the limit and offsets
-// to return the total count of items
-func ListQueryFind(tx *gorm.DB, response interface{}) (*gorm.DB, int64) {
-	res := tx.Find(response)
-	if res.Error != nil {
-		return res, 0
+// ListQuery applies filters, queries and gets total count for listable endpoint
+func ListQuery(tx *gorm.DB, allowedFilters []string, filters map[string]Filter, filterArgs map[string]interface{}, result interface{}) (totalItems int64, inputError error, dbError error) {
+	inputError = ApplyFilters(tx, allowedFilters, filters, filterArgs)
+	if inputError != nil {
+		return
 	}
-	var count int64
-	tx.Limit(-1).Offset(-1).Count(&count)
-	return res, count
+	res := tx.Count(&totalItems)
+	if res.Error != nil {
+		dbError = res.Error
+		return
+	}
+	spqFilters := []string{SortQuery, LimitQuery, OffsetQuery}
+	inputError = ApplyFilters(tx, spqFilters, filters, filterArgs)
+	if inputError != nil {
+		return
+	}
+	res = tx.Find(result)
+	if res.Error != nil {
+		dbError = res.Error
+		return
+	}
+	return
 }

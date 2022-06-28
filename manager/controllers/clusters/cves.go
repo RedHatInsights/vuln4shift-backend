@@ -11,8 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
-var getClusterCvesAllowedFilters = []string{base.SortQuery, base.LimitQuery, base.OffsetQuery,
-	base.SearchQuery, base.PublishedQuery, base.SeverityQuery, base.CvssScoreQuery}
+var getClusterCvesAllowedFilters = []string{base.SearchQuery, base.PublishedQuery,
+	base.SeverityQuery, base.CvssScoreQuery}
 
 var getClusterCvesFilterArgs = map[string]interface{}{
 	base.SortFilterArgs: base.SortArgs{
@@ -96,22 +96,21 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 	filters := base.GetRequestedFilters(ctx)
 	query := c.BuildClusterCvesQuery(accountID, clusterID)
 
-	err = base.ApplyFilters(query, getClusterCvesAllowedFilters, filters, getClusterCvesFilterArgs)
-	if err != nil {
+	dataRes := []GetClusterCvesSelect{}
+	totalItems, inputErr, dbErr := base.ListQuery(query, getClusterCvesAllowedFilters, filters, getClusterCvesFilterArgs, &dataRes)
+	if inputErr != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			base.BuildErrorResponse(http.StatusBadRequest, err.Error()),
+			base.BuildErrorResponse(http.StatusBadRequest, inputErr.Error()),
 		)
 		return
 	}
-	dataRes := []GetClusterCvesSelect{}
-	res, totalItems := base.ListQueryFind(query, &dataRes)
-	if res.Error != nil {
+	if dbErr != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
-		c.Logger.Errorf("Database error: %s", res.Error)
+		c.Logger.Errorf("Database error: %s", dbErr.Error())
 		return
 	}
 
