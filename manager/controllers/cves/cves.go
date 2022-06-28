@@ -10,8 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var getCvesAllowedFilters = []string{base.SortQuery, base.LimitQuery, base.OffsetQuery,
-	base.SearchQuery, base.PublishedQuery, base.SeverityQuery, base.CvssScoreQuery,
+var getCvesAllowedFilters = []string{base.SearchQuery, base.PublishedQuery, base.SeverityQuery, base.CvssScoreQuery,
 	base.AffectedClustersQuery, base.AffectedImagesQuery}
 
 var getCvesFilterArgs = map[string]interface{}{
@@ -76,19 +75,18 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 	filters := base.GetRequestedFilters(ctx)
 	query := c.BuildCvesQuery(accountID)
 
-	err := base.ApplyFilters(query, getCvesAllowedFilters, filters, getCvesFilterArgs)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
+	dataRes := []GetCvesSelect{}
+	totalItems, inputErr, dbErr := base.ListQuery(query, getCvesAllowedFilters, filters, getCvesFilterArgs, &dataRes)
+	if inputErr != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, inputErr.Error()))
 		return
 	}
-	dataRes := []GetCvesSelect{}
-	res, totalItems := base.ListQueryFind(query, &dataRes)
-	if res.Error != nil {
+	if dbErr != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
-		c.Logger.Errorf("Database error: %s", res.Error)
+		c.Logger.Errorf("Database error: %s", dbErr.Error())
 		return
 	}
 	ctx.JSON(http.StatusOK, GetCvesResponse{dataRes, base.BuildMeta(filters, getCvesAllowedFilters, &totalItems)})

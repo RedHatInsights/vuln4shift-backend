@@ -34,9 +34,6 @@ type GetClustersResponse struct {
 
 var (
 	getClustersAllowedFilters = []string{
-		base.SortQuery,
-		base.LimitQuery,
-		base.OffsetQuery,
 		base.SearchQuery,
 		base.ClusterSeverityQuery,
 	}
@@ -79,19 +76,18 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 	filters := base.GetRequestedFilters(ctx)
 	query := c.BuildClustersQuery(accountID)
 
-	err := base.ApplyFilters(query, getClustersAllowedFilters, filters, getClustersFilterArgs)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
+	clustersData := []GetClustersSelect{}
+	totalItems, inputErr, dbErr := base.ListQuery(query, getClustersAllowedFilters, filters, getClustersFilterArgs, &clustersData)
+	if inputErr != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, inputErr.Error()))
 		return
 	}
-	clustersData := []GetClustersSelect{}
-	result, totalItems := base.ListQueryFind(query, &clustersData)
-	if result.Error != nil {
+	if dbErr != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
-		c.Logger.Errorf("Database error: %s", result.Error)
+		c.Logger.Errorf("Database error: %s", dbErr.Error())
 		return
 	}
 

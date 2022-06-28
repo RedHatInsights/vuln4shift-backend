@@ -27,9 +27,6 @@ type GetExposedClustersResponse struct {
 
 var (
 	getExposedClustersAllowedFilters = []string{
-		base.SortQuery,
-		base.LimitQuery,
-		base.OffsetQuery,
 		base.SearchQuery,
 	}
 
@@ -94,20 +91,19 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	filters := base.GetRequestedFilters(ctx)
 
 	query = c.BuildExposedClustersQuery(cveName, accountID)
-	err := base.ApplyFilters(query, getExposedClustersAllowedFilters, filters, getExposedClustersFilterArgs)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
-		return
-	}
 
 	exposedClusters := []GetExposedClustersSelect{}
-	result, totalItems := base.ListQueryFind(query, &exposedClusters)
-	if result.Error != nil {
+	totalItems, inputErr, dbErr := base.ListQuery(query, getExposedClustersAllowedFilters, filters, getExposedClustersFilterArgs, &exposedClusters)
+	if inputErr != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, inputErr.Error()))
+		return
+	}
+	if dbErr != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
-		c.Logger.Errorf("Database error: %s", result.Error)
+		c.Logger.Errorf("Database error: %s", dbErr.Error())
 		return
 	}
 
