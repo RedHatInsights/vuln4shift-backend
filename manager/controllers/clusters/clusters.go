@@ -101,18 +101,21 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
 	subquery := c.Conn.Table("cluster").
 		Select(`cluster.id,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS critical_count,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS important_count,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS moderate_count,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS low_count`,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS cc,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS ic,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS mc,
+				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS lc`,
 			models.Critical, models.Important, models.Moderate, models.Low).
-		Joins("LEFT JOIN cluster_image ON (cluster.id = cluster_image.cluster_id AND cluster.account_id = ?)", accountID).
-		Joins("LEFT JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
-		Joins("LEFT JOIN cve ON image_cve.cve_id = cve.id").
+		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
+		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
+		Joins("JOIN cve ON image_cve.cve_id = cve.id").
+		Where("cluster.account_id = ?", accountID).
 		Group("cluster.id")
 
 	return c.Conn.Table("cluster").
 		Select(`cluster.uuid, cluster.status, cluster.version, cluster.provider,
-				critical_count, important_count, moderate_count, low_count`).
-		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery)
+				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
+				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count`).
+		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
+		Where("cluster.account_id = ?", accountID)
 }
