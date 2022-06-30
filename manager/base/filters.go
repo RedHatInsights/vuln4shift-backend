@@ -263,13 +263,10 @@ func (s *Sort) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 		// Sort by default sortable
 		for _, item := range sortArgs.DefaultSortable {
 			if col, exists := sortArgs.SortableColumns[item.Column]; exists {
-				// Always add the default sort parameter, so user can see default sort
 				if item.Desc {
 					tx.Order(fmt.Sprintf("%s DESC NULLS LAST", col))
-					s.RawValues = append(s.RawValues, fmt.Sprintf("-%s", item.Column))
 				} else {
 					tx.Order(fmt.Sprintf("%s ASC NULLS LAST", col))
-					s.RawValues = append(s.RawValues, item.Column)
 				}
 			}
 		}
