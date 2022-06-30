@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/Shopify/sarama"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -115,6 +116,11 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 		return nil
 	}
 
+	// TODO: remove. Temporary step for testing
+	if message.ClusterName == "" {
+		uuid, _ := uuid.NewUUID()
+		message.ClusterName = ClusterName(uuid.String())
+	}
 	// Step #2: get digests into a slice of strings
 	digests := extractDigestsFromMessage(message.Images.Digests)
 
