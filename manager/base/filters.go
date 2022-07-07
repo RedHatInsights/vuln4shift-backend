@@ -257,14 +257,18 @@ func (s *Sort) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 
 // ApplyFilters applies requested filters from query params on created query from controller,
 // filters needs to be allowed from controller in allowedFilters array
-func ApplyFilters(query *gorm.DB, allowedFilters []string, requestedFilters map[string]Filter, args map[string]interface{}) error {
+// Returns used filters for querying
+func ApplyFilters(query *gorm.DB, allowedFilters []string,
+	requestedFilters map[string]Filter, args map[string]interface{}) (map[string]Filter, error) {
+	usedFilters := make(map[string]Filter)
 	for _, allowedFilter := range allowedFilters {
 		if filter, requested := requestedFilters[allowedFilter]; requested {
 			err := filter.ApplyQuery(query, args)
 			if err != nil {
-				return err
+				return map[string]Filter{}, err
 			}
+			usedFilters[allowedFilter] = filter
 		}
 	}
-	return nil
+	return usedFilters, nil
 }

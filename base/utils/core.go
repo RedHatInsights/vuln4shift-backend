@@ -37,3 +37,10 @@ func GetEnv[T DefValueType](key string, def T) T {
 	}
 	return ret
 }
+
+func CopyMap[K comparable, V any](src map[K]V, dst map[K]V) map[K]V {
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
+}
