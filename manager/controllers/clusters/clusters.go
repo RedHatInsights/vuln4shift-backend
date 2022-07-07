@@ -77,7 +77,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 	query := c.BuildClustersQuery(accountID)
 
 	clustersData := []GetClustersSelect{}
-	totalItems, inputErr, dbErr := base.ListQuery(query, getClustersAllowedFilters, filters, getClustersFilterArgs, &clustersData)
+	usedFilters, totalItems, inputErr, dbErr := base.ListQuery(query, getClustersAllowedFilters, filters, getClustersFilterArgs, &clustersData)
 	if inputErr != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, inputErr.Error()))
 		return
@@ -91,7 +91,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, GetClustersResponse{clustersData, base.BuildMeta(filters, getClustersAllowedFilters, &totalItems)})
+	ctx.JSON(http.StatusOK, GetClustersResponse{clustersData, base.BuildMeta(usedFilters, &totalItems)})
 }
 
 func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
