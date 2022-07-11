@@ -45,5 +45,5 @@ func RunMetrics() {
 		utils.ConsumedMessages,
 		utils.ConsumingErrors,
 	)
-	utils.StartPrometheus("digestwriter")
+	utils.StartPrometheus("vuln4shift_digestwriter")
 }
