@@ -8,5 +8,5 @@ import (
 
 func RunMetrics() {
 	prometheus.MustRegister()
-	utils.StartPrometheus("manager")
+	utils.StartPrometheus("vuln4shift_manager")
 }

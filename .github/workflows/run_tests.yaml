@@ -31,3 +31,6 @@ jobs:
 
       - name: Cleanup
         run: docker-compose down
+
+      - name: Validate Grafana dashboards
+        run: ./scripts/validate_dashboards.py ./monitoring/grafana/dashboards/
