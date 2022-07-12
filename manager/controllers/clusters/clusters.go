@@ -20,11 +20,12 @@ type ClusterCveSeverities struct {
 // GetClustersSelect
 // @Description clusters data
 type GetClustersSelect struct {
-	UUID       *string               `json:"id"`
-	Status     *string               `json:"status"`
-	Version    *string               `json:"version"`
-	Provider   *string               `json:"provider"`
-	Severities *ClusterCveSeverities `json:"cves_severity" gorm:"embedded"`
+	UUID        *string               `json:"id"`
+	DisplayName *string               `json:"display_name"`
+	Status      *string               `json:"status"`
+	Version     *string               `json:"version"`
+	Provider    *string               `json:"provider"`
+	Severities  *ClusterCveSeverities `json:"cves_severity" gorm:"embedded"`
 }
 
 type GetClustersResponse struct {
@@ -108,8 +109,9 @@ func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
 		Where("cluster.account_id = ?", accountID).
 		Group("cluster.id")
 
+	// FIXME: display_name is hardcoded to uuid
 	return c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.status, cluster.version, cluster.provider,
+		Select(`cluster.uuid, cluster.uuid, cluster.status, cluster.version, cluster.provider,
 				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
 				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count`).
 		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
