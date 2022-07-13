@@ -111,7 +111,7 @@ func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
 
 	// FIXME: display_name is hardcoded to uuid
 	return c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.uuid, cluster.status, cluster.version, cluster.provider,
+		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider,
 				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
 				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count`).
 		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).

@@ -114,7 +114,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64) *gorm.DB {
 	// FIXME: display_name is hardcoded to uuid
 	return c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.uuid, cluster.status, cluster.version, cluster.provider`).
+		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider`).
 		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
 		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
 		Joins("JOIN cve ON image_cve.cve_id = cve.id").
