@@ -402,4 +402,4 @@ parameters:
 - name: PYXIS_PROFILE
   description: Pyxis sync profile
   required: true
-  value: testing
+  value: all

@@ -294,13 +294,8 @@ func syncRepos() {
 	}
 
 	toSyncReposCnt := len(toSyncRepos)
-	if profile != "" {
-		logger.Infof("Repositories to sync (profile=%s): %d", profile, toSyncReposCnt)
-		logger.Infof("Repositories in DB not known to Pyxis or not in current profile (profile=%s): %d", profile, len(dbRepoMap))
-	} else {
-		logger.Infof("Repositories to sync: %d", toSyncReposCnt)
-		logger.Infof("Repositories in DB not known to Pyxis: %d", len(dbRepoMap))
-	}
+	logger.Infof("Repositories to sync (profile=%s): %d", profile, toSyncReposCnt)
+	logger.Infof("Repositories in DB not known to Pyxis or not in current profile (profile=%s): %d", profile, len(dbRepoMap))
 
 	for i, repo := range toSyncRepos {
 		logger.Infof("Syncing repo: repo=%s/%s [%d/%d]", repo.Registry, repo.Repository, i+1, toSyncReposCnt)

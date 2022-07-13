@@ -1,3 +1,4 @@
+# - name: all (hardcoded to sync all repos)
 - name: testing
   registries:
     - name: registry.access.redhat.com

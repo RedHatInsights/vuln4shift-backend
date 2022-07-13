@@ -51,8 +51,8 @@ func parseProfiles() {
 		}
 	}
 
-	// If the profile is not empty, it must exist in the yaml
-	if profile != "" {
+	// If the profile is not "all", it must exist in the yaml
+	if profile != "all" {
 		if _, found := profileMap[profile]; !found {
 			logger.Fatalf("Unknown profile: %s", profile)
 		}
@@ -60,8 +60,8 @@ func parseProfiles() {
 }
 
 func repositoryInProfile(registry, repository string) bool {
-	// Empty profile = sync all repositories
-	if profile != "" {
+	// "all" = sync all repositories
+	if profile != "all" {
 		_, found := profileMap[profile][registry][repository]
 		return found
 	}
