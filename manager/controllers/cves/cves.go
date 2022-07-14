@@ -93,13 +93,19 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 }
 
 func (c *Controller) BuildCvesQuery(accountID int64) *gorm.DB {
+	cntSubquery := c.Conn.Table("cluster").
+		Select(`image_cve.cve_id,
+				COUNT(DISTINCT cluster_image.cluster_id) AS ce,
+				COUNT(DISTINCT cluster_image.image_id) AS ie`).
+		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
+		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
+		Where("cluster.account_id = ?", accountID).
+		Group("image_cve.cve_id")
+
 	return c.Conn.Table("cve").
 		Select(`cve.name, cve.description, cve.public_date, cve.severity,
-							cve.cvss2_score, cve.cvss3_score,
-							COUNT(DISTINCT cluster_image.cluster_id) AS clusters_exposed,
-							COUNT(DISTINCT cluster_image.image_id) AS images_exposed`).
-		Joins("LEFT JOIN image_cve ON cve.id = image_cve.cve_id").
-		Joins("LEFT JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
-		Joins("LEFT JOIN cluster ON (cluster_image.cluster_id = cluster.id AND cluster.account_id = ?)", accountID).
-		Group("cve.id")
+				cve.cvss2_score, cve.cvss3_score,
+				COALESCE(ce, 0) AS clusters_exposed,
+				COALESCE(ie, 0) AS images_exposed`).
+		Joins("LEFT JOIN (?) AS cnt_subquery ON cve.id = cnt_subquery.cve_id", cntSubquery)
 }
