@@ -19,7 +19,6 @@ const (
 	ClusterSeverityQuery  = "cluster_severity"
 	CvssScoreQuery        = "cvss_score"
 	AffectedClustersQuery = "affected_clusters"
-	AffectedImagesQuery   = "affected_images"
 	LimitQuery            = "limit"
 	OffsetQuery           = "offset"
 	SortQuery             = "sort"
@@ -167,24 +166,6 @@ func (a *AffectingClusters) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) er
 	}
 	if a.OneOrMore {
 		tx.Having("COUNT(DISTINCT cluster_image.cluster_id) > 0")
-	}
-	return nil
-}
-
-// AffectingImages represents filter
-// ex. images_exposed=false,true
-type AffectingImages struct {
-	RawFilter
-	OneOrMore bool
-	None      bool
-}
-
-func (a *AffectingImages) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
-	if a.None {
-		tx.Having("COUNT(DISTINCT cluster_image.image_id) = 0")
-	}
-	if a.OneOrMore {
-		tx.Having("COUNT(DISTINCT cluster_image.image_id) > 0")
 	}
 	return nil
 }

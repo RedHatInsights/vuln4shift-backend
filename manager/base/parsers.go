@@ -209,13 +209,6 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 			return &AffectingClusters{}, errors.New("invalid affected_clusters bool parameter")
 		}
 		return &AffectingClusters{RawFilter{raw, rawValues}, boolArr[0], boolArr[1]}, nil
-	case AffectedImagesQuery:
-		arrLen := 2
-		boolArr, err := ParseBoolArray(rawValues, &arrLen)
-		if err != nil {
-			return &AffectingImages{}, errors.New("invalid affected_images bool parameter")
-		}
-		return &AffectingImages{RawFilter{raw, rawValues}, boolArr[0], boolArr[1]}, nil
 	case LimitQuery:
 		limit, err := ParseUint(rawValues)
 		if err != nil {
