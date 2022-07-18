@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -14,11 +15,12 @@ import (
 // @Description CVE exposed clusters data
 // @Description presents in response
 type GetExposedClustersSelect struct {
-	UUID        string `json:"id"`
-	DisplayName string `json:"display_name"`
-	Status      string `json:"status"`
-	Version     string `json:"version"`
-	Provider    string `json:"provider"`
+	UUID        string     `json:"id"`
+	DisplayName string     `json:"display_name"`
+	Status      string     `json:"status"`
+	Version     string     `json:"version"`
+	Provider    string     `json:"provider"`
+	LastSeen    *time.Time `json:"last_seen"`
 }
 
 type GetExposedClustersResponse struct {
@@ -34,11 +36,12 @@ var (
 	getExposedClustersFilterArgs = map[string]interface{}{
 		base.SortFilterArgs: base.SortArgs{
 			SortableColumns: map[string]string{
-				"id":       "cluster.id",
-				"status":   "cluster.status",
-				"version":  "cluster.version",
-				"provider": "cluster.provider",
-				"uuid":     "cluster.uuid"},
+				"id":        "cluster.id",
+				"status":    "cluster.status",
+				"version":   "cluster.version",
+				"provider":  "cluster.provider",
+				"uuid":      "cluster.uuid",
+				"last_seen": "cluster.last_seen"},
 			DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 		},
 		base.SearchQuery: base.ExposedClustersSearch,
@@ -114,7 +117,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64) *gorm.DB {
 	// FIXME: display_name is hardcoded to uuid
 	return c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider`).
+		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider, cluster.last_seen`).
 		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
 		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
 		Joins("JOIN cve ON image_cve.cve_id = cve.id").

@@ -168,9 +168,9 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 
 	// Expect a SELECT FROM cluster statement since the previous select returned a record
 	// Since it returns a record, there is no need to expect the INSERT INTO "cluster" statement
-	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 ORDER BY "cluster"."id" LIMIT 1`
+	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id","cluster"."last_seen" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 AND "cluster"."last_seen" = $3 ORDER BY "cluster"."id" LIMIT 1`
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
-		WithArgs(clusterName, testAccountID).
+		WithArgs(clusterName, testAccountID, anyArgForMockSQLQueries).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "uuid", "account_id"}).AddRow(testClustedID, clusterName, testAccountID))
 
 	// Since it all went smoothly, the digest is linked to the cluster
@@ -216,14 +216,14 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 
 	// Expect a SELECT FROM cluster statement
 	// Mock that it would not return any row since there was no data for current account
-	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 ORDER BY "cluster"."id" LIMIT 1`
+	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id","cluster"."last_seen" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 AND "cluster"."last_seen" = $3 ORDER BY "cluster"."id" LIMIT 1`
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
-		WithArgs(anyArgForMockSQLQueries, anyArgForMockSQLQueries).
+		WithArgs(anyArgForMockSQLQueries, anyArgForMockSQLQueries, anyArgForMockSQLQueries).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "uuid", "account_id"}))
 	//Expect an 'INSERT INTO cluster' with the ID of the created account record
-	expectedInsert = `INSERT INTO "cluster" ("uuid","account_id") VALUES ($1,$2) ON CONFLICT DO NOTHING RETURNING "id"`
+	expectedInsert = `INSERT INTO "cluster" ("uuid","account_id","last_seen") VALUES ($1,$2,$3) ON CONFLICT ("uuid") DO UPDATE SET "uuid"="excluded"."uuid","account_id"="excluded"."account_id","last_seen"="excluded"."last_seen" RETURNING "id"`
 	clusterUUID, _ := uuid.Parse(string(clusterName))
-	mock.ExpectQuery(regexp.QuoteMeta(expectedInsert)).WithArgs(clusterUUID, storedAccountID).
+	mock.ExpectQuery(regexp.QuoteMeta(expectedInsert)).WithArgs(clusterUUID, storedAccountID, sqlmock.AnyArg()).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(storedClusterID))
 
 	// Since it all went smoothly, the digest is linked to the cluster

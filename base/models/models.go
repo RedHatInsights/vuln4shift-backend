@@ -29,6 +29,7 @@ type Cluster struct {
 	CveCacheImportant int32     `gorm:"type:int;not null;default:0"`
 	CveCacheModerate  int32     `gorm:"type:int;not null;default:0"`
 	CveCacheLow       int32     `gorm:"type:int;not null;default:0"`
+	LastSeen          time.Time `gorm:"type:timestamp with time zone not null"`
 }
 
 func (Cluster) TableName() string {
