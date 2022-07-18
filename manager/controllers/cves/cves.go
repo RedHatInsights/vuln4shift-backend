@@ -11,7 +11,7 @@ import (
 )
 
 var getCvesAllowedFilters = []string{base.SearchQuery, base.PublishedQuery, base.SeverityQuery, base.CvssScoreQuery,
-	base.AffectedClustersQuery, base.AffectedImagesQuery}
+	base.AffectedClustersQuery}
 
 var getCvesFilterArgs = map[string]interface{}{
 	base.SortFilterArgs: base.SortArgs{
@@ -65,7 +65,6 @@ type GetCvesResponse struct {
 // @Param severity          query []string false "array of severity names"                      enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
 // @Param cvss_score        query []number false "CVSS score of CVE: (from float),(to float)"   collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @Param affected_clusters query []bool   false "checkbox bool array: (1 or more),(0)"         collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
-// @Param affected_images   query []bool   false "checkbox bool array: (1 or more),(0)"         collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @router /cves [get]
 // @success 200 {object} GetCvesResponse
 // @failure 400 {object} base.Error
