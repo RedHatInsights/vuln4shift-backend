@@ -7,6 +7,7 @@ import (
 	"app/base/models"
 	"app/base/utils"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -148,14 +149,17 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, account AccountN
 	clusterInfoData := models.Cluster{
 		UUID:      clusterUUID,
 		AccountID: accountData.ID,
+		LastSeen:  time.Now().UTC(),
 	}
 
 	if err := tx.Omit(
 		"Status", "Version", "Provider", "CveCacheCritical",
 		"CveCacheImportant", "CveCacheModerate", "CveCacheLow").
 		Where(clusterInfoData).
-		Clauses(clause.OnConflict{DoNothing: true}).
-		FirstOrCreate(&clusterInfoData).Error; err != nil {
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "uuid"}},
+			UpdateAll: true,
+		}).FirstOrCreate(&clusterInfoData).Error; err != nil {
 		logger.WithFields(logrus.Fields{
 			errorKey: err.Error(),
 		}).Errorln("couldn't write cluster info in cluster table")

@@ -2,6 +2,7 @@ package clusters
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -26,6 +27,7 @@ type GetClustersSelect struct {
 	Version     *string               `json:"version"`
 	Provider    *string               `json:"provider"`
 	Severities  *ClusterCveSeverities `json:"cves_severity" gorm:"embedded"`
+	LastSeen    *time.Time            `json:"last_seen"`
 }
 
 type GetClustersResponse struct {
@@ -42,11 +44,12 @@ var (
 	getClustersFilterArgs = map[string]interface{}{
 		base.SortFilterArgs: base.SortArgs{
 			SortableColumns: map[string]string{
-				"id":       "cluster.id",
-				"status":   "cluster.status",
-				"version":  "cluster.version",
-				"provider": "cluster.provider",
-				"uuid":     "cluster.uuid"},
+				"id":        "cluster.id",
+				"status":    "cluster.status",
+				"version":   "cluster.version",
+				"provider":  "cluster.provider",
+				"uuid":      "cluster.uuid",
+				"last_seen": "cluster.last_seen"},
 			DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 		},
 		base.SearchQuery: base.ExposedClustersSearch,
@@ -113,7 +116,8 @@ func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
 	return c.Conn.Table("cluster").
 		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider,
 				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
-				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count`).
+				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count,
+				cluster.last_seen`).
 		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
 		Where("cluster.account_id = ?", accountID)
 }
