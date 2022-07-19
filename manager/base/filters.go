@@ -160,13 +160,23 @@ type AffectingClusters struct {
 }
 
 // ApplyQuery filters rows by count of affected clusters
-func (a *AffectingClusters) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+func (a *AffectingClusters) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
+	if a.None && a.OneOrMore {
+		return nil
+	}
+
 	if a.None {
-		tx.Having("COUNT(DISTINCT cluster_image.cluster_id) = 0")
+		tx.Where("COALESCE(ce, 0) = 0")
+	} else {
+		tx.Where("COALESCE(ce, 0) != 0")
 	}
+
 	if a.OneOrMore {
-		tx.Having("COUNT(DISTINCT cluster_image.cluster_id) > 0")
+		tx.Where("COALESCE(ce, 0) > 0")
+	} else {
+		tx.Where("COALESCE(ce, 0) = 0")
 	}
+
 	return nil
 }
 
