@@ -35,7 +35,7 @@ func registerMissingCves(tx *gorm.DB, apiImageCves map[string]struct{}) error {
 	for cveName := range apiImageCves {
 		if _, found = dbCveMap[cveName]; !found {
 			if _, found = dbCveMapPending[cveName]; !found {
-				toInsertCves = append(toInsertCves, models.Cve{Name: cveName, Description: "unknown", Severity: models.NotSet})
+				toInsertCves = append(toInsertCves, models.Cve{Name: cveName, Description: "unknown", Severity: models.NotSet, Cvss2Score: 0.0, Cvss3Score: 0.0})
 			}
 		}
 	}
