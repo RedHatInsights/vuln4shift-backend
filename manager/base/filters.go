@@ -147,7 +147,7 @@ type CvssScore struct {
 
 // ApplyQuery filters CVEs by cvss2/3 score range
 func (c *CvssScore) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
-	tx.Where("COALESCE(cve.cvss3_score, cve.cvss2_score) >= ? AND COALESCE(cve.cvss3_score, cve.cvss2_score) <= ?", c.From, c.To)
+	tx.Where("GREATEST(cve.cvss3_score, cve.cvss2_score) >= ? AND GREATEST(cve.cvss3_score, cve.cvss2_score) <= ?", c.From, c.To)
 	return nil
 }
 
