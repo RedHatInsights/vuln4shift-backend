@@ -137,7 +137,11 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 	}
 
 	if toDeleteImageCvesCnt > 0 {
-		if err := tx.Delete(&toDeleteImageCves).Error; err != nil {
+		deleteTx := tx.Session(&gorm.Session{})
+		for _, image := range toDeleteImageCves {
+			deleteTx = deleteTx.Or(&image)
+		}
+		if err := deleteTx.Delete(&models.ImageCve{}).Error; err != nil {
 			syncError.WithLabelValues(dbDelete).Inc()
 			return err
 		}
@@ -250,7 +254,11 @@ func syncRepo(repo models.Repository) error {
 	}
 
 	if toDeleteRepositoryImagesCnt > 0 {
-		if err := tx.Delete(&toDeleteRepositoryImages).Error; err != nil {
+		deleteTx := tx.Session(&gorm.Session{})
+		for _, repo := range toDeleteRepositoryImages {
+			deleteTx = deleteTx.Or(&repo)
+		}
+		if err := deleteTx.Delete(&models.RepositoryImage{}).Error; err != nil {
 			syncError.WithLabelValues(dbDelete).Inc()
 			return err
 		}
