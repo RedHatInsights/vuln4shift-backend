@@ -67,8 +67,8 @@ var (
 // @produce json
 // @Param sort     			query []string false "column for sort"          collectionFormat(multi) collectionFormat(csv)
 // @Param search   			query string   false "cluster UUID search"      example(123e4567-e89b-12d3-a456-426614174000)
-// @Param limit    			query int      false "limit per page"           example(10)
-// @Param offset   			query int      false "page offset"              example(10)
+// @Param limit    			query int      false "limit per page"           example(10) minimum(0) maximum(100)
+// @Param offset   			query int      false "page offset"              example(10) minimum(0)
 // @Param cluster_severity  query []string false "array of severity names"  enums(Low,Moderate,Important,Critical)
 // @router /clusters [get]
 // @success 200 {object} GetClustersResponse

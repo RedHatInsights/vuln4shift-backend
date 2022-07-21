@@ -213,6 +213,8 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 		limit, err := ParseUint(rawValues)
 		if err != nil {
 			return &Limit{}, errors.New("invalid limit parameter")
+		} else if limit > 100 {
+			return &Limit{}, errors.New("limit cannot be higher than 100")
 		}
 		return &Limit{RawFilter{raw, rawValues}, limit}, nil
 	case OffsetQuery:
