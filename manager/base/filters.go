@@ -161,7 +161,7 @@ type AffectingClusters struct {
 
 // ApplyQuery filters rows by count of affected clusters
 func (a *AffectingClusters) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
-	if a.None && a.OneOrMore {
+	if a.None == a.OneOrMore {
 		return nil
 	}
 
