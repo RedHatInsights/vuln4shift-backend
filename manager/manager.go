@@ -72,6 +72,7 @@ func createClustersGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup 
 
 	clustersGroup.GET("", clustersController.GetClusters)
 	clustersGroup.GET("/:cluster_id/cves", clustersController.GetClusterCves)
+	clustersGroup.GET("/:cluster_id", clustersController.GetClusterDetails)
 	return clustersGroup
 }
 
