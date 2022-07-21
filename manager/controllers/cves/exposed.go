@@ -60,8 +60,8 @@ var (
 // @Param cve_name path  string   true  "CVE name"
 // @Param sort     query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
 // @Param search   query string   false "cluster search"       example(00000000-0000-0000-0000-000000000022)
-// @Param limit    query int      false "limit per page"       example(10)
-// @Param offset   query int      false "page offset"          example(10)
+// @Param limit    query int      false "limit per page"       example(10) minimum(0) maximum(100)
+// @Param offset   query int      false "page offset"          example(10) minimum(0)
 // @router /cves/{cve_name}/exposed_clusters [get]
 // @success 200 {object} GetExposedClustersResponse
 // @failure 400 {object} base.Error
