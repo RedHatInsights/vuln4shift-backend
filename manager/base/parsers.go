@@ -8,6 +8,18 @@ import (
 	"time"
 )
 
+// ParseCommaParams Golang HTTP module does not parse query
+// array arguments such as -> filter=1,2,3&filter=4 -> ["1,2,3", "4"]
+// which should be ["1", "2", "3", "4"]
+func ParseCommaParams(values []string) []string {
+	var res []string
+	for _, val := range values {
+		vals := strings.Split(val, ",")
+		res = append(res, vals...)
+	}
+	return res
+}
+
 // ParseBoolArray parses bool array in query arguments,
 // array can be checked for max values by limit
 func ParseBoolArray(rawValues []string, limit *int) ([]bool, error) {
@@ -172,6 +184,7 @@ var ErrInvalidFilterArgument = errors.New("invalid filter argument")
 // filter=1,2,3&filter=cve -> rawName="filter" , rawValues=["1", "2", "3", "cve"]
 func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 	raw := strings.ToLower(rawName)
+	parsedValues := ParseCommaParams(rawValues)
 	switch raw {
 	case SearchQuery:
 		if len(rawValues) != 1 {
@@ -179,53 +192,53 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 		}
 		return &Search{RawFilter{raw, rawValues}, rawValues[0]}, nil
 	case PublishedQuery:
-		dateRange, err := ParseDateRange(rawValues)
+		dateRange, err := ParseDateRange(parsedValues)
 		if err != nil {
 			return &CvePublishDate{}, errors.New("invalid published parameter format")
 		}
-		return &CvePublishDate{RawFilter{raw, rawValues}, dateRange[0], dateRange[1]}, nil
+		return &CvePublishDate{RawFilter{raw, parsedValues}, dateRange[0], dateRange[1]}, nil
 	case SeverityQuery:
-		severities, err := ParseSeverity(rawValues)
+		severities, err := ParseSeverity(parsedValues)
 		if err != nil {
 			return &Severity{}, err
 		}
-		return &Severity{RawFilter{raw, rawValues}, severities}, nil
+		return &Severity{RawFilter{raw, parsedValues}, severities}, nil
 	case ClusterSeverityQuery:
-		severities, err := ParseClusterSeverity(rawValues)
+		severities, err := ParseClusterSeverity(parsedValues)
 		if err != nil {
 			return &ClusterSeverity{}, err
 		}
-		return &ClusterSeverity{RawFilter{raw, rawValues}, severities}, nil
+		return &ClusterSeverity{RawFilter{raw, parsedValues}, severities}, nil
 	case CvssScoreQuery:
-		scoreRange, err := ParseCvssScoreRange(rawValues)
+		scoreRange, err := ParseCvssScoreRange(parsedValues)
 		if err != nil {
 			return &CvssScore{}, err
 		}
-		return &CvssScore{RawFilter{raw, rawValues}, scoreRange[0], scoreRange[1]}, nil
+		return &CvssScore{RawFilter{raw, parsedValues}, scoreRange[0], scoreRange[1]}, nil
 	case AffectedClustersQuery:
 		arrLen := 2
-		boolArr, err := ParseBoolArray(rawValues, &arrLen)
+		boolArr, err := ParseBoolArray(parsedValues, &arrLen)
 		if err != nil {
 			return &AffectingClusters{}, errors.New("invalid affected_clusters bool parameter")
 		}
-		return &AffectingClusters{RawFilter{raw, rawValues}, boolArr[0], boolArr[1]}, nil
+		return &AffectingClusters{RawFilter{raw, parsedValues}, boolArr[0], boolArr[1]}, nil
 	case LimitQuery:
-		limit, err := ParseUint(rawValues)
+		limit, err := ParseUint(parsedValues)
 		if err != nil {
 			return &Limit{}, errors.New("invalid limit parameter")
 		} else if limit > 100 {
 			return &Limit{}, errors.New("limit cannot be higher than 100")
 		}
-		return &Limit{RawFilter{raw, rawValues}, limit}, nil
+		return &Limit{RawFilter{raw, parsedValues}, limit}, nil
 	case OffsetQuery:
-		offset, err := ParseUint(rawValues)
+		offset, err := ParseUint(parsedValues)
 		if err != nil {
 			return &Offset{}, errors.New("invalid offset parameter")
 		}
-		return &Offset{RawFilter{raw, rawValues}, offset}, nil
+		return &Offset{RawFilter{raw, parsedValues}, offset}, nil
 	case SortQuery:
-		sortArr := ParseSortArray(rawValues)
-		return &Sort{RawFilter{raw, rawValues}, sortArr}, nil
+		sortArr := ParseSortArray(parsedValues)
+		return &Sort{RawFilter{raw, parsedValues}, sortArr}, nil
 	default:
 		return &Search{}, ErrInvalidFilterArgument
 	}

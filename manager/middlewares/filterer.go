@@ -3,22 +3,9 @@ package middlewares
 import (
 	"app/manager/base"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
-
-// ParseCommaParams Golang HTTP module does not parse query
-// array arguments such as -> filter=1,2,3&filter=4 -> ["1,2,3", "4"]
-// which should be ["1", "2", "3", "4"]
-func ParseCommaParams(values []string) []string {
-	var res []string
-	for _, val := range values {
-		vals := strings.Split(val, ",")
-		res = append(res, vals...)
-	}
-	return res
-}
 
 func ApplyDefaultFilters(requestedFilters map[string]base.Filter) {
 	// set default limit paging if not set
@@ -46,8 +33,7 @@ func Filterer() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		filters := make(map[string]base.Filter)
 		for param, rawValues := range ctx.Request.URL.Query() {
-			values := ParseCommaParams(rawValues)
-			filter, err := base.ParseFilter(param, values)
+			filter, err := base.ParseFilter(param, rawValues)
 			if err != nil {
 				ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
 				return
