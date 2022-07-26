@@ -58,12 +58,14 @@ func Start() {
 	storage, err := NewStorage()
 	if err != nil {
 		logger.Logln(logrus.FatalLevel, "Error initializing storage")
+		logger.Logln(logrus.FatalLevel, err.Error())
 		logger.Exit(ExitStatusStorageError)
 	}
 
 	consumer, err := startConsumer(storage)
 	if err != nil {
 		logger.Logln(logrus.FatalLevel, "Error initializing consumer")
+		logger.Logln(logrus.FatalLevel, err.Error())
 		logger.Exit(ExitStatusConsumerError)
 	}
 	defer consumer.Close()
