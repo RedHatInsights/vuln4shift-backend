@@ -58,9 +58,19 @@ func TestFiltererValidSearch(t *testing.T) {
 	assert.Equal(t, 4, len(filters), "Should be 4 filters, the default ones - sort, limit, offset, search one")
 }
 
+func TestFiltererCommaSearch(t *testing.T) {
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request, _ = http.NewRequest("GET", "/test?search=CVE-2022,and,CVE-2023", nil)
+
+	filterer(ctx)
+
+	base.GetRequestedFilters(ctx)
+	assert.Equal(t, http.StatusOK, ctx.Writer.Status(), "Search filter should be able to handle comma in search term")
+}
+
 func TestFiltererInvalidSearch(t *testing.T) {
 	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
-	ctx.Request, _ = http.NewRequest("GET", "/test?search=CVE-2022,b,d", nil)
+	ctx.Request, _ = http.NewRequest("GET", "/test?search=CVE-2022,b,d&search=blabla", nil)
 
 	filterer(ctx)
 
