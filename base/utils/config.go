@@ -1,6 +1,13 @@
 package utils
 
 import (
+	"crypto/tls"
+	"crypto/x509"
+	"errors"
+	"fmt"
+	"strings"
+
+	"github.com/Shopify/sarama"
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 )
 
@@ -38,6 +45,7 @@ type Config struct {
 	SchemaMigration     int
 
 	// Digest writer config
+	KafkaBroker              clowder.BrokerConfig
 	KafkaBrokerAddress       string
 	KafkaBrokerConsumerGroup string
 	KafkaBrokerIncomingTopic string
@@ -100,8 +108,9 @@ func init() {
 	// Digest writer config
 	requestedKafkaBrokerTopic := GetEnv("KAFKA_BROKER_INCOMING_TOPIC", "")
 	if clowder.IsClowderEnabled() {
-		if len(clowder.KafkaServers) > 0 {
-			Cfg.KafkaBrokerAddress = clowder.KafkaServers[0]
+		if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
+			Cfg.KafkaBroker = clowder.LoadedConfig.Kafka.Brokers[0]
+			Cfg.KafkaBrokerAddress = fmt.Sprintf("%s:%d", Cfg.KafkaBroker.Hostname, *Cfg.KafkaBroker.Port)
 		}
 		if _, ok := clowder.KafkaTopics[requestedKafkaBrokerTopic]; ok {
 			Cfg.KafkaBrokerIncomingTopic = clowder.KafkaTopics[requestedKafkaBrokerTopic].Name
@@ -121,4 +130,62 @@ func init() {
 	// Pyxis gatherer config
 	Cfg.PyxisBaseURL = GetEnv("PYXIS_BASE_URL", "http://localhost")
 	Cfg.PyxisProfile = GetEnv("PYXIS_PROFILE", "unknown_profile")
+}
+
+// CreateKafkaConfig adds SSL kafka sarama configuration based on clowder
+func SetKafkaSSLConfig(config *sarama.Config) error {
+	broker := Cfg.KafkaBroker
+
+	if broker.Sasl == nil {
+		return errors.New("sasl config on kafka broker does not exist")
+	}
+
+	saslMechanism := broker.Sasl.SaslMechanism
+	if saslMechanism == nil || *saslMechanism == "" {
+		return errors.New("sasl mechanism not specified")
+	}
+
+	switch strings.ToLower(*saslMechanism) {
+	case "plain":
+		config.Net.SASL.Mechanism = sarama.SASLTypePlaintext
+	case "scram-sha-256":
+		config.Net.SASL.Mechanism = sarama.SASLTypeSCRAMSHA256
+		config.Net.SASL.SCRAMClientGeneratorFunc = func() sarama.SCRAMClient { return &XDGSCRAMClient{HashGeneratorFcn: SHA256} }
+	case "scram-sha-512":
+		config.Net.SASL.Mechanism = sarama.SASLTypeSCRAMSHA512
+		config.Net.SASL.SCRAMClientGeneratorFunc = func() sarama.SCRAMClient { return &XDGSCRAMClient{HashGeneratorFcn: SHA512} }
+	default:
+		return fmt.Errorf("unknown sasl mechanism: %s", *saslMechanism)
+	}
+
+	if broker.Sasl.Username == nil {
+		return errors.New("sasl username not specified")
+	}
+	if broker.Sasl.Password == nil {
+		return errors.New("sasl password not specified")
+	}
+
+	config.Net.SASL.User = *broker.Sasl.Username
+	config.Net.SASL.Password = *broker.Sasl.Password
+	config.Net.SASL.Handshake = true
+	config.Net.SASL.Enable = true
+
+	return nil
+}
+
+// SetKafkaTLSConfig adds TLS kafka sarama configuration based on clowder
+func SetKafkaTLSConfig(config *sarama.Config) error {
+	broker := Cfg.KafkaBroker
+	tlsConfig := tls.Config{}
+
+	if broker.Cacert != nil && *broker.Cacert != "" {
+		certPool := x509.NewCertPool()
+		certPool.AppendCertsFromPEM([]byte(*broker.Cacert))
+
+		tlsConfig.RootCAs = certPool
+	}
+	config.Net.TLS.Enable = true
+	config.Net.TLS.Config = &tlsConfig
+
+	return nil
 }

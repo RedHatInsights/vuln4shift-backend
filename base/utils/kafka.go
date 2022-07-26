@@ -107,6 +107,20 @@ func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaC
 		}
 	}
 
+	if Cfg.KafkaBroker.Sasl != nil {
+		err := SetKafkaSSLConfig(saramaConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if Cfg.KafkaBroker.Cacert != nil && *Cfg.KafkaBroker.Cacert != "" {
+		err := SetKafkaTLSConfig(saramaConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	consumerGroup, err := sarama.NewConsumerGroup([]string{Cfg.KafkaBrokerAddress}, Cfg.KafkaBrokerConsumerGroup, saramaConfig)
 	if err != nil {
 		return nil, err
