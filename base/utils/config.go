@@ -87,7 +87,7 @@ func init() {
 	// Common app config
 	Cfg.LoggingLevel = GetEnv("LOGGING_LEVEL", "INVALID")
 	Cfg.APIRetries = GetEnv("API_RETRIES", 0)
-	Cfg.PrometheusPushGateway = GetEnv("PROMETHEUS_PUSH_GATEWAY", "pushgateway")
+	Cfg.PrometheusPushGateway = GetEnv("PROMETHEUS_PUSHGATEWAY", "pushgateway")
 
 	// DB admin config
 	Cfg.ArchiveDbWriterPass = GetEnv("USER_ARCHIVE_DB_WRITER_PASS", "")

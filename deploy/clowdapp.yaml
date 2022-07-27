@@ -165,8 +165,8 @@ objects:
               name: vuln4shift-db-passwds
         - name: LOGGING_LEVEL
           value: ${LOGGING_LEVEL}
-        - name: PROMETHEUS_PUSH_GATEWAY
-          value: ${PROMETHEUS_PUSH_GATEWAY}
+        - name: PROMETHEUS_PUSHGATEWAY
+          value: ${PROMETHEUS_PUSHGATEWAY}
         - name: API_RETRIES
           value: ${API_RETRIES}
         - name: VMAAS_BASE_URL
@@ -202,8 +202,8 @@ objects:
               name: vuln4shift-db-passwds
         - name: LOGGING_LEVEL
           value: ${LOGGING_LEVEL}
-        - name: PROMETHEUS_PUSH_GATEWAY
-          value: ${PROMETHEUS_PUSH_GATEWAY}
+        - name: PROMETHEUS_PUSHGATEWAY
+          value: ${PROMETHEUS_PUSHGATEWAY}
         - name: API_RETRIES
           value: ${API_RETRIES}
         - name: PYXIS_BASE_URL
@@ -338,7 +338,7 @@ parameters:
   description: Number of API retries before giving up
   required: true
   value: "3"
-- name: PROMETHEUS_PUSH_GATEWAY
+- name: PROMETHEUS_PUSHGATEWAY
   description: Prometheus push gateway host
   required: true
   value: "pushgateway"
