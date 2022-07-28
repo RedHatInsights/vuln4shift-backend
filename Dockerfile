@@ -26,12 +26,14 @@ ADD scripts                     /vuln4shift/scripts
 ADD test                        /vuln4shift/test
 ADD vmsync                      /vuln4shift/vmsync
 
+ARG VERSION=dev
+
 # install swag command to generate swagger
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN mkdir ./manager/docs
 RUN bash ./scripts/generate_swagger.sh
 
-RUN go build -v main.go
+RUN go build -ldflags "-X app/manager.Version=$VERSION" -v main.go
 # ---------------------------------------
 # runtime image
 FROM ${RUNIMG} as runtimeimg

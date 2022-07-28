@@ -21,6 +21,7 @@ import (
 var (
 	apiPrefix       = "/api/ocp-vulnerability"
 	openAPILocation = fmt.Sprintf("%s/v1/openapi.json", apiPrefix)
+	Version         string
 )
 
 // createMetaGroup adds meta endpoints to the router.
