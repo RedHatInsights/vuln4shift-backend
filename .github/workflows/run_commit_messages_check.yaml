@@ -1,0 +1,19 @@
+name: Run commit messages check
+
+on:
+  pull_request:
+    branches:
+      - "master"
+
+jobs:
+  messages-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: ${{ github.event.pull_request.commits }}
+
+      - name: Check commit messages
+        run: git log --format=%s | while read line; do ./scripts/check_commit_messages.sh "$line"; done
