@@ -156,6 +156,22 @@ services:
     profiles:
       - vmsync
 
+  vuln4shift_cleaner:
+    command: /vuln4shift/main cleaner
+    container_name: vuln4shift-cleaner
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: vuln4shift/app:latest
+    env_file:
+      - ./conf/common.env
+      - ./conf/cleaner.env
+    depends_on:
+      vuln4shift_database:
+        condition: service_started
+    profiles:
+      - cleaner
+
   vuln4shift_prometheus:
     container_name: vuln4shift-prometheus
     image: prom/prometheus:v2.36.0
