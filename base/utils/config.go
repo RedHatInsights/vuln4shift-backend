@@ -42,6 +42,7 @@ type Config struct {
 	VmaasGathererPass   string
 	CveAggregatorPass   string
 	ManagerPass         string
+	CleanerPass         string
 	SchemaMigration     int
 
 	// Digest writer config
@@ -103,6 +104,7 @@ func init() {
 	Cfg.VmaasGathererPass = GetEnv("USER_VMAAS_GATHERER_PASS", "")
 	Cfg.CveAggregatorPass = GetEnv("USER_CVE_AGGREGATOR_PASS", "")
 	Cfg.ManagerPass = GetEnv("USER_MANAGER_PASS", "")
+	Cfg.CleanerPass = GetEnv("USER_CLEANER_PASS", "")
 	Cfg.SchemaMigration = GetEnv("SCHEMA_MIGRATION", 0)
 
 	// Digest writer config

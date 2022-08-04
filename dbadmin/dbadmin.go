@@ -42,6 +42,7 @@ func setDbUsersPasswords(conn *sql.DB) {
 	setDbUserPassword(conn, "vmaas_gatherer", utils.Cfg.VmaasGathererPass)
 	setDbUserPassword(conn, "cve_aggregator", utils.Cfg.CveAggregatorPass)
 	setDbUserPassword(conn, "manager", utils.Cfg.ManagerPass)
+	setDbUserPassword(conn, "cleaner", utils.Cfg.CleanerPass)
 }
 
 func Start() {
