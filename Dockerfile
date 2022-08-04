@@ -25,6 +25,7 @@ ADD digestwriter                /vuln4shift/digestwriter
 ADD scripts                     /vuln4shift/scripts
 ADD test                        /vuln4shift/test
 ADD vmsync                      /vuln4shift/vmsync
+ADD cleaner                     /vuln4shift/cleaner
 
 ARG VERSION=dev
 
