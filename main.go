@@ -1,6 +1,7 @@
 package main
 
 import (
+	"app/cleaner"
 	"app/dbadmin"
 	"app/digestwriter"
 	"app/manager"
@@ -23,6 +24,8 @@ func main() {
 			vmsync.Start()
 		case "digestwriter":
 			digestwriter.Start()
+		case "cleaner":
+			cleaner.Start()
 		default:
 			log.Fatalf("Unknown service name: %s\n", os.Args[1])
 		}
