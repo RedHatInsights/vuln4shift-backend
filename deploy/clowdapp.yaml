@@ -218,6 +218,28 @@ objects:
             cpu: ${{CPU_REQUEST_PYXIS_GATHERER}}
             memory: ${{MEMORY_REQUEST_PYXIS_GATHERER}}
 
+    - name: cleaner
+      schedule: ${SCHEDULE_CLEANER}
+      suspend: ${{SUSPEND_CLEANER}}
+      concurrencyPolicy: "Forbid"
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        command:
+        - /vuln4shift/main
+        - cleaner
+        env:
+        - name: POSTGRES_USER
+          value: cleaner
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: cleaner-db-passwd
+              name: vuln4shift-db-passwds
+        - name: LOGGING_LEVEL
+          value: ${LOGGING_LEVEL}
+        - name: CLUSTER_RETENTION_DAYS
+          value: ${CLUSTER_RETENTION_DAYS}
+
 parameters:
 # IMAGE AND CLOWDER
 - name: IMAGE_TAG
@@ -328,6 +350,14 @@ parameters:
   description: Disable Cronjob
   required: true
   value: "false"
+- name: SCHEDULE_CLEANER
+  description: Cronjob schedule defintion
+  required: true
+  value: "0 0 * * *"
+- name: SUSPEND_CLEANER
+  description: Disable Cronjob
+  required: true
+  value: "false"
 
 # COMMON APP CONFIG
 - name: LOGGING_LEVEL
@@ -392,3 +422,9 @@ parameters:
   description: Pyxis sync profile
   required: true
   value: all
+
+# CLEANER CONFIG
+- name: CLUSTER_RETENTION_DAYS
+  description: Number of days when cluster becomes purgable
+  required: true
+  value: "3"
