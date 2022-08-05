@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.1 (2022-08-05)
+### Fix
+* **manager:** Fix sorting for cvss2/3_score ([`8e91686`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8e9168692778978c8a02c167002afe8966d1662c))
+
 ## v0.2.0 (2022-08-05)
 ### Feature
 * **manager:** Add sort for display_name ([`fcd5c3e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/fcd5c3e7a718b952f590786ba6300f5edd4b4960))
