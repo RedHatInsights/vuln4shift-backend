@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2022-08-05)
+### Feature
+* **manager:** Add sort for display_name ([`fcd5c3e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/fcd5c3e7a718b952f590786ba6300f5edd4b4960))
+
 ## v0.1.0 (2022-08-04)
 ### Feature
 * Add cluster cleaner ([`99c6bf2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/99c6bf270bc37d80508c93280bce2459a9819ef8))
