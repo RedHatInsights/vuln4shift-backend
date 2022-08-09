@@ -11,6 +11,7 @@ objects:
     pyxis-gatherer-db-passwd: cHl4aXNfZ2F0aGVyZXJfcHdk
     archive-writer-db-passwd: YXJjaGl2ZV9kYl93cml0ZXJfcHdk
     cve-aggregator-db-passwd: Y3ZlX2FnZ3JlZ2F0b3JfcHdk
+    cleaner-db-passwd: Y2xlYW5lcl9wd2Q=
   kind: Secret
   metadata:
     name: vuln4shift-db-passwds
@@ -78,6 +79,11 @@ objects:
             valueFrom:
               secretKeyRef:
                 key: cve-aggregator-db-passwd
+                name: vuln4shift-db-passwds
+          - name: USER_CLEANER_PASS
+            valueFrom:
+              secretKeyRef:
+                key: cleaner-db-passwd
                 name: vuln4shift-db-passwds
           - name: SCHEMA_MIGRATION
             value: ${SCHEMA_MIGRATION}
