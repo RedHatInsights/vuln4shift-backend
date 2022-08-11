@@ -456,4 +456,4 @@ parameters:
 - name: CLUSTER_RETENTION_DAYS
   description: Number of days when cluster becomes purgable
   required: true
-  value: "3"
+  value: "31"
