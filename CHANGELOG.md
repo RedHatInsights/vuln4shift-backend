@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.2 (2022-08-15)
+### Fix
+* Make sure CVEs are ordered while inserting/deleting ([`13991c0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/13991c0046eadbf9c7e63e46fd5282e2c16616e5))
+
 ## v0.2.1 (2022-08-05)
 ### Fix
 * **manager:** Fix sorting for cvss2/3_score ([`8e91686`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8e9168692778978c8a02c167002afe8966d1662c))
