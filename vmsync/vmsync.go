@@ -32,14 +32,15 @@ func init() {
 }
 
 func syncCveMetadata() {
-	apiCveMap, err := getAPICves()
+	apiCveSortedList, apiCveMap, err := getAPICves()
 
 	if err != nil {
 		logger.Fatalf("Unable to get CVEs from VMaaS: %s", err)
 	}
 
 	toSyncCves := make([]models.Cve, 0, len(apiCveMap))
-	for cveName, apiCve := range apiCveMap {
+	for _, cveName := range apiCveSortedList {
+		apiCve := apiCveMap[cveName]
 		var severity models.Severity
 		err := severity.Scan(apiCve.Impact)
 		if err != nil {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
@@ -136,8 +137,8 @@ func getAPIRepoImages(registry, repository string) (map[string]APIImage, error) 
 	return imageMap, nil
 }
 
-func getAPIImageCves(imagePyxisID string) (map[string]struct{}, error) {
-	cveMap := make(map[string]struct{})
+func getAPIImageCves(imagePyxisID string) ([]string, error) {
+	cveList := []string{}
 
 	client := &api.Client{HTTPClient: &http.Client{}}
 	imageCvesURL := fmt.Sprintf(PyxisImageCvesURL, imagePyxisID)
@@ -151,16 +152,18 @@ func getAPIImageCves(imagePyxisID string) (map[string]struct{}, error) {
 		if err != nil {
 			pyxisRequestError.WithLabelValues(imageCvesPageURL, http.MethodGet, strconv.Itoa(statusCode)).Inc()
 			logger.Warningf("Request %s %s failed: statusCode=%d, err=%s", http.MethodGet, imageCvesPageURL, statusCode, err)
-			return cveMap, err
+			return cveList, err
 		}
 
 		for _, cve := range pyxisResponse.Data {
-			cveMap[cve.Cve] = struct{}{} // We need only key - CVE name
+			cveList = append(cveList, cve.Cve)
 		}
 
 		totalPages = getTotalPages(pyxisResponse.Total)
-		logger.Infof("Fetched Pyxis image CVEs: image=%s, cves=%d, page=%d/%d", imagePyxisID, len(cveMap), page+1, totalPages)
+		logger.Infof("Fetched Pyxis image CVEs: image=%s, cves=%d, page=%d/%d", imagePyxisID, len(cveList), page+1, totalPages)
 	}
 
-	return cveMap, nil
+	sort.Strings(cveList)
+
+	return cveList, nil
 }
