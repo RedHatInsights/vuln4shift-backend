@@ -4,6 +4,7 @@ import (
 	"app/base/api"
 	"app/base/utils"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -49,7 +50,8 @@ type APICve struct {
 }
 
 // getAPICves request CVE list from VMaaS
-func getAPICves() (map[string]APICve, error) {
+func getAPICves() ([]string, map[string]APICve, error) {
+	cveList := []string{}
 	cveMap := make(map[string]APICve)
 
 	client := &api.Client{HTTPClient: &http.Client{}}
@@ -70,10 +72,11 @@ func getAPICves() (map[string]APICve, error) {
 		if err != nil {
 			vmaasRequestError.WithLabelValues(VmaasCvesURL, http.MethodPost, strconv.Itoa(statusCode)).Inc()
 			logger.Warningf("Request %s %s failed: statusCode=%d, err=%s", http.MethodPost, VmaasCvesURL, statusCode, err)
-			return cveMap, err
+			return cveList, cveMap, err
 		}
 
 		for cveName, cveMD := range vmaasResponse.CveList {
+			cveList = append(cveList, cveName)
 			cveMap[cveName] = cveMD
 		}
 
@@ -81,5 +84,7 @@ func getAPICves() (map[string]APICve, error) {
 		logger.Infof("Fetched VMAAS cve list: cves=%d, page=%d/%d", len(cveMap), page, vmaasResponse.Pages)
 	}
 
-	return cveMap, nil
+	sort.Strings(cveList)
+
+	return cveList, cveMap, nil
 }

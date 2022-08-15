@@ -55,7 +55,7 @@ func prepareDbImages() error {
 
 func prepareDbCves() error {
 	cveRows := []models.Cve{}
-	if err := DB.Find(&cveRows).Error; err != nil {
+	if err := DB.Order("name").Find(&cveRows).Error; err != nil {
 		return err
 	}
 	dbCveMap = make(map[string]models.Cve, len(cveRows))

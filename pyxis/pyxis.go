@@ -29,10 +29,10 @@ func init() {
 	})
 }
 
-func registerMissingCves(tx *gorm.DB, apiImageCves map[string]struct{}) error {
+func registerMissingCves(tx *gorm.DB, apiImageCves []string) error {
 	toInsertCves := []models.Cve{}
 	var found bool
-	for cveName := range apiImageCves {
+	for _, cveName := range apiImageCves {
 		if _, found = dbCveMap[cveName]; !found {
 			if _, found = dbCveMapPending[cveName]; !found {
 				toInsertCves = append(toInsertCves, models.Cve{Name: cveName, Description: "unknown", Severity: models.NotSet, Cvss2Score: 0.0, Cvss3Score: 0.0})
@@ -94,7 +94,7 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 	toDeleteImageCves := []models.ImageCve{}
 	var cve models.Cve
 	var found bool
-	for cveName := range apiImageCves {
+	for _, cveName := range apiImageCves {
 		// Lookup CVE in the cache (also in the pending cache)
 		if cve, found = dbCveMap[cveName]; !found {
 			if cve, found = dbCveMapPending[cveName]; !found {
