@@ -45,6 +45,13 @@ type Config struct {
 	CleanerPass         string
 	SchemaMigration     int
 
+	// Manager config
+	AmsEnabled      bool
+	AmsAPIURL       string
+	AmsAPIPagesize  int
+	AmsClientID     string
+	AmsClientSecret string
+
 	// Digest writer config
 	KafkaBroker              clowder.BrokerConfig
 	KafkaBrokerAddress       string
@@ -106,6 +113,13 @@ func init() {
 	Cfg.ManagerPass = GetEnv("USER_MANAGER_PASS", "")
 	Cfg.CleanerPass = GetEnv("USER_CLEANER_PASS", "")
 	Cfg.SchemaMigration = GetEnv("SCHEMA_MIGRATION", 0)
+
+	// Manager config
+	Cfg.AmsEnabled = GetEnv("AMS_ENABLED", false)
+	Cfg.AmsAPIURL = GetEnv("AMS_API_URL", "http://ams_api_url")
+	Cfg.AmsAPIPagesize = GetEnv("AMS_API_PAGESIZE", 6000)
+	Cfg.AmsClientID = GetEnv("AMS_CLIENT_ID", "")
+	Cfg.AmsClientSecret = GetEnv("AMS_CLIENT_SECRET", "")
 
 	// Digest writer config
 	requestedKafkaBrokerTopic := GetEnv("KAFKA_BROKER_INCOMING_TOPIC", "")

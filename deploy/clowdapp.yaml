@@ -102,6 +102,22 @@ objects:
           value: ${LOGGING_LEVEL}
         - name: GIN_MODE
           value: ${GIN_MODE}
+        - name: AMS_ENABLED
+          value: ${AMS_ENABLED}
+        - name: AMS_API_URL
+          value: ${AMS_API_URL}
+        - name: AMS_API_PAGESIZE
+          value: ${AMS_API_PAGESIZE}
+        - name: AMS_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: ams-client-auth
+              key: amsclient_id
+        - name: AMS_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ams-client-auth
+              key: amsclient_secret
         resources:
           limits:
             cpu: ${{CPU_LIMIT_MANAGER}}
@@ -413,7 +429,12 @@ parameters:
   value: "-1"
 
 # MANAGER CONFIG
-
+- name: AMS_ENABLED
+  value: "true"
+- name: AMS_API_URL
+  value: "https://api.openshift.com"
+- name: AMS_API_PAGESIZE
+  value: "6000"
 
 # DIGEST WRITER CONFIG
 - name: DIGEST_WRITER_CONSUMER_GROUP
