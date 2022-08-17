@@ -3,6 +3,7 @@ package base
 import (
 	"app/base/logging"
 	"app/base/utils"
+	"app/manager/amsclient"
 	"fmt"
 	"os"
 
@@ -11,8 +12,9 @@ import (
 )
 
 type Controller struct {
-	Conn   *gorm.DB
-	Logger *logrus.Logger
+	Conn      *gorm.DB
+	AMSClient amsclient.AMSClient
+	Logger    *logrus.Logger
 }
 
 func CreateControllerLogger() *logrus.Logger {

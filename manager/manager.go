@@ -13,6 +13,7 @@ import (
 
 	"app/base/models"
 	"app/base/utils"
+	"app/manager/amsclient"
 	"app/manager/controllers/cves"
 	"app/manager/controllers/meta"
 	"app/manager/middlewares"
@@ -41,13 +42,14 @@ func createMetaGroup(router *gin.Engine, db *gorm.DB) *gin.RouterGroup {
 	return metaGroup
 }
 
-func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
+func createCveGroup(router *gin.RouterGroup, db *gorm.DB, amsClient amsclient.AMSClient) *gin.RouterGroup {
 	cveGroup := router.Group("/v1/cves")
 
 	cveController := cves.Controller{
 		Controller: base.Controller{
-			Conn:   db,
-			Logger: base.CreateControllerLogger(),
+			Conn:      db,
+			AMSClient: amsClient,
+			Logger:    base.CreateControllerLogger(),
 		},
 	}
 	// Cves endpoints must be authenticated
@@ -59,13 +61,14 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
 	return cveGroup
 }
 
-func createClustersGroup(router *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
+func createClustersGroup(router *gin.RouterGroup, db *gorm.DB, amsClient amsclient.AMSClient) *gin.RouterGroup {
 	clustersGroup := router.Group("/v1/clusters")
 
 	clustersController := clusters.Controller{
 		Controller: base.Controller{
-			Conn:   db,
-			Logger: base.CreateControllerLogger(),
+			Conn:      db,
+			AMSClient: amsClient,
+			Logger:    base.CreateControllerLogger(),
 		},
 	}
 
@@ -86,6 +89,7 @@ func setMiddlewares(router *gin.Engine) {
 
 // BuildRouter creates manager router with endpoints and middlewares.
 func BuildRouter() *gin.Engine {
+	var err error
 	router := gin.New()
 
 	dsn := utils.GetDbURL(false)
@@ -95,12 +99,22 @@ func BuildRouter() *gin.Engine {
 		log.Fatalf(err.Error())
 	}
 
+	var amsClient amsclient.AMSClient
+	if utils.Cfg.AmsEnabled {
+		amsClient, err = amsclient.NewAMSClient()
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+	} else {
+		log.Println("AMS client is disabled!")
+	}
+
 	setMiddlewares(router)
 	createMetaGroup(router, db)
 
 	api := router.Group(apiPrefix)
-	createCveGroup(api, db)
-	createClustersGroup(api, db)
+	createCveGroup(api, db, amsClient)
+	createClustersGroup(api, db, amsClient)
 
 	return router
 }
