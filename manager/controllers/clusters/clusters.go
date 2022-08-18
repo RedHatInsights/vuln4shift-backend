@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 
 	"app/base/models"
+	"app/base/utils"
+	"app/manager/amsclient"
 	"app/manager/base"
 )
 
@@ -21,13 +23,15 @@ type ClusterCveSeverities struct {
 // GetClustersSelect
 // @Description clusters data
 type GetClustersSelect struct {
-	UUID        *string               `json:"id"`
-	DisplayName *string               `json:"display_name"`
-	Status      *string               `json:"status"`
-	Version     *string               `json:"version"`
-	Provider    *string               `json:"provider"`
+	UUID        string                `json:"id"`
+	DisplayName string                `json:"display_name"`
+	Status      string                `json:"status"`
+	Type        string                `json:"type"`
+	Version     string                `json:"version"`
+	Provider    string                `json:"provider"`
+	Region      string                `json:"region"`
 	Severities  *ClusterCveSeverities `json:"cves_severity" gorm:"embedded"`
-	LastSeen    *time.Time            `json:"last_seen"`
+	LastSeen    time.Time             `json:"last_seen"`
 }
 
 type GetClustersResponse struct {
@@ -76,10 +80,26 @@ var (
 // @failure 400 {object} base.Error
 // @failure 500 {object} base.Error
 func (c *Controller) GetClusters(ctx *gin.Context) {
-	accountID := ctx.GetInt64("account_id")
+	var clusterIDs []string
+	var clusterInfoMap map[string]amsclient.ClusterInfo
+	var err error
+	if utils.Cfg.AmsEnabled {
+		orgID := ctx.GetString("org_id")
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil)
+		if err != nil {
+			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
+			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
+			return
+		}
+		for clusterID := range clusterInfoMap {
+			clusterIDs = append(clusterIDs, clusterID)
+		}
+	}
 
+	accountID := ctx.GetInt64("account_id")
 	filters := base.GetRequestedFilters(ctx)
-	query := c.BuildClustersQuery(accountID)
+
+	query := c.BuildClustersQuery(accountID, clusterIDs)
 
 	clustersData := []GetClustersSelect{}
 	usedFilters, totalItems, inputErr, dbErr := base.ListQuery(query, getClustersAllowedFilters, filters, getClustersFilterArgs, &clustersData)
@@ -96,10 +116,27 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		return
 	}
 
+	// Set cluster details fetched from AMS API
+	if utils.Cfg.AmsEnabled {
+		fullClustersData := []GetClustersSelect{}
+		for _, clusterRow := range clustersData {
+			if clusterInfo, ok := clusterInfoMap[clusterRow.UUID]; ok {
+				clusterRow.DisplayName = clusterInfo.DisplayName
+				clusterRow.Status = base.EmptyToNA(clusterInfo.Status)
+				clusterRow.Type = base.EmptyToNA(clusterInfo.Type)
+				clusterRow.Version = base.EmptyToNA(clusterInfo.Version)
+				clusterRow.Provider = base.EmptyToNA(clusterInfo.Provider)
+				clusterRow.Region = base.EmptyToNA(clusterInfo.Region)
+			}
+			fullClustersData = append(fullClustersData, clusterRow)
+		}
+		clustersData = fullClustersData
+	}
+
 	ctx.JSON(http.StatusOK, GetClustersResponse{clustersData, base.BuildMeta(usedFilters, &totalItems)})
 }
 
-func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
+func (c *Controller) BuildClustersQuery(accountID int64, clusterIDs []string) *gorm.DB {
 	subquery := c.Conn.Table("cluster").
 		Select(`cluster.id,
 				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS cc,
@@ -113,12 +150,15 @@ func (c *Controller) BuildClustersQuery(accountID int64) *gorm.DB {
 		Where("cluster.account_id = ?", accountID).
 		Group("cluster.id")
 
-	// FIXME: display_name is hardcoded to uuid
+	if utils.Cfg.AmsEnabled {
+		subquery = subquery.Where("cluster.uuid IN ?", clusterIDs)
+	}
+
 	return c.Conn.Table("cluster").
 		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider,
 				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
 				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count,
 				cluster.last_seen`).
-		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
+		Joins("JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
 		Where("cluster.account_id = ?", accountID)
 }
