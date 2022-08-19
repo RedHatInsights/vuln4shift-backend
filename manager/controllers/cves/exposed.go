@@ -74,12 +74,19 @@ var (
 // @failure 404 {object} base.Error "{cve_name} not found"
 // @failure 500 {object} base.Error
 func (c *Controller) GetExposedClusters(ctx *gin.Context) {
+	filters := base.GetRequestedFilters(ctx)
+
 	var clusterIDs []string
 	var clusterInfoMap map[string]amsclient.ClusterInfo
 	var err error
 	if utils.Cfg.AmsEnabled {
 		orgID := ctx.GetString("org_id")
-		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil)
+		clusterSearch := ""
+		if searchFilter, ok := filters["search"]; ok {
+			clusterSearch = searchFilter.RawQueryVal()
+			delete(filters, "search") // Don't search uuid in DB when we search uuid and display_name in AMS
+		}
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil, clusterSearch)
 		if err != nil {
 			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
 			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
@@ -112,9 +119,6 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		c.Logger.Errorf("Database error: %s", result.Error)
 		return
 	}
-
-	// If yes, select clusters
-	filters := base.GetRequestedFilters(ctx)
 
 	query = c.BuildExposedClustersQuery(cveName, accountID, clusterIDs)
 

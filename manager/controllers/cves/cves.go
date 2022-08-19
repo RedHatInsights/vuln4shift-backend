@@ -77,7 +77,7 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 	var err error
 	if utils.Cfg.AmsEnabled {
 		orgID := ctx.GetString("org_id")
-		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil)
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil, "")
 		if err != nil {
 			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
 			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
