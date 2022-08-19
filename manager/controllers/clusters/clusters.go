@@ -71,7 +71,7 @@ var (
 // @accept */*
 // @produce json
 // @Param sort     			query []string false "column for sort"          collectionFormat(multi) collectionFormat(csv)
-// @Param search   			query string   false "cluster UUID search"      example(123e4567-e89b-12d3-a456-426614174000)
+// @Param search   			query string   false "cluster search"           example(123e4567-e89b-12d3-a456-426614174000)
 // @Param limit    			query int      false "limit per page"           example(10) minimum(0) maximum(100)
 // @Param offset   			query int      false "page offset"              example(10) minimum(0)
 // @Param cluster_severity  query []string false "array of severity names"  enums(Low,Moderate,Important,Critical)
@@ -80,12 +80,19 @@ var (
 // @failure 400 {object} base.Error
 // @failure 500 {object} base.Error
 func (c *Controller) GetClusters(ctx *gin.Context) {
+	filters := base.GetRequestedFilters(ctx)
+
 	var clusterIDs []string
 	var clusterInfoMap map[string]amsclient.ClusterInfo
 	var err error
 	if utils.Cfg.AmsEnabled {
 		orgID := ctx.GetString("org_id")
-		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil)
+		clusterSearch := ""
+		if searchFilter, ok := filters["search"]; ok {
+			clusterSearch = searchFilter.RawQueryVal()
+			delete(filters, "search") // Don't search uuid in DB when we search uuid and display_name in AMS
+		}
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil, clusterSearch)
 		if err != nil {
 			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
 			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
@@ -97,7 +104,6 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 	}
 
 	accountID := ctx.GetInt64("account_id")
-	filters := base.GetRequestedFilters(ctx)
 
 	query := c.BuildClustersQuery(accountID, clusterIDs)
 
