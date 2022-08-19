@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2022-08-19)
+### Feature
+* **manager:** Search clusters by display_name in AMS ([`eedd8c4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/eedd8c4f30c3901db0bd7af45dd256f5d9054034))
+
 ## v0.4.0 (2022-08-19)
 ### Feature
 * **manager:** AMS integration in CVE list ([`74becfb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/74becfbf912a8516dc563c64c4e2978153e87215))
