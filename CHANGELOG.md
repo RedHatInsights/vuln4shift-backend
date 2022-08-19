@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2022-08-19)
+### Feature
+* **manager:** AMS integration in CVE list ([`74becfb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/74becfbf912a8516dc563c64c4e2978153e87215))
+* **manager:** AMS integration in CVE exposed clusters ([`d3bbd88`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d3bbd88139ed053f6b3679849407eb1090326f12))
+* **manager:** AMS integration in cluster detail ([`81f96ac`](https://github.com/RedHatInsights/vuln4shift-backend/commit/81f96ac4e1e7ba4da0fadfbf87aa1f7515d5c3ce))
+* **manager:** AMS integration in cluster list ([`9f86338`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9f86338676e1a0687d98b2841cb4c53d1659b512))
+* **manager:** Add AMS API client interface ([`7d47ca4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7d47ca4ceb3f25a9945ce32eb841db8052384e6d))
+
+### Fix
+* **manager:** Duplicate clusters when more than 1 image is affected by CVE ([`c89b05f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c89b05fe138e6f5fd5869215e50b9fd8a518c976))
+
 ## v0.3.0 (2022-08-16)
 ### Feature
 * **manager-ams-api:** Prepare env variables ([`79a7591`](https://github.com/RedHatInsights/vuln4shift-backend/commit/79a75913c42a9eca1b42c577203a757e0372ae04))
