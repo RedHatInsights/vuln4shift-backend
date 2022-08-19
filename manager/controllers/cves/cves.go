@@ -1,13 +1,16 @@
 package cves
 
 import (
-	"app/base/models"
-	"app/manager/base"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"app/base/models"
+	"app/base/utils"
+	"app/manager/amsclient"
+	"app/manager/base"
 )
 
 var getCvesAllowedFilters = []string{base.SearchQuery, base.PublishedQuery, base.SeverityQuery, base.CvssScoreQuery,
@@ -69,10 +72,26 @@ type GetCvesResponse struct {
 // @success 200 {object} GetCvesResponse
 // @failure 400 {object} base.Error
 func (c *Controller) GetCves(ctx *gin.Context) {
+	var clusterIDs []string
+	var clusterInfoMap map[string]amsclient.ClusterInfo
+	var err error
+	if utils.Cfg.AmsEnabled {
+		orgID := ctx.GetString("org_id")
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil)
+		if err != nil {
+			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
+			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
+			return
+		}
+		for clusterID := range clusterInfoMap {
+			clusterIDs = append(clusterIDs, clusterID)
+		}
+	}
+
 	accountID := ctx.GetInt64("account_id")
 
 	filters := base.GetRequestedFilters(ctx)
-	query := c.BuildCvesQuery(accountID)
+	query := c.BuildCvesQuery(accountID, clusterIDs)
 
 	dataRes := []GetCvesSelect{}
 	usedFilters, totalItems, inputErr, dbErr := base.ListQuery(query, getCvesAllowedFilters, filters, getCvesFilterArgs, &dataRes)
@@ -91,7 +110,7 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, GetCvesResponse{dataRes, base.BuildMeta(usedFilters, &totalItems)})
 }
 
-func (c *Controller) BuildCvesQuery(accountID int64) *gorm.DB {
+func (c *Controller) BuildCvesQuery(accountID int64, clusterIDs []string) *gorm.DB {
 	cntSubquery := c.Conn.Table("cluster").
 		Select(`image_cve.cve_id,
 				COUNT(DISTINCT cluster_image.cluster_id) AS ce,
@@ -100,6 +119,10 @@ func (c *Controller) BuildCvesQuery(accountID int64) *gorm.DB {
 		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
 		Where("cluster.account_id = ?", accountID).
 		Group("image_cve.cve_id")
+
+	if utils.Cfg.AmsEnabled {
+		cntSubquery = cntSubquery.Where("cluster.uuid IN ?", clusterIDs)
+	}
 
 	return c.Conn.Table("cve").
 		Select(`cve.name, cve.description, cve.public_date, cve.severity,
