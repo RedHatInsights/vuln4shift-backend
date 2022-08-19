@@ -1,7 +1,6 @@
 package clusters
 
 import (
-	"app/manager/base"
 	"errors"
 	"net/http"
 	"time"
@@ -9,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+
+	"app/base/utils"
+	"app/manager/amsclient"
+	"app/manager/base"
 )
 
 // GetClusterDetailsSelect
@@ -41,12 +44,25 @@ type GetClusterDetailsResponse struct {
 // @failure 404 {object} base.Error "cluster does not exist"
 // @failure 500 {object} base.Error
 func (c *Controller) GetClusterDetails(ctx *gin.Context) {
-	accountID := ctx.GetInt64("account_id")
+	var err error
 	clusterID, err := base.GetParamUUID(ctx, "cluster_id")
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
+
+	var clusterInfo amsclient.ClusterInfo
+	if utils.Cfg.AmsEnabled {
+		orgID := ctx.GetString("org_id")
+		clusterInfo, err = c.AMSClient.GetSingleClusterInfoForOrganization(orgID, clusterID.String())
+		if err != nil {
+			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
+			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
+			return
+		}
+	}
+
+	accountID := ctx.GetInt64("account_id")
 
 	query := c.BuildClusterDetailsQuery(accountID, clusterID)
 
@@ -66,6 +82,11 @@ func (c *Controller) GetClusterDetails(ctx *gin.Context) {
 		)
 		c.Logger.Errorf("Database error: %s", result.Error)
 		return
+	}
+
+	// Set cluster details fetched from AMS API
+	if utils.Cfg.AmsEnabled {
+		clusterDetails.DisplayName = clusterInfo.DisplayName
 	}
 
 	ctx.JSON(http.StatusOK,
