@@ -1,7 +1,6 @@
 package cves
 
 import (
-	"app/manager/base"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"app/base/utils"
+	"app/manager/amsclient"
+	"app/manager/base"
 )
 
 // GetExposedClustersSelect
@@ -18,8 +21,10 @@ type GetExposedClustersSelect struct {
 	UUID        string     `json:"id"`
 	DisplayName string     `json:"display_name"`
 	Status      string     `json:"status"`
+	Type        string     `json:"type"`
 	Version     string     `json:"version"`
 	Provider    string     `json:"provider"`
+	Region      string     `json:"region"`
 	LastSeen    *time.Time `json:"last_seen"`
 }
 
@@ -69,6 +74,22 @@ var (
 // @failure 404 {object} base.Error "{cve_name} not found"
 // @failure 500 {object} base.Error
 func (c *Controller) GetExposedClusters(ctx *gin.Context) {
+	var clusterIDs []string
+	var clusterInfoMap map[string]amsclient.ClusterInfo
+	var err error
+	if utils.Cfg.AmsEnabled {
+		orgID := ctx.GetString("org_id")
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil)
+		if err != nil {
+			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
+			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
+			return
+		}
+		for clusterID := range clusterInfoMap {
+			clusterIDs = append(clusterIDs, clusterID)
+		}
+	}
+
 	cveName := ctx.Param("cve_name")
 	accountID := ctx.GetInt64("account_id")
 
@@ -95,7 +116,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	// If yes, select clusters
 	filters := base.GetRequestedFilters(ctx)
 
-	query = c.BuildExposedClustersQuery(cveName, accountID)
+	query = c.BuildExposedClustersQuery(cveName, accountID, clusterIDs)
 
 	exposedClusters := []GetExposedClustersSelect{}
 	_, totalItems, inputErr, dbErr := base.ListQuery(query, getExposedClustersAllowedFilters, filters, getExposedClustersFilterArgs, &exposedClusters)
@@ -112,16 +133,38 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		return
 	}
 
+	// Set cluster details fetched from AMS API
+	if utils.Cfg.AmsEnabled {
+		fullExposedClusters := []GetExposedClustersSelect{}
+		for _, clusterRow := range exposedClusters {
+			if clusterInfo, ok := clusterInfoMap[clusterRow.UUID]; ok {
+				clusterRow.DisplayName = clusterInfo.DisplayName
+				clusterRow.Status = base.EmptyToNA(clusterInfo.Status)
+				clusterRow.Type = base.EmptyToNA(clusterInfo.Type)
+				clusterRow.Version = base.EmptyToNA(clusterInfo.Version)
+				clusterRow.Provider = base.EmptyToNA(clusterInfo.Provider)
+				clusterRow.Region = base.EmptyToNA(clusterInfo.Region)
+			}
+			fullExposedClusters = append(fullExposedClusters, clusterRow)
+		}
+		exposedClusters = fullExposedClusters
+	}
+
 	ctx.JSON(http.StatusOK, GetExposedClustersResponse{exposedClusters, base.BuildMeta(make(map[string]base.Filter), &totalItems)})
 }
 
-func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64) *gorm.DB {
-	// FIXME: display_name is hardcoded to uuid
-	return c.Conn.Table("cluster").
+func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64, clusterIDs []string) *gorm.DB {
+	query := c.Conn.Table("cluster").
 		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider, cluster.last_seen`).
 		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
 		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
 		Joins("JOIN cve ON image_cve.cve_id = cve.id").
 		Where("cve.name = ?", cveName).
 		Where("cluster.account_id = ?", accountID)
+
+	if utils.Cfg.AmsEnabled {
+		query = query.Where("cluster.uuid IN ?", clusterIDs)
+	}
+
+	return query
 }
