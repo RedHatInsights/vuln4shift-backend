@@ -1,5 +1,11 @@
 package base
 
+import (
+	"errors"
+
+	"github.com/gocarina/gocsv"
+)
+
 type Error struct {
 	Error ErrorDetail `json:"error"`
 }
@@ -9,8 +15,32 @@ type ErrorDetail struct {
 	Status int    `json:"status"`
 }
 
+type DataMetaResponse struct {
+	Data interface{} `json:"data"`
+	Meta interface{} `json:"meta"`
+}
+
 func BuildErrorResponse(status int, detail string) Error {
 	return Error{Error: ErrorDetail{Detail: detail, Status: status}}
+}
+
+func BuildDataMetaResponse(data interface{}, meta interface{}, filters map[string]Filter) (DataMetaResponse, error) {
+	if filter, exists := filters[DataFormatQuery]; exists {
+		dataFormat, ok := filter.(*DataFormat)
+		if !ok {
+			return DataMetaResponse{}, errors.New("Invalid data format filter")
+		}
+
+		switch dataFormat.Value {
+		case CSVFormat:
+			data, err := gocsv.MarshalString(data)
+			if err != nil {
+				return DataMetaResponse{}, err
+			}
+			return DataMetaResponse{data, meta}, nil
+		}
+	}
+	return DataMetaResponse{data, meta}, nil
 }
 
 // BuildMeta creates Meta section in response from requested filters

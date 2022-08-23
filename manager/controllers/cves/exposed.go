@@ -18,14 +18,14 @@ import (
 // @Description CVE exposed clusters data
 // @Description presents in response
 type GetExposedClustersSelect struct {
-	UUID        string     `json:"id"`
-	DisplayName string     `json:"display_name"`
-	Status      string     `json:"status"`
-	Type        string     `json:"type"`
-	Version     string     `json:"version"`
-	Provider    string     `json:"provider"`
-	Region      string     `json:"region"`
-	LastSeen    *time.Time `json:"last_seen"`
+	UUID        string     `json:"id" csv:"id"`
+	DisplayName string     `json:"display_name" csv:"display_name"`
+	Status      string     `json:"status" csv:"status"`
+	Type        string     `json:"type" csv:"type"`
+	Version     string     `json:"version" csv:"version"`
+	Provider    string     `json:"provider" csv:"provider"`
+	Region      string     `json:"region" csv:"region"`
+	LastSeen    *time.Time `json:"last_seen" csv:"last_seen"`
 }
 
 type GetExposedClustersResponse struct {
@@ -36,6 +36,7 @@ type GetExposedClustersResponse struct {
 var (
 	getExposedClustersAllowedFilters = []string{
 		base.SearchQuery,
+		base.DataFormatQuery,
 	}
 
 	getExposedClustersFilterArgs = map[string]interface{}{
@@ -63,11 +64,12 @@ var (
 // @description Endpoint return exposed clusters for given CVE
 // @accept */*
 // @produce json
-// @Param cve_name path  string   true  "CVE name"
-// @Param sort     query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
-// @Param search   query string   false "cluster search"       example(00000000-0000-0000-0000-000000000022)
-// @Param limit    query int      false "limit per page"       example(10) minimum(0) maximum(100)
-// @Param offset   query int      false "page offset"          example(10) minimum(0)
+// @Param cve_name    path  string   true  "CVE name"
+// @Param sort        query []string false "column for sort"      collectionFormat(multi) collectionFormat(csv)
+// @Param search      query string   false "cluster search"       example(00000000-0000-0000-0000-000000000022)
+// @Param limit       query int      false "limit per page"       example(10) minimum(0) maximum(100)
+// @Param offset      query int      false "page offset"          example(10) minimum(0)
+// @Param data_format query string   false "data section format"  enums(json,csv)
 // @router /cves/{cve_name}/exposed_clusters [get]
 // @success 200 {object} GetExposedClustersResponse
 // @failure 400 {object} base.Error
@@ -123,7 +125,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	query = c.BuildExposedClustersQuery(cveName, accountID, clusterIDs)
 
 	exposedClusters := []GetExposedClustersSelect{}
-	_, totalItems, inputErr, dbErr := base.ListQuery(query, getExposedClustersAllowedFilters, filters, getExposedClustersFilterArgs, &exposedClusters)
+	usedFilters, totalItems, inputErr, dbErr := base.ListQuery(query, getExposedClustersAllowedFilters, filters, getExposedClustersFilterArgs, &exposedClusters)
 	if inputErr != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, base.BuildErrorResponse(http.StatusBadRequest, inputErr.Error()))
 		return
@@ -154,7 +156,11 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		exposedClusters = fullExposedClusters
 	}
 
-	ctx.JSON(http.StatusOK, GetExposedClustersResponse{exposedClusters, base.BuildMeta(make(map[string]base.Filter), &totalItems)})
+	resp, err := base.BuildDataMetaResponse(exposedClusters, base.BuildMeta(usedFilters, &totalItems), usedFilters)
+	if err != nil {
+		c.Logger.Errorf("Internal server error: %s", err.Error())
+	}
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64, clusterIDs []string) *gorm.DB {

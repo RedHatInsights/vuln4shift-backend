@@ -12,7 +12,7 @@ import (
 )
 
 var getClusterCvesAllowedFilters = []string{base.SearchQuery, base.PublishedQuery,
-	base.SeverityQuery, base.CvssScoreQuery}
+	base.SeverityQuery, base.CvssScoreQuery, base.DataFormatQuery}
 
 var getClusterCvesFilterArgs = map[string]interface{}{
 	base.SortFilterArgs: base.SortArgs{
@@ -33,13 +33,13 @@ var getClusterCvesFilterArgs = map[string]interface{}{
 // @Description CVE in cluster data
 // @Description presents in response
 type GetClusterCvesSelect struct {
-	Cvss2Score    *float32         `json:"cvss2_score"`
-	Cvss3Score    *float32         `json:"cvss3_score"`
-	Description   *string          `json:"description"`
-	Severity      *models.Severity `json:"severity"`
-	PublicDate    *time.Time       `json:"publish_date"`
-	Name          *string          `json:"synopsis"`
-	ImagesExposed *int64           `json:"images_exposed"`
+	Cvss2Score    *float32         `json:"cvss2_score" csv:"cvss2_score"`
+	Cvss3Score    *float32         `json:"cvss3_score" csv:"cvss3_score"`
+	Description   *string          `json:"description" csv:"description"`
+	Severity      *models.Severity `json:"severity" csv:"severity"`
+	PublicDate    *time.Time       `json:"publish_date" csv:"publish_date"`
+	Name          *string          `json:"synopsis" csv:"synopsis"`
+	ImagesExposed *int64           `json:"images_exposed" csv:"images_exposed"`
 }
 
 type GetClusterCvesResponse struct {
@@ -61,6 +61,7 @@ type GetClusterCvesResponse struct {
 // @Param search          query string   false "cve name/desc search"                                 example(CVE-2021-)
 // @Param limit           query int      false "limit per page"                                       example(10) minimum(0) maximum(100)
 // @Param offset          query int      false "page offset"                                          example(10) minimum(0)
+// @Param data_format     query string   false "data section format"                                  enums(json,csv)
 // @Param published       query []string false "CVE publish date: (from date),(to date)"              collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @Param severity        query []string false "array of severity names"                              enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
 // @Param cvss_score      query []number false "CVSS score of CVE: (from float),(to float)"           collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
@@ -114,9 +115,11 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK,
-		GetClusterCvesResponse{dataRes, base.BuildMeta(usedFilters, &totalItems)},
-	)
+	resp, err := base.BuildDataMetaResponse(dataRes, base.BuildMeta(usedFilters, &totalItems), usedFilters)
+	if err != nil {
+		c.Logger.Errorf("Internal server error: %s", err.Error())
+	}
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // ClusterExists, checks if cluster exists in db with given accid and clusterid
