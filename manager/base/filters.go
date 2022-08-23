@@ -22,6 +22,7 @@ const (
 	LimitQuery            = "limit"
 	OffsetQuery           = "offset"
 	SortQuery             = "sort"
+	DataFormatQuery       = "data_format"
 )
 
 const (
@@ -31,6 +32,11 @@ const (
 const (
 	CveSearch             = "CveSearch"
 	ExposedClustersSearch = "ExposedClustersSearch"
+)
+
+const (
+	JSONFormat = iota
+	CSVFormat
 )
 
 // Filter interface, represents filter obtained from
@@ -262,6 +268,15 @@ func (s *Sort) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 			}
 		}
 	}
+	return nil
+}
+
+type DataFormat struct {
+	RawFilter
+	Value uint64
+}
+
+func (d *DataFormat) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 	return nil
 }
 

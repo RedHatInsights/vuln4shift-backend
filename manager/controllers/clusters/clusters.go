@@ -14,24 +14,24 @@ import (
 )
 
 type ClusterCveSeverities struct {
-	CriticalCount  *int64 `json:"critical"`
-	ImportantCount *int64 `json:"important"`
-	ModerateCount  *int64 `json:"moderate"`
-	LowCount       *int64 `json:"low"`
+	CriticalCount  *int64 `json:"critical" csv:"critical"`
+	ImportantCount *int64 `json:"important" csv:"important"`
+	ModerateCount  *int64 `json:"moderate" csv:"moderate"`
+	LowCount       *int64 `json:"low" csv:"low"`
 }
 
 // GetClustersSelect
 // @Description clusters data
 type GetClustersSelect struct {
-	UUID        string                `json:"id"`
-	DisplayName string                `json:"display_name"`
-	Status      string                `json:"status"`
-	Type        string                `json:"type"`
-	Version     string                `json:"version"`
-	Provider    string                `json:"provider"`
-	Region      string                `json:"region"`
-	Severities  *ClusterCveSeverities `json:"cves_severity" gorm:"embedded"`
-	LastSeen    time.Time             `json:"last_seen"`
+	UUID        string                `json:"id" csv:"id"`
+	DisplayName string                `json:"display_name" csv:"display_name"`
+	Status      string                `json:"status" csv:"status"`
+	Type        string                `json:"type" csv:"type"`
+	Version     string                `json:"version" csv:"version"`
+	Provider    string                `json:"provider" csv:"provider"`
+	Region      string                `json:"region" csv:"region"`
+	Severities  *ClusterCveSeverities `json:"cves_severity" csv:"-" gorm:"embedded"`
+	LastSeen    time.Time             `json:"last_seen" csv:"last_seen"`
 }
 
 type GetClustersResponse struct {
@@ -43,6 +43,7 @@ var (
 	getClustersAllowedFilters = []string{
 		base.SearchQuery,
 		base.ClusterSeverityQuery,
+		base.DataFormatQuery,
 	}
 
 	getClustersFilterArgs = map[string]interface{}{
@@ -74,6 +75,7 @@ var (
 // @Param search   			query string   false "cluster search"           example(123e4567-e89b-12d3-a456-426614174000)
 // @Param limit    			query int      false "limit per page"           example(10) minimum(0) maximum(100)
 // @Param offset   			query int      false "page offset"              example(10) minimum(0)
+// @Param data_format       query string   false "data section format"      enums(json,csv)
 // @Param cluster_severity  query []string false "array of severity names"  enums(Low,Moderate,Important,Critical)
 // @router /clusters [get]
 // @success 200 {object} GetClustersResponse
@@ -139,7 +141,11 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		clustersData = fullClustersData
 	}
 
-	ctx.JSON(http.StatusOK, GetClustersResponse{clustersData, base.BuildMeta(usedFilters, &totalItems)})
+	resp, err := base.BuildDataMetaResponse(clustersData, base.BuildMeta(usedFilters, &totalItems), usedFilters)
+	if err != nil {
+		c.Logger.Errorf("Internal server error: %s", err.Error())
+	}
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func (c *Controller) BuildClustersQuery(accountID int64, clusterIDs []string) *gorm.DB {

@@ -177,6 +177,20 @@ func ParseSortArray(rawValues []string) []SortItem {
 	return res
 }
 
+func ParseDataFormat(rawValues []string) (uint64, error) {
+	if len(rawValues) != 1 {
+		return 0, errors.New("Invalid data format argument")
+	}
+	switch strings.ToLower(rawValues[0]) {
+	case "json":
+		return JSONFormat, nil
+	case "csv":
+		return CSVFormat, nil
+	default:
+		return 0, errors.New("Invalid data format argument")
+	}
+}
+
 // ErrInvalidFilterArgument represents error when invalid argument is recieved
 var ErrInvalidFilterArgument = errors.New("invalid filter argument")
 
@@ -239,6 +253,12 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 	case SortQuery:
 		sortArr := ParseSortArray(parsedValues)
 		return &Sort{RawFilter{raw, parsedValues}, sortArr}, nil
+	case DataFormatQuery:
+		format, err := ParseDataFormat(parsedValues)
+		if err != nil {
+			return &DataFormat{}, err
+		}
+		return &DataFormat{RawFilter{raw, parsedValues}, format}, nil
 	default:
 		return &Search{}, ErrInvalidFilterArgument
 	}
