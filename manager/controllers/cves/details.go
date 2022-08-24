@@ -70,7 +70,7 @@ func (c *Controller) GetCveDetails(ctx *gin.Context) {
 
 	ctx.JSON(
 		http.StatusOK,
-		GetCveDetailsResponse{cveDetails, base.BuildMeta(make(map[string]base.Filter), nil)},
+		GetCveDetailsResponse{cveDetails, base.BuildMeta(make(map[string]base.Filter), nil, nil, nil, nil)},
 	)
 }
 

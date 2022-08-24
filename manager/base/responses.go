@@ -45,13 +45,34 @@ func BuildDataMetaResponse(data interface{}, meta interface{}, filters map[strin
 
 // BuildMeta creates Meta section in response from requested filters
 // result is map with query args and their raw values
-func BuildMeta(requestedFilters map[string]Filter, totalItems *int64) map[string]interface{} {
+func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterStatuses, clusterVersions, clusterProviders *map[string]struct{}) map[string]interface{} {
 	meta := make(map[string]interface{})
 	for _, filter := range requestedFilters {
 		meta[filter.RawQueryName()] = filter.RawQueryVal()
 	}
 	if totalItems != nil {
 		meta["total_items"] = *totalItems
+	}
+	if clusterStatuses != nil {
+		var statuses []string
+		for status := range *clusterStatuses {
+			statuses = append(statuses, status)
+		}
+		meta["cluster_statuses"] = statuses
+	}
+	if clusterVersions != nil {
+		var versions []string
+		for version := range *clusterVersions {
+			versions = append(versions, version)
+		}
+		meta["cluster_versions"] = versions
+	}
+	if clusterProviders != nil {
+		var providers []string
+		for provider := range *clusterProviders {
+			providers = append(providers, provider)
+		}
+		meta["cluster_providers"] = providers
 	}
 	return meta
 }
