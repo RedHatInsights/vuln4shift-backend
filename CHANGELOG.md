@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.0 (2022-08-24)
+### Feature
+* **manager:** Add unique sets of statuses, versions and providers ([`c2eaded`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c2eadedaa082c6c07f2bbe1521db1abbfd22f916))
+
 ## v0.6.0 (2022-08-24)
 ### Feature
 * **manager:** Add csv support for pageable endpoints ([`35c8526`](https://github.com/RedHatInsights/vuln4shift-backend/commit/35c8526770648c4295f308a7828fa6e178bcbb29))
