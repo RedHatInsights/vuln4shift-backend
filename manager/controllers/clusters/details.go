@@ -90,7 +90,7 @@ func (c *Controller) GetClusterDetails(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK,
-		GetClusterDetailsResponse{clusterDetails, base.BuildMeta(make(map[string]base.Filter), nil)},
+		GetClusterDetailsResponse{clusterDetails, base.BuildMeta(make(map[string]base.Filter), nil, nil, nil, nil)},
 	)
 }
 
