@@ -29,7 +29,6 @@ type GetClustersSelect struct {
 	Type        string                `json:"type" csv:"type"`
 	Version     string                `json:"version" csv:"version"`
 	Provider    string                `json:"provider" csv:"provider"`
-	Region      string                `json:"region" csv:"region"`
 	Severities  *ClusterCveSeverities `json:"cves_severity" csv:"-" gorm:"embedded"`
 	LastSeen    time.Time             `json:"last_seen" csv:"last_seen"`
 }
@@ -55,7 +54,8 @@ var (
 				"provider":     "cluster.provider",
 				"uuid":         "cluster.uuid",
 				"last_seen":    "cluster.last_seen",
-				"display_name": "display_name"},
+				"display_name": "cluster.display_name",
+				"type":         "cluster.type"},
 			DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 		},
 		base.SearchQuery: base.ExposedClustersSearch,
@@ -82,6 +82,7 @@ var (
 // @failure 400 {object} base.Error
 // @failure 500 {object} base.Error
 func (c *Controller) GetClusters(ctx *gin.Context) {
+	accountID := ctx.GetInt64("account_id")
 	filters := base.GetRequestedFilters(ctx)
 
 	var clusterIDs []string
@@ -95,12 +96,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 	var err error
 	if utils.Cfg.AmsEnabled {
 		orgID := ctx.GetString("org_id")
-		clusterSearch := ""
-		if searchFilter, ok := filters["search"]; ok {
-			clusterSearch = searchFilter.RawQueryVal()
-			delete(filters, "search") // Don't search uuid in DB when we search uuid and display_name in AMS
-		}
-		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil, clusterSearch)
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID)
 		if err != nil {
 			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
 			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
@@ -108,13 +104,20 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		}
 		for clusterID, clusterInfo := range clusterInfoMap {
 			clusterIDs = append(clusterIDs, clusterID)
-			clusterStatuses[base.EmptyToNA(clusterInfo.Status)] = struct{}{}
-			clusterVersions[base.EmptyToNA(clusterInfo.Version)] = struct{}{}
-			clusterProviders[base.EmptyToNA(clusterInfo.Provider)] = struct{}{}
+			clusterStatuses[amsclient.EmptyToNA(clusterInfo.Status)] = struct{}{}
+			clusterVersions[amsclient.EmptyToNA(clusterInfo.Version)] = struct{}{}
+			clusterProviders[amsclient.EmptyToNA(clusterInfo.Provider)] = struct{}{}
+		}
+		err = amsclient.DBSyncClusterDetails(c.Conn, accountID, clusterInfoMap)
+		if err != nil {
+			ctx.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+			)
+			c.Logger.Errorf("Database error: %s", err.Error())
+			return
 		}
 	}
-
-	accountID := ctx.GetInt64("account_id")
 
 	query := c.BuildClustersQuery(accountID, clusterIDs)
 
@@ -131,23 +134,6 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		)
 		c.Logger.Errorf("Database error: %s", dbErr.Error())
 		return
-	}
-
-	// Set cluster details fetched from AMS API
-	if utils.Cfg.AmsEnabled {
-		fullClustersData := []GetClustersSelect{}
-		for _, clusterRow := range clustersData {
-			if clusterInfo, ok := clusterInfoMap[clusterRow.UUID]; ok {
-				clusterRow.DisplayName = clusterInfo.DisplayName
-				clusterRow.Status = base.EmptyToNA(clusterInfo.Status)
-				clusterRow.Type = base.EmptyToNA(clusterInfo.Type)
-				clusterRow.Version = base.EmptyToNA(clusterInfo.Version)
-				clusterRow.Provider = base.EmptyToNA(clusterInfo.Provider)
-				clusterRow.Region = base.EmptyToNA(clusterInfo.Region)
-			}
-			fullClustersData = append(fullClustersData, clusterRow)
-		}
-		clustersData = fullClustersData
 	}
 
 	resp, err := base.BuildDataMetaResponse(clustersData, base.BuildMeta(usedFilters, &totalItems, &clusterStatuses, &clusterVersions, &clusterProviders), usedFilters)
@@ -176,7 +162,12 @@ func (c *Controller) BuildClustersQuery(accountID int64, clusterIDs []string) *g
 	}
 
 	return c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider,
+		Select(`cluster.uuid,
+				COALESCE(cluster.display_name, cluster.uuid::text) as display_name,
+				COALESCE(cluster.status, 'N/A') as status,
+				COALESCE(cluster.type, 'N/A') as type,
+				COALESCE(cluster.version, 'N/A') as version,
+				COALESCE(cluster.provider, 'N/A') as provider,
 				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
 				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count,
 				cluster.last_seen`).

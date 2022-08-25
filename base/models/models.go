@@ -21,8 +21,10 @@ func (a Account) TableName() string {
 type Cluster struct {
 	ID                int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
 	UUID              uuid.UUID `gorm:"type:uuid;unique"`
-	Status            string    `gorm:"type:text;not null"`
-	Version           string    `gorm:"type:text;not null"`
+	DisplayName       string    `gorm:"type:text"`
+	Status            string    `gorm:"type:text"`
+	Type              string    `gorm:"type:text"`
+	Version           string    `gorm:"type:text"`
 	Provider          string    `gorm:"type:text"`
 	AccountID         int64     `gorm:"type:bigint;not null"`
 	CveCacheCritical  int32     `gorm:"type:int;not null;default:0"`
