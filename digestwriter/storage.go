@@ -153,7 +153,7 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, account AccountN
 	}
 
 	if err := tx.Omit(
-		"Status", "Version", "Provider", "CveCacheCritical",
+		"DisplayName", "Status", "Type", "Version", "Provider", "CveCacheCritical",
 		"CveCacheImportant", "CveCacheModerate", "CveCacheLow").
 		Where(clusterInfoData).
 		Clauses(clause.OnConflict{
