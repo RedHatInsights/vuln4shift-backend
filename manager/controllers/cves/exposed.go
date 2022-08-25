@@ -24,7 +24,6 @@ type GetExposedClustersSelect struct {
 	Type        string     `json:"type" csv:"type"`
 	Version     string     `json:"version" csv:"version"`
 	Provider    string     `json:"provider" csv:"provider"`
-	Region      string     `json:"region" csv:"region"`
 	LastSeen    *time.Time `json:"last_seen" csv:"last_seen"`
 }
 
@@ -48,7 +47,8 @@ var (
 				"provider":     "cluster.provider",
 				"uuid":         "cluster.uuid",
 				"last_seen":    "cluster.last_seen",
-				"display_name": "display_name"},
+				"display_name": "cluster.display_name",
+				"type":         "cluster.type"},
 			DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 		},
 		base.SearchQuery: base.ExposedClustersSearch,
@@ -76,6 +76,7 @@ var (
 // @failure 404 {object} base.Error "{cve_name} not found"
 // @failure 500 {object} base.Error
 func (c *Controller) GetExposedClusters(ctx *gin.Context) {
+	accountID := ctx.GetInt64("account_id")
 	filters := base.GetRequestedFilters(ctx)
 
 	var clusterIDs []string
@@ -89,12 +90,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	var err error
 	if utils.Cfg.AmsEnabled {
 		orgID := ctx.GetString("org_id")
-		clusterSearch := ""
-		if searchFilter, ok := filters["search"]; ok {
-			clusterSearch = searchFilter.RawQueryVal()
-			delete(filters, "search") // Don't search uuid in DB when we search uuid and display_name in AMS
-		}
-		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID, nil, nil, clusterSearch)
+		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID)
 		if err != nil {
 			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
 			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
@@ -102,14 +98,22 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		}
 		for clusterID, clusterInfo := range clusterInfoMap {
 			clusterIDs = append(clusterIDs, clusterID)
-			clusterStatuses[base.EmptyToNA(clusterInfo.Status)] = struct{}{}
-			clusterVersions[base.EmptyToNA(clusterInfo.Version)] = struct{}{}
-			clusterProviders[base.EmptyToNA(clusterInfo.Provider)] = struct{}{}
+			clusterStatuses[amsclient.EmptyToNA(clusterInfo.Status)] = struct{}{}
+			clusterVersions[amsclient.EmptyToNA(clusterInfo.Version)] = struct{}{}
+			clusterProviders[amsclient.EmptyToNA(clusterInfo.Provider)] = struct{}{}
+		}
+		err = amsclient.DBSyncClusterDetails(c.Conn, accountID, clusterInfoMap)
+		if err != nil {
+			ctx.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+			)
+			c.Logger.Errorf("Database error: %s", err.Error())
+			return
 		}
 	}
 
 	cveName := ctx.Param("cve_name")
-	accountID := ctx.GetInt64("account_id")
 
 	// Check if CVE exists first
 	query := c.BuildCveDetailsQuery(cveName)
@@ -148,23 +152,6 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		return
 	}
 
-	// Set cluster details fetched from AMS API
-	if utils.Cfg.AmsEnabled {
-		fullExposedClusters := []GetExposedClustersSelect{}
-		for _, clusterRow := range exposedClusters {
-			if clusterInfo, ok := clusterInfoMap[clusterRow.UUID]; ok {
-				clusterRow.DisplayName = clusterInfo.DisplayName
-				clusterRow.Status = base.EmptyToNA(clusterInfo.Status)
-				clusterRow.Type = base.EmptyToNA(clusterInfo.Type)
-				clusterRow.Version = base.EmptyToNA(clusterInfo.Version)
-				clusterRow.Provider = base.EmptyToNA(clusterInfo.Provider)
-				clusterRow.Region = base.EmptyToNA(clusterInfo.Region)
-			}
-			fullExposedClusters = append(fullExposedClusters, clusterRow)
-		}
-		exposedClusters = fullExposedClusters
-	}
-
 	resp, err := base.BuildDataMetaResponse(exposedClusters, base.BuildMeta(usedFilters, &totalItems, &clusterStatuses, &clusterVersions, &clusterProviders), usedFilters)
 	if err != nil {
 		c.Logger.Errorf("Internal server error: %s", err.Error())
@@ -174,8 +161,14 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 
 func (c *Controller) BuildExposedClustersQuery(cveName string, accountID int64, clusterIDs []string) *gorm.DB {
 	query := c.Conn.Table("cluster").
-		Select(`cluster.uuid, cluster.uuid AS display_name, cluster.status, cluster.version, cluster.provider, cluster.last_seen,
-		        COUNT(DISTINCT cluster_image.image_id) as images_exposed`).
+		Select(`cluster.uuid,
+				COALESCE(cluster.display_name, cluster.uuid::text) as display_name,
+				COALESCE(cluster.status, 'N/A') as status,
+				COALESCE(cluster.type, 'N/A') as type,
+				COALESCE(cluster.version, 'N/A') as version,
+				COALESCE(cluster.provider, 'N/A') as provider,
+				cluster.last_seen,
+				COUNT(DISTINCT cluster_image.image_id) as images_exposed`).
 		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
 		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
 		Joins("JOIN cve ON image_cve.cve_id = cve.id").

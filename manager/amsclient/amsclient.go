@@ -39,7 +39,7 @@ var (
 
 // AMSClient allow us to interact the AMS API
 type AMSClient interface {
-	GetClustersForOrganization(string, []string, []string, string) (
+	GetClustersForOrganization(string) (
 		clusterInfoMap map[string]ClusterInfo,
 		err error,
 	)
@@ -98,7 +98,7 @@ func NewAMSClientWithTransport(transport http.RoundTripper) (AMSClient, error) {
 // GetClustersForOrganization retrieves the clusters for a given organization using the default client
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
 // If nil is passed for filters, default filters will be applied. To select empty filters, pass an empty slice.
-func (c *amsClientImpl) GetClustersForOrganization(orgID string, statusFilter, statusNegativeFilter []string, clusterSearch string) (
+func (c *amsClientImpl) GetClustersForOrganization(orgID string) (
 	clusterInfoMap map[string]ClusterInfo,
 	err error,
 ) {
@@ -112,11 +112,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID string, statusFilter, s
 		return
 	}
 
-	if statusNegativeFilter == nil {
-		statusNegativeFilter = DefaultStatusNegativeFilters
-	}
-
-	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter, clusterSearch)
+	searchQuery := generateSearchParameter(internalOrgID, DefaultStatusNegativeFilters)
 	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
 
 	clusterInfoMap, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
