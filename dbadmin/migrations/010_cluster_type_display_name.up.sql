@@ -1,0 +1,2 @@
+ALTER TABLE cluster ADD COLUMN display_name TEXT NULL;
+ALTER TABLE cluster ADD COLUMN type TEXT NULL;
