@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.0 (2022-08-25)
+### Feature
+* **manager:** Sync cluster details to db to allow sorting in DB ([`68fff0d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/68fff0d888df6f0e5cc73d9149764dac16e7ec1f))
+* **database:** Add missing columns to the cluster table and grant manager to update the table ([`a61ef5c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a61ef5cd14693da2ee8319554523151ab0cd3ab7))
+
+### Fix
+* **digest-writer:** Missing cluster columns ([`7712b02`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7712b02b8dc86e776135574ade4b6707e1d9ec7f))
+
 ## v0.7.0 (2022-08-24)
 ### Feature
 * **manager:** Add unique sets of statuses, versions and providers ([`c2eaded`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c2eadedaa082c6c07f2bbe1521db1abbfd22f916))
