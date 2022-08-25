@@ -76,10 +76,3 @@ func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterSta
 	}
 	return meta
 }
-
-func EmptyToNA(input string) string {
-	if input == "" {
-		return "N/A"
-	}
-	return input
-}
