@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.2 (2022-08-26)
+### Fix
+* **manager:** Revert this join, should be LEFT to display clusters without CVEs ([`f8928c0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f8928c0130005054bca3dec8ebca7cceed67db26))
+
 ## v0.8.1 (2022-08-26)
 ### Fix
 * **manager:** Make sure UUIDs from AMS API are valid ([`e8d6089`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e8d608906abcad9dfe15c32360e94aa3c529e3ef))
