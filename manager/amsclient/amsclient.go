@@ -201,7 +201,6 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 		subscriptionListRequest = subscriptionListRequest.
 			Size(c.pageSize).
 			Page(pageNum).
-			Fields("external_cluster_id,display_name,status,plan").
 			Search(searchQuery)
 
 		response, err := subscriptionListRequest.Send()
