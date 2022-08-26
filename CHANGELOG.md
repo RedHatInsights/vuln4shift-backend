@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.4 (2022-08-26)
+### Fix
+* **manager:** Use provider+region str in list of all displayed providers ([`df18c7a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/df18c7ad1861aa6898085b2f12f2a9575d11e60d))
+* **manager:** Fetch metrics from AMS (adding metrics attribute doesnt't work) ([`96e90a3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/96e90a3300568a428ce1e9738a0c4c4c0316fbb9))
+
 ## v0.8.3 (2022-08-26)
 ### Fix
 * **pyxis:** Return unique image cves despite errata from pyxis ([`2ac645a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2ac645a16a178e5bb49f30f5d4f72c35d03a2918))
