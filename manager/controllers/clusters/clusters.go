@@ -149,11 +149,7 @@ func (c *Controller) BuildClustersQuery(accountID int64, clusterIDs []string) *g
 		Where("cluster.account_id = ?", accountID).
 		Group("cluster.id")
 
-	if utils.Cfg.AmsEnabled {
-		subquery = subquery.Where("cluster.uuid IN ?", clusterIDs)
-	}
-
-	return c.Conn.Table("cluster").
+	query := c.Conn.Table("cluster").
 		Select(`cluster.uuid,
 				COALESCE(cluster.display_name, cluster.uuid::text) as display_name,
 				COALESCE(cluster.status, 'N/A') as status,
@@ -163,6 +159,12 @@ func (c *Controller) BuildClustersQuery(accountID int64, clusterIDs []string) *g
 				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
 				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count,
 				cluster.last_seen`).
-		Joins("JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
+		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
 		Where("cluster.account_id = ?", accountID)
+
+	if utils.Cfg.AmsEnabled {
+		query = query.Where("cluster.uuid IN ?", clusterIDs)
+	}
+
+	return query
 }
