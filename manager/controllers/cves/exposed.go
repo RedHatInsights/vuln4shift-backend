@@ -83,9 +83,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	var clusterInfoMap map[string]amsclient.ClusterInfo
 
 	// Meta section sets
-	clusterStatuses := map[string]struct{}{}
-	clusterVersions := map[string]struct{}{}
-	clusterProviders := map[string]struct{}{}
+	var clusterStatuses, clusterVersions, clusterProviders map[string]struct{}
 
 	var err error
 	if utils.Cfg.AmsEnabled {
@@ -96,13 +94,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
 			return
 		}
-		for clusterID, clusterInfo := range clusterInfoMap {
-			clusterIDs = append(clusterIDs, clusterID)
-			clusterStatuses[amsclient.EmptyToNA(clusterInfo.Status)] = struct{}{}
-			clusterVersions[amsclient.EmptyToNA(clusterInfo.Version)] = struct{}{}
-			clusterProviders[amsclient.EmptyToNA(clusterInfo.Provider)] = struct{}{}
-		}
-		err = amsclient.DBSyncClusterDetails(c.Conn, accountID, clusterInfoMap)
+		clusterIDs, clusterStatuses, clusterVersions, clusterProviders, err = amsclient.DBSyncClusterDetails(c.Conn, accountID, clusterInfoMap)
 		if err != nil {
 			ctx.AbortWithStatusJSON(
 				http.StatusInternalServerError,

@@ -19,11 +19,16 @@ func EmptyToNA(input string) string {
 	return input
 }
 
-func DBSyncClusterDetails(conn *gorm.DB, accountID int64, clusterInfoMap map[string]ClusterInfo) error {
+func DBSyncClusterDetails(conn *gorm.DB, accountID int64, clusterInfoMap map[string]ClusterInfo) ([]string, map[string]struct{}, map[string]struct{}, map[string]struct{}, error) {
+	clusterIDs := []string{}
+	clusterStatuses := map[string]struct{}{}
+	clusterVersions := map[string]struct{}{}
+	clusterProviders := map[string]struct{}{}
+
 	// Query all clusters in DB for given account
 	clusterRows := []models.Cluster{}
 	if err := conn.Where("account_id = ?", accountID).Order("id").Find(&clusterRows).Error; err != nil {
-		return err
+		return nil, nil, nil, nil, err
 	}
 
 	for _, clusterRow := range clusterRows {
@@ -44,11 +49,15 @@ func DBSyncClusterDetails(conn *gorm.DB, accountID int64, clusterInfoMap map[str
 				clusterRow.Version = EmptyToNA(clusterInfo.Version)
 				clusterRow.Provider = providerStr
 				if err := conn.Save(&clusterRow).Error; err != nil {
-					return err
+					return nil, nil, nil, nil, err
 				}
 			}
+			clusterIDs = append(clusterIDs, clusterInfo.ID)
+			clusterStatuses[EmptyToNA(clusterInfo.Status)] = struct{}{}
+			clusterVersions[EmptyToNA(clusterInfo.Version)] = struct{}{}
+			clusterProviders[EmptyToNA(clusterInfo.Provider)] = struct{}{}
 		}
 	}
 
-	return nil
+	return clusterIDs, clusterStatuses, clusterVersions, clusterProviders, nil
 }

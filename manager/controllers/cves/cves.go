@@ -73,8 +73,11 @@ type GetCvesResponse struct {
 // @success 200 {object} GetCvesResponse
 // @failure 400 {object} base.Error
 func (c *Controller) GetCves(ctx *gin.Context) {
+	accountID := ctx.GetInt64("account_id")
+
 	var clusterIDs []string
 	var clusterInfoMap map[string]amsclient.ClusterInfo
+
 	var err error
 	if utils.Cfg.AmsEnabled {
 		orgID := ctx.GetString("org_id")
@@ -84,12 +87,16 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
 			return
 		}
-		for clusterID := range clusterInfoMap {
-			clusterIDs = append(clusterIDs, clusterID)
+		clusterIDs, _, _, _, err = amsclient.DBSyncClusterDetails(c.Conn, accountID, clusterInfoMap)
+		if err != nil {
+			ctx.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+			)
+			c.Logger.Errorf("Database error: %s", err.Error())
+			return
 		}
 	}
-
-	accountID := ctx.GetInt64("account_id")
 
 	filters := base.GetRequestedFilters(ctx)
 	query := c.BuildCvesQuery(accountID, clusterIDs)
