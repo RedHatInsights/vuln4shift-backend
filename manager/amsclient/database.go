@@ -55,7 +55,7 @@ func DBSyncClusterDetails(conn *gorm.DB, accountID int64, clusterInfoMap map[str
 			clusterIDs = append(clusterIDs, clusterInfo.ID)
 			clusterStatuses[EmptyToNA(clusterInfo.Status)] = struct{}{}
 			clusterVersions[EmptyToNA(clusterInfo.Version)] = struct{}{}
-			clusterProviders[EmptyToNA(clusterInfo.Provider)] = struct{}{}
+			clusterProviders[providerStr] = struct{}{}
 		}
 	}
 
