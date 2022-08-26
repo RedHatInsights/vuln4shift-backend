@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.1 (2022-08-26)
+### Fix
+* **manager:** Make sure UUIDs from AMS API are valid ([`e8d6089`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e8d608906abcad9dfe15c32360e94aa3c529e3ef))
+
 ## v0.8.0 (2022-08-25)
 ### Feature
 * **manager:** Sync cluster details to db to allow sorting in DB ([`68fff0d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/68fff0d888df6f0e5cc73d9149764dac16e7ec1f))
