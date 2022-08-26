@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.3 (2022-08-26)
+### Fix
+* **pyxis:** Return unique image cves despite errata from pyxis ([`2ac645a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2ac645a16a178e5bb49f30f5d4f72c35d03a2918))
+
 ## v0.8.2 (2022-08-26)
 ### Fix
 * **manager:** Revert this join, should be LEFT to display clusters without CVEs ([`f8928c0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f8928c0130005054bca3dec8ebca7cceed67db26))
