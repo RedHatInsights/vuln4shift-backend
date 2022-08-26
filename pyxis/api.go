@@ -139,6 +139,7 @@ func getAPIRepoImages(registry, repository string) (map[string]APIImage, error) 
 
 func getAPIImageCves(imagePyxisID string) ([]string, error) {
 	cveList := []string{}
+	cveMap := make(map[string]struct{})
 
 	client := &api.Client{HTTPClient: &http.Client{}}
 	imageCvesURL := fmt.Sprintf(PyxisImageCvesURL, imagePyxisID)
@@ -156,13 +157,17 @@ func getAPIImageCves(imagePyxisID string) ([]string, error) {
 		}
 
 		for _, cve := range pyxisResponse.Data {
-			cveList = append(cveList, cve.Cve)
+			cveMap[cve.Cve] = struct{}{}
 		}
 
 		totalPages = getTotalPages(pyxisResponse.Total)
-		logger.Infof("Fetched Pyxis image CVEs: image=%s, cves=%d, page=%d/%d", imagePyxisID, len(cveList), page+1, totalPages)
+		logger.Infof("Fetched Pyxis image CVEs: image=%s, cves=%d, page=%d/%d", imagePyxisID, len(cveMap), page+1, totalPages)
 	}
 
+	cveList = make([]string, len(cveMap))
+	for cve := range cveMap {
+		cveList = append(cveList, cve)
+	}
 	sort.Strings(cveList)
 
 	return cveList, nil
