@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.5 (2022-08-29)
+### Fix
+* **digest-writer:** Collect digests from containers ([`536ebfc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/536ebfc9ce846e6f0097debfaedea3d97a0ce88a))
+
 ## v0.8.4 (2022-08-26)
 ### Fix
 * **manager:** Use provider+region str in list of all displayed providers ([`df18c7a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/df18c7ad1861aa6898085b2f12f2a9575d11e60d))
