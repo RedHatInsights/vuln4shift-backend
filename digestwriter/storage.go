@@ -28,16 +28,16 @@ type DBStorage struct {
 
 // NewStorage function creates and initializes a new instance of Storage interface
 func NewStorage() (*DBStorage, error) {
-	logger.Info("Initializing connection to storage.")
+	logger.Info("initializing connection to storage.")
 
 	db, err := models.GetGormConnection(utils.GetDbURL(false))
 
 	if err != nil {
-		logger.Errorf("Unable to connect to database: %s\n", err)
+		logger.Errorf("unable to connect to database: %s", err)
 		return nil, err
 	}
 
-	logger.Infoln("Connection to storage established")
+	logger.Infoln("connection to storage established")
 	return NewFromConnection(db), nil
 }
 
@@ -62,7 +62,7 @@ func prepareBulkInsertClusterImage(clusterID int64, digests []models.Image) (dat
 func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, digests []string) error {
 	//retrieve IDs of rows in image table for the received digests
 
-	logger.Infof("Trying to link digests to cluster with ID %d\n", clusterID)
+	logger.Infof("trying to link digests to cluster with ID %d", clusterID)
 
 	var existingDigests []models.Image
 	queryResult := tx.Where("digest IN ?", digests).Find(&existingDigests)
@@ -78,11 +78,11 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, dig
 	if queryResult.RowsAffected == 0 {
 		logger.WithFields(logrus.Fields{
 			clusterIDKey: clusterID,
-		}).Infoln("no digests in image table for the cluster with the given ID. Nothing to do.")
+		}).Infoln("no digests in image table for the cluster with the given ID, nothing to do.")
 		return nil
 	}
 
-	logger.Infof("Found %d digests in image table (%d/%d)\n",
+	logger.Infof("found %d digests in image table (%d/%d)",
 		queryResult.RowsAffected, queryResult.RowsAffected, len(digests),
 	)
 

@@ -44,12 +44,25 @@ type RequestID string
 // JSONContent represents the workload info contained in the consumed message
 type JSONContent map[string]*json.RawMessage
 
-// Image data structure is representation of Images JSON object
-type Image struct {
-	Pods       int          `json:"-"`
-	ImageCount int          `json:"imageCount"`
-	Digests    *JSONContent `json:"images"`
-	Namespaces *JSONContent `json:"-"`
+type Container struct {
+	ImageID string `json:"imageID"`
+}
+
+type Shape struct {
+	InitContainers []Container `json:"initContainers"`
+	Containers     []Container `json:"containers"`
+}
+
+// Workload data structure is representation of Images JSON object
+type Workload struct {
+	Pods       int                   `json:"-"`
+	ImageCount int                   `json:"imageCount"`
+	Images     *JSONContent          `json:"images"`
+	Namespaces *map[string]Namespace `json:"namespaces"`
+}
+
+type Namespace struct {
+	Shapes []Shape `json:"shapes"`
 }
 
 // IncomingMessage data structure is representation of message consumed from
@@ -58,7 +71,7 @@ type IncomingMessage struct {
 	Organization  OrgID         `json:"OrgID"`
 	AccountNumber AccountNumber `json:"AccountNumber"`
 	ClusterName   ClusterName   `json:"ClusterName"`
-	Images        *Image        `json:"Images"`
+	Workload      *Workload     `json:"Images"`
 	LastChecked   string        `json:"-"`
 	Version       uint8         `json:"Version"`
 	RequestID     RequestID     `json:"RequestID"`
@@ -109,20 +122,20 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 
 	parsedIncomingMessage.Inc()
 
-	if message.Images.Digests == nil || len(*message.Images.Digests) == 0 {
+	if message.Workload.Images == nil || message.Workload.Namespaces == nil {
 		logger.Infoln("no digests were retrieved from incoming message")
 		d.IncrementNumberOfMessagesWithEmptyDigests()
 		return nil
 	}
 
 	// Step #2: get digests into a slice of strings
-	digests := extractDigestsFromMessage(message.Images.Digests)
+	digests := extractDigestsFromMessage(*message.Workload)
 
-	logger.Debugf("number of extracted digests: %d\n", len(digests))
+	logger.Debugf("number of extracted digests: %d", len(digests))
 
-	if message.Images.ImageCount != len(digests) {
-		logger.Warnf("Expected number of digests: %d; Extracted digests: %d\n",
-			message.Images.ImageCount, len(digests))
+	if message.Workload.ImageCount != len(digests) {
+		logger.Warnf("expected number of digests: %d, extracted digests: %d",
+			message.Workload.ImageCount, len(digests))
 	}
 
 	// Step #3: update tables with received info
@@ -142,14 +155,24 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 	return nil
 }
 
-func extractDigestsFromMessage(content *JSONContent) (digests []string) {
-	// get the digest of each item
-	digests = make([]string, len(*content))
-	index := 0
-	// TBD: We lose the ordering from the JSON by looping this way. Check if it matters
-	for digest := range *content {
-		digests[index] = digest
-		index++
+func extractDigestsFromMessage(workload Workload) (digests []string) {
+	digestSet := map[string]struct{}{}
+	for imageID := range *workload.Images {
+		digestSet[imageID] = struct{}{}
+	}
+	for _, namespace := range *workload.Namespaces {
+		for _, shape := range namespace.Shapes {
+			for _, initContainer := range shape.InitContainers {
+				digestSet[initContainer.ImageID] = struct{}{}
+			}
+			for _, container := range shape.Containers {
+				digestSet[container.ImageID] = struct{}{}
+			}
+		}
+	}
+	digests = []string{}
+	for imageID := range digestSet {
+		digests = append(digests, imageID)
 	}
 	return
 }
@@ -165,7 +188,7 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 
 	logger.Debugf("deserialized message: %v", deserialized)
 
-	if deserialized.Images == nil {
+	if deserialized.Workload == nil {
 		return deserialized, errors.New("missing required attribute 'Images'")
 	}
 
