@@ -259,6 +259,13 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 			return &DataFormat{}, err
 		}
 		return &DataFormat{RawFilter{raw, parsedValues}, format}, nil
+	case ReportQuery:
+		arrLen := 1
+		report, err := ParseBoolArray(rawValues, &arrLen)
+		if err != nil {
+			return &Report{}, err
+		}
+		return &Report{RawFilter{raw, parsedValues}, report[0]}, nil
 	default:
 		return &Search{}, ErrInvalidFilterArgument
 	}

@@ -23,6 +23,7 @@ const (
 	OffsetQuery           = "offset"
 	SortQuery             = "sort"
 	DataFormatQuery       = "data_format"
+	ReportQuery           = "report"
 )
 
 const (
@@ -275,12 +276,31 @@ func (s *Sort) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 	return nil
 }
 
+// DataFormat filter represents serialisation format of data section in response
+// ex. data_format=csv
 type DataFormat struct {
 	RawFilter
 	Value uint64
 }
 
-func (d *DataFormat) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
+// ApplyQuery format does not do anything to the DB query
+func (d *DataFormat) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	return nil
+}
+
+// Report filter represents ignoring of all paging query to return all
+// for json/csv report export
+type Report struct {
+	RawFilter
+	Value bool
+}
+
+// ApplyQuery resets limit and offset on the query
+func (r *Report) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if r.Value {
+		tx.Limit(-1)
+		tx.Offset(-1)
+	}
 	return nil
 }
 
