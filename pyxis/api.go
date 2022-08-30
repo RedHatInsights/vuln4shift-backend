@@ -164,7 +164,7 @@ func getAPIImageCves(imagePyxisID string) ([]string, error) {
 		logger.Infof("Fetched Pyxis image CVEs: image=%s, cves=%d, page=%d/%d", imagePyxisID, len(cveMap), page+1, totalPages)
 	}
 
-	cveList = make([]string, len(cveMap))
+	cveList = make([]string, 0, len(cveMap))
 	for cve := range cveMap {
 		cveList = append(cveList, cve)
 	}
