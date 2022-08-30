@@ -70,6 +70,7 @@ var (
 // @Param limit       query int      false "limit per page"       example(10) minimum(0) maximum(100)
 // @Param offset      query int      false "page offset"          example(10) minimum(0)
 // @Param data_format query string   false "data section format"  enums(json,csv)
+// @Param report      query bool     false "overrides limit and offset to return everything"
 // @router /cves/{cve_name}/exposed_clusters [get]
 // @success 200 {object} GetExposedClustersResponse
 // @failure 400 {object} base.Error

@@ -62,6 +62,7 @@ type GetClusterCvesResponse struct {
 // @Param limit           query int      false "limit per page"                                       example(10) minimum(0) maximum(100)
 // @Param offset          query int      false "page offset"                                          example(10) minimum(0)
 // @Param data_format     query string   false "data section format"                                  enums(json,csv)
+// @Param report          query bool     false "overrides limit and offset to return everything"
 // @Param published       query []string false "CVE publish date: (from date),(to date)"              collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @Param severity        query []string false "array of severity names"                              enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
 // @Param cvss_score      query []number false "CVSS score of CVE: (from float),(to float)"           collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)

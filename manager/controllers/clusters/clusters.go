@@ -71,12 +71,13 @@ var (
 // @description Endpoint returning Clusters
 // @accept */*
 // @produce json
-// @Param sort     			query []string false "column for sort"          collectionFormat(multi) collectionFormat(csv)
-// @Param search   			query string   false "cluster search"           example(123e4567-e89b-12d3-a456-426614174000)
-// @Param limit    			query int      false "limit per page"           example(10) minimum(0) maximum(100)
-// @Param offset   			query int      false "page offset"              example(10) minimum(0)
-// @Param data_format       query string   false "data section format"      enums(json,csv)
-// @Param cluster_severity  query []string false "array of severity names"  enums(Low,Moderate,Important,Critical)
+// @Param sort     			query []string false "column for sort"                                      collectionFormat(multi) collectionFormat(csv)
+// @Param search   			query string   false "cluster search"                                       example(123e4567-e89b-12d3-a456-426614174000)
+// @Param limit    			query int      false "limit per page"                                       example(10) minimum(0) maximum(100)
+// @Param offset   			query int      false "page offset"                                          example(10) minimum(0)
+// @Param data_format       query string   false "data section format"                                  enums(json,csv)
+// @Param report            query bool     false "overrides limit and offset to return everything"
+// @Param cluster_severity  query []string false "array of severity names"                              enums(Low,Moderate,Important,Critical)
 // @router /clusters [get]
 // @success 200 {object} GetClustersResponse
 // @failure 400 {object} base.Error

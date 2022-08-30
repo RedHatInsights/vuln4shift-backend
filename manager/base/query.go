@@ -22,7 +22,8 @@ func ListQuery(tx *gorm.DB, allowedFilters []string, filters map[string]Filter,
 		return
 	}
 
-	spqFilters := []string{SortQuery, LimitQuery, OffsetQuery}
+	// report needs to be always after the limit & offset to reset them
+	spqFilters := []string{SortQuery, LimitQuery, OffsetQuery, ReportQuery}
 	uf, inputError = ApplyFilters(tx, spqFilters, filters, filterArgs)
 	if inputError != nil {
 		return
