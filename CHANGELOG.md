@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.0 (2022-08-30)
+### Feature
+* **manager:** Add report query for returning all records ([`4611008`](https://github.com/RedHatInsights/vuln4shift-backend/commit/46110081fd014c670c2c3a4bb6f49d6f1d2a25d3))
+
 ## v0.8.6 (2022-08-30)
 ### Fix
 * **manager:** Cluster severity filter should be OR ([`9292213`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9292213ad43c61498404235689e83b60db79bdfe))
