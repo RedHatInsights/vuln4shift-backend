@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.6 (2022-08-30)
+### Fix
+* **manager:** Cluster severity filter should be OR ([`9292213`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9292213ad43c61498404235689e83b60db79bdfe))
+
 ## v0.8.5 (2022-08-29)
 ### Fix
 * **digest-writer:** Collect digests from containers ([`536ebfc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/536ebfc9ce846e6f0097debfaedea3d97a0ce88a))
