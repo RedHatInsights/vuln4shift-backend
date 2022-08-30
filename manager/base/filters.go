@@ -128,17 +128,21 @@ type ClusterSeverity struct {
 }
 
 func (s *ClusterSeverity) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	severities := []string{}
 	for _, severity := range s.Value {
 		switch severity {
 		case models.Critical:
-			tx.Where("critical_count > 0")
+			severities = append(severities, "cc > 0")
 		case models.Important:
-			tx.Where("important_count > 0")
+			severities = append(severities, "ic > 0")
 		case models.Moderate:
-			tx.Where("moderate_count > 0")
+			severities = append(severities, "mc > 0")
 		case models.Low:
-			tx.Where("low_count > 0")
+			severities = append(severities, "lc > 0")
 		}
+	}
+	if len(severities) > 0 {
+		tx.Where(strings.Join(severities, " OR "))
 	}
 	return nil
 }
