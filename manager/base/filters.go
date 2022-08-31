@@ -25,6 +25,7 @@ const (
 	DataFormatQuery       = "data_format"
 	ReportQuery           = "report"
 	StatusQuery           = "status"
+	VersionQuery          = "version"
 )
 
 const (
@@ -317,6 +318,21 @@ type Status struct {
 func (s *Status) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 	if len(s.Values) > 0 {
 		tx.Where("cluster.status IN ?", s.Values)
+	}
+	return nil
+}
+
+// Version filter represents version of cluster
+// ex. version=4.1,4.2
+type Version struct {
+	RawFilter
+	Values []string
+}
+
+// ApplyQuery searches for version in array
+func (v *Version) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if len(v.Values) > 0 {
+		tx.Where("cluster.version IN ?", v.Values)
 	}
 	return nil
 }

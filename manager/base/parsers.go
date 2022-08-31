@@ -279,6 +279,8 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 	case StatusQuery:
 		statuses := ParseCapitalArray(rawValues)
 		return &Status{RawFilter{raw, parsedValues}, statuses}, nil
+	case VersionQuery:
+		return &Version{RawFilter{raw, parsedValues}, parsedValues}, nil
 	default:
 		return &Search{}, ErrInvalidFilterArgument
 	}
