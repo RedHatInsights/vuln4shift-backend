@@ -44,6 +44,7 @@ var (
 		base.ClusterSeverityQuery,
 		base.DataFormatQuery,
 		base.StatusQuery,
+		base.VersionQuery,
 	}
 
 	getClustersFilterArgs = map[string]interface{}{
@@ -79,6 +80,7 @@ var (
 // @Param data_format       query string   false "data section format"                                  enums(json,csv)
 // @Param report            query bool     false "overrides limit and offset to return everything"
 // @Param status            query []string false "status of the cluster"
+// @Param version           query []string false "version of the cluster"
 // @Param cluster_severity  query []string false "array of severity names"                              enums(Low,Moderate,Important,Critical)
 // @router /clusters [get]
 // @success 200 {object} GetClustersResponse
