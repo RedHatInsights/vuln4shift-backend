@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.0 (2022-08-31)
+### Feature
+* **manager:** Add cluster status filter ([`6b05b4b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6b05b4b9777ccc61d26fa5d4576a4059ffee6168))
+
 ## v0.9.1 (2022-08-31)
 ### Fix
 * **pyxis:** Dont init array with empty values ([`f129939`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f129939fe45639a3da3b8ee1f5c110df00c3a530))
