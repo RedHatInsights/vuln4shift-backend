@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.1 (2022-08-31)
+### Fix
+* **pyxis:** Dont init array with empty values ([`f129939`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f129939fe45639a3da3b8ee1f5c110df00c3a530))
+
 ## v0.9.0 (2022-08-30)
 ### Feature
 * **manager:** Add report query for returning all records ([`4611008`](https://github.com/RedHatInsights/vuln4shift-backend/commit/46110081fd014c670c2c3a4bb6f49d6f1d2a25d3))
