@@ -24,6 +24,7 @@ const (
 	SortQuery             = "sort"
 	DataFormatQuery       = "data_format"
 	ReportQuery           = "report"
+	StatusQuery           = "status"
 )
 
 const (
@@ -300,6 +301,22 @@ func (r *Report) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 	if r.Value {
 		tx.Limit(-1)
 		tx.Offset(-1)
+	}
+	return nil
+}
+
+// Status represents cluster status filter
+// ex. status=disconnected,connected
+// FIXME: values should be enums of the possible cluster status values
+type Status struct {
+	RawFilter
+	Values []string
+}
+
+// ApplyQuery filters the cluster by its status
+func (s *Status) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if len(s.Values) > 0 {
+		tx.Where("cluster.status IN ?", s.Values)
 	}
 	return nil
 }
