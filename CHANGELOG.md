@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.11.0 (2022-08-31)
+### Feature
+* **manager:** Add version filter for clusters ([`0c4f39b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0c4f39b745d5f30266e3edebc6f258757afeda3e))
+
 ## v0.10.0 (2022-08-31)
 ### Feature
 * **manager:** Add cluster status filter ([`6b05b4b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6b05b4b9777ccc61d26fa5d4576a4059ffee6168))
