@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.13.0 (2022-08-31)
+### Feature
+* **manager:** Add sorting by cve severity for clusters ([`9c2c241`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9c2c2410f23ea2932244db4d0d09f530df966fdf))
+
 ## v0.12.0 (2022-08-31)
 ### Feature
 * **manager:** Add provider cluster filter ([`ac01502`](https://github.com/RedHatInsights/vuln4shift-backend/commit/ac015028edf639f78dc5bbf4ee3770812156f221))
