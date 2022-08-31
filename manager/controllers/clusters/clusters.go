@@ -51,14 +51,15 @@ var (
 	getClustersFilterArgs = map[string]interface{}{
 		base.SortFilterArgs: base.SortArgs{
 			SortableColumns: map[string]string{
-				"id":           "cluster.id",
-				"status":       "cluster.status",
-				"version":      "cluster.version",
-				"provider":     "cluster.provider",
-				"uuid":         "cluster.uuid",
-				"last_seen":    "cluster.last_seen",
-				"display_name": "cluster.display_name",
-				"type":         "cluster.type"},
+				"id":               "cluster.id",
+				"status":           "cluster.status",
+				"version":          "cluster.version",
+				"provider":         "cluster.provider",
+				"uuid":             "cluster.uuid",
+				"last_seen":        "cluster.last_seen",
+				"display_name":     "cluster.display_name",
+				"type":             "cluster.type",
+				"cluster_severity": "(COALESCE(cc, 0),COALESCE(ic, 0),COALESCE(mc, 0),COALESCE(lc, 0))"},
 			DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 		},
 		base.SearchQuery: base.ExposedClustersSearch,
