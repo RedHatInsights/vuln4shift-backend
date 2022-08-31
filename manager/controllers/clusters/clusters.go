@@ -43,6 +43,7 @@ var (
 		base.SearchQuery,
 		base.ClusterSeverityQuery,
 		base.DataFormatQuery,
+		base.ProviderQuery,
 		base.StatusQuery,
 		base.VersionQuery,
 	}
@@ -79,6 +80,7 @@ var (
 // @Param offset   			query int      false "page offset"                                          example(10) minimum(0)
 // @Param data_format       query string   false "data section format"                                  enums(json,csv)
 // @Param report            query bool     false "overrides limit and offset to return everything"
+// @Param provider          query []string false "provider of the cluster"
 // @Param status            query []string false "status of the cluster"
 // @Param version           query []string false "version of the cluster"
 // @Param cluster_severity  query []string false "array of severity names"                              enums(Low,Moderate,Important,Critical)

@@ -24,6 +24,7 @@ const (
 	SortQuery             = "sort"
 	DataFormatQuery       = "data_format"
 	ReportQuery           = "report"
+	ProviderQuery         = "provider"
 	StatusQuery           = "status"
 	VersionQuery          = "version"
 )
@@ -302,6 +303,20 @@ func (r *Report) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 	if r.Value {
 		tx.Limit(-1)
 		tx.Offset(-1)
+	}
+	return nil
+}
+
+// Provider represents cluster provider filter
+type Provider struct {
+	RawFilter
+	Values []string
+}
+
+// ApplyQuery filters clusters by provider
+func (p *Provider) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if len(p.Values) > 0 {
+		tx.Where("COALESCE(cluster.provider, 'N/A') IN ?", p.Values)
 	}
 	return nil
 }
