@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.12.0 (2022-08-31)
+### Feature
+* **manager:** Add provider cluster filter ([`ac01502`](https://github.com/RedHatInsights/vuln4shift-backend/commit/ac015028edf639f78dc5bbf4ee3770812156f221))
+
 ## v0.11.0 (2022-08-31)
 ### Feature
 * **manager:** Add version filter for clusters ([`0c4f39b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0c4f39b745d5f30266e3edebc6f258757afeda3e))
