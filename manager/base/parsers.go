@@ -177,6 +177,7 @@ func ParseSortArray(rawValues []string) []SortItem {
 	return res
 }
 
+// ParseDataFormat parses data format to given enum
 func ParseDataFormat(rawValues []string) (uint64, error) {
 	if len(rawValues) != 1 {
 		return 0, errors.New("Invalid data format argument")
@@ -189,6 +190,15 @@ func ParseDataFormat(rawValues []string) (uint64, error) {
 	default:
 		return 0, errors.New("Invalid data format argument")
 	}
+}
+
+// ParseCapitalArray parses string array to capital string array
+func ParseCapitalArray(rawValues []string) []string {
+	var res []string
+	for _, raw := range rawValues {
+		res = append(res, strings.Title(raw))
+	}
+	return res
 }
 
 // ErrInvalidFilterArgument represents error when invalid argument is recieved
@@ -266,6 +276,9 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 			return &Report{}, err
 		}
 		return &Report{RawFilter{raw, parsedValues}, report[0]}, nil
+	case StatusQuery:
+		statuses := ParseCapitalArray(rawValues)
+		return &Status{RawFilter{raw, parsedValues}, statuses}, nil
 	default:
 		return &Search{}, ErrInvalidFilterArgument
 	}
