@@ -10,10 +10,12 @@ import (
 var (
 	DB         *gorm.DB
 	dbRepoMap  map[string]models.Repository
+	dbArchMap  map[string]models.Arch
 	dbImageMap map[string]models.Image
 	dbCveMap   map[string]models.Cve
 
 	// Objects to add to the cached maps above after succesful commit
+	dbArchMapPending  = map[string]models.Arch{}
 	dbImageMapPending = map[string]models.Image{}
 	dbCveMapPending   = map[string]models.Cve{}
 )
@@ -37,6 +39,18 @@ func prepareDbRepositories() error {
 	dbRepoMap = make(map[string]models.Repository, len(repoRows))
 	for _, repo := range repoRows {
 		dbRepoMap[repo.PyxisID] = repo
+	}
+	return nil
+}
+
+func prepareDbArchs() error {
+	archRows := []models.Arch{}
+	if err := DB.Find(&archRows).Error; err != nil {
+		return err
+	}
+	dbArchMap = make(map[string]models.Arch, len(archRows))
+	for _, arch := range archRows {
+		dbArchMap[arch.Name] = arch
 	}
 	return nil
 }
@@ -69,6 +83,9 @@ func prepareMaps() error {
 	if err := prepareDbRepositories(); err != nil {
 		return err
 	}
+	if err := prepareDbArchs(); err != nil {
+		return err
+	}
 	if err := prepareDbImages(); err != nil {
 		return err
 	}
@@ -79,11 +96,15 @@ func prepareMaps() error {
 }
 
 func emptyPendingCache() {
+	dbArchMapPending = map[string]models.Arch{}
 	dbImageMapPending = map[string]models.Image{}
 	dbCveMapPending = map[string]models.Cve{}
 }
 
 func flushPendingCache() {
+	for key, val := range dbArchMapPending {
+		dbArchMap[key] = val
+	}
 	for key, val := range dbImageMapPending {
 		dbImageMap[key] = val
 	}
