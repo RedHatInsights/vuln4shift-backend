@@ -174,7 +174,22 @@ func syncRepo(repo models.Repository) error {
 
 	toSyncImages := []models.Image{}
 
+	var dbArch models.Arch
+	var found bool
 	for digest, apiImage := range apiRepoImages {
+		if dbArch, found = dbArchMap[apiImage.Architecture]; !found {
+			if dbArch, found = dbArchMapPending[apiImage.Architecture]; !found {
+				if len(apiImage.Architecture) == 0 {
+					err := fmt.Errorf("empty arch for image, pyxis_id=%s", apiImage.PyxisID)
+					return err
+				}
+				dbArch = models.Arch{Name: apiImage.Architecture}
+				if err := tx.Create(&dbArch).Error; err != nil {
+					return err
+				}
+				dbArchMapPending[apiImage.Architecture] = dbArch
+			}
+		}
 		if dbImage, found := dbImageMap[digest]; !found {
 			toSyncImages = append(
 				toSyncImages,
@@ -182,11 +197,13 @@ func syncRepo(repo models.Repository) error {
 					PyxisID:      apiImage.PyxisID,
 					ModifiedDate: apiImage.ModifiedDate,
 					Digest:       apiImage.Digest,
+					ArchID:       dbArch.ID,
 				},
 			)
 		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) || utils.Cfg.ForceSync {
 			dbImage.PyxisID = apiImage.PyxisID
 			dbImage.ModifiedDate = apiImage.ModifiedDate
+			dbImage.ArchID = dbArch.ID
 			toSyncImages = append(toSyncImages, dbImage)
 		}
 	}
@@ -210,7 +227,6 @@ func syncRepo(repo models.Repository) error {
 	toDeleteRepositoryImages := []models.RepositoryImage{}
 
 	var image models.Image
-	var found bool
 	for digest := range apiRepoImages {
 		// Lookup image in the cache (also in the pending cache because it might be inserted in current transaction)
 		if image, found = dbImageMap[digest]; !found {

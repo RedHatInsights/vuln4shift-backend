@@ -38,6 +38,7 @@ type APIImage struct {
 	PyxisID      string    `json:"_id"`
 	ModifiedDate time.Time `json:"last_update_date"`
 	Digest       string    `json:"docker_image_id"`
+	Architecture string    `json:"architecture"`
 }
 
 type APIRepoImagesResponse struct {
