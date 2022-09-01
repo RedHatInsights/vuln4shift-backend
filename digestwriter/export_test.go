@@ -36,10 +36,10 @@ func NewDummyConsumerWithProcessor(storage Storage) (*utils.KafkaConsumer, *Dige
 
 // storage-related functions
 
-func LinkDigestsToCluster(s *DBStorage, clusterID int64, digests []string) error {
+func LinkDigestsToCluster(s *DBStorage, clusterID, archID int64, digests []string) error {
 	tx := s.connection.Begin()
 	defer tx.Rollback()
-	err := s.linkDigestsToCluster(tx, clusterID, digests)
+	err := s.linkDigestsToCluster(tx, clusterID, archID, digests)
 	if err != nil {
 		return err
 	}
