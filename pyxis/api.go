@@ -34,11 +34,15 @@ type APIReposResponse struct {
 	Total    int       `json:"total"`
 }
 
+type APIImageRepoDetail struct {
+	Digest string `json:"manifest_list_digest"`
+}
+
 type APIImage struct {
-	PyxisID      string    `json:"_id"`
-	ModifiedDate time.Time `json:"last_update_date"`
-	Digest       string    `json:"docker_image_id"`
-	Architecture string    `json:"architecture"`
+	PyxisID      string               `json:"_id"`
+	ModifiedDate time.Time            `json:"last_update_date"`
+	Architecture string               `json:"architecture"`
+	Repositories []APIImageRepoDetail `json:"repositories"`
 }
 
 type APIRepoImagesResponse struct {
@@ -122,13 +126,15 @@ func getAPIRepoImages(registry, repository string) (map[string]APIImage, error) 
 		}
 
 		for _, image := range pyxisResponse.Data {
-			if len(image.Digest) == 0 {
-				err := fmt.Errorf("Empty digest field for Image Pyxis ID: %s", image.PyxisID)
+			if len(image.Repositories) == 0 {
+				err := fmt.Errorf("Empty repositories field for Image Pyxis ID: %s", image.PyxisID)
 				return imageMap, err // Break here, do not sync repo if at least one image is faulty
 			}
-			// De-duplicate on the digest field, not unique in Pyxis DB, but we need only one record
-			// all records with same digest in Pyxis should have same CVE list
-			imageMap[image.Digest] = image
+			if len(image.Repositories[0].Digest) == 0 {
+				err := fmt.Errorf("Empty manifest_list_digest field for Image Pyxis ID: %s", image.PyxisID)
+				return imageMap, err // Break here, do not sync repo if at least one image is faulty
+			}
+			imageMap[image.PyxisID] = image
 		}
 
 		totalPages = getTotalPages(pyxisResponse.Total)
