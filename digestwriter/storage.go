@@ -15,6 +15,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+const (
+	defaultImageArch = "amd64"
+)
+
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
 	WriteClusterInfo(cluster ClusterName, account AccountNumber, orgID OrgID, digests []string) error
@@ -24,6 +28,18 @@ type Storage interface {
 // It is possible to configure connection via Configuration structure.
 type DBStorage struct {
 	connection *gorm.DB
+	archMap    map[string]int64
+}
+
+func (storage *DBStorage) lookupArch(name string) error {
+	archRows := []models.Arch{}
+	if err := storage.connection.Where("name = ?", name).Find(&archRows).Error; err != nil {
+		return err
+	}
+	for _, arch := range archRows {
+		storage.archMap[arch.Name] = arch.ID
+	}
+	return nil
 }
 
 // NewStorage function creates and initializes a new instance of Storage interface
@@ -46,6 +62,7 @@ func NewStorage() (*DBStorage, error) {
 func NewFromConnection(connection *gorm.DB) *DBStorage {
 	return &DBStorage{
 		connection: connection,
+		archMap:    map[string]int64{},
 	}
 }
 
@@ -59,13 +76,13 @@ func prepareBulkInsertClusterImage(clusterID int64, digests []models.Image) (dat
 }
 
 // linkDigestsToCluster updates the 'cluster_image' table
-func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID int64, digests []string) error {
+func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID, clusterArchID int64, digests []string) error {
 	//retrieve IDs of rows in image table for the received digests
 
 	logger.Infof("trying to link digests to cluster with ID %d", clusterID)
 
 	var existingDigests []models.Image
-	queryResult := tx.Where("digest IN ?", digests).Find(&existingDigests)
+	queryResult := tx.Where("digest IN ? AND arch_id = ?", digests, clusterArchID).Find(&existingDigests)
 	if err := queryResult.Error; err != nil {
 		//TODO: Maybe we prefer to check digests first, and not insert anything in cluster and cluster_image tables?
 		logger.WithFields(logrus.Fields{
@@ -172,7 +189,21 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, account AccountN
 		accountKey: clusterInfoData.AccountID,
 	}).Debugln("updated cluster table successfully")
 
-	if err = storage.linkDigestsToCluster(tx, clusterInfoData.ID, digests); err != nil {
+	var archID int64
+	var found bool
+	if archID, found = storage.archMap[defaultImageArch]; !found {
+		// TODO: get real cluster image arch, use default for now
+		err = storage.lookupArch(defaultImageArch)
+		if err != nil {
+			return err
+		}
+		if archID, found = storage.archMap[defaultImageArch]; !found {
+			err = fmt.Errorf("unknown image arch: %s", defaultImageArch)
+			return err
+		}
+	}
+
+	if err = storage.linkDigestsToCluster(tx, clusterInfoData.ID, archID, digests); err != nil {
 		return tx.Rollback().Error
 	}
 	return tx.Commit().Error
