@@ -68,7 +68,7 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 			syncError.WithLabelValues(dbInsert).Inc()
 			return err
 		}
-		dbImageMapPending[image.Digest] = image // Add newly inserted image to the cache after commit
+		dbImageMapPending[image.PyxisID] = image // Add newly inserted image to the cache after commit
 	} else {
 		if err := tx.Save(&image).Error; err != nil {
 			syncError.WithLabelValues(dbUpdate).Inc()
@@ -176,7 +176,7 @@ func syncRepo(repo models.Repository) error {
 
 	var dbArch models.Arch
 	var found bool
-	for digest, apiImage := range apiRepoImages {
+	for pyxisID, apiImage := range apiRepoImages {
 		if dbArch, found = dbArchMap[apiImage.Architecture]; !found {
 			if dbArch, found = dbArchMapPending[apiImage.Architecture]; !found {
 				if len(apiImage.Architecture) == 0 {
@@ -190,19 +190,19 @@ func syncRepo(repo models.Repository) error {
 				dbArchMapPending[apiImage.Architecture] = dbArch
 			}
 		}
-		if dbImage, found := dbImageMap[digest]; !found {
+		if dbImage, found := dbImageMap[pyxisID]; !found {
 			toSyncImages = append(
 				toSyncImages,
 				models.Image{
 					PyxisID:      apiImage.PyxisID,
 					ModifiedDate: apiImage.ModifiedDate,
-					Digest:       apiImage.Digest,
+					Digest:       apiImage.Repositories[0].Digest,
 					ArchID:       dbArch.ID,
 				},
 			)
 		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) || utils.Cfg.ForceSync {
-			dbImage.PyxisID = apiImage.PyxisID
 			dbImage.ModifiedDate = apiImage.ModifiedDate
+			dbImage.Digest = apiImage.Repositories[0].Digest
 			dbImage.ArchID = dbArch.ID
 			toSyncImages = append(toSyncImages, dbImage)
 		}
@@ -227,12 +227,12 @@ func syncRepo(repo models.Repository) error {
 	toDeleteRepositoryImages := []models.RepositoryImage{}
 
 	var image models.Image
-	for digest := range apiRepoImages {
+	for pyxisID := range apiRepoImages {
 		// Lookup image in the cache (also in the pending cache because it might be inserted in current transaction)
-		if image, found = dbImageMap[digest]; !found {
-			if image, found = dbImageMapPending[digest]; !found {
+		if image, found = dbImageMap[pyxisID]; !found {
+			if image, found = dbImageMapPending[pyxisID]; !found {
 				syncError.WithLabelValues(dbImageNotInCache).Inc()
-				err := fmt.Errorf("image not in cache: %s", digest)
+				err := fmt.Errorf("image not in cache: %s", pyxisID)
 				return err
 			}
 		}

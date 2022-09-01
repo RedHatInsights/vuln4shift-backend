@@ -62,7 +62,7 @@ func prepareDbImages() error {
 	}
 	dbImageMap = make(map[string]models.Image, len(imageRows))
 	for _, image := range imageRows {
-		dbImageMap[image.Digest] = image
+		dbImageMap[image.PyxisID] = image
 	}
 	return nil
 }
