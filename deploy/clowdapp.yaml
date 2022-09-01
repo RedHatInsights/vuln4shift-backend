@@ -232,6 +232,8 @@ objects:
           value: ${PYXIS_BASE_URL}
         - name: PYXIS_PROFILE
           value: ${PYXIS_PROFILE}
+        - name: FORCE_SYNC
+          value: ${FORCE_SYNC}
         resources:
           limits:
             cpu: ${{CPU_LIMIT_PYXIS_GATHERER}}
@@ -472,6 +474,8 @@ parameters:
   description: Pyxis sync profile
   required: true
   value: all
+- name: FORCE_SYNC
+  value: "false"
 
 # CLEANER CONFIG
 - name: CLUSTER_RETENTION_DAYS
