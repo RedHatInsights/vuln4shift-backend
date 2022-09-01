@@ -146,7 +146,7 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 			accountKey: message.AccountNumber,
 			clusterKey: message.ClusterName,
 			errorKey:   err.Error(),
-		}).Errorln("error writing to cluster table")
+		}).Errorln("error updating cluster data")
 		storedMessagesError.Inc()
 		return err
 	}
