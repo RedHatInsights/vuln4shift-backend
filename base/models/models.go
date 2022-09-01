@@ -17,6 +17,16 @@ func (a Account) TableName() string {
 	return "account"
 }
 
+// Arch table
+type Arch struct {
+	ID   int64  `gorm:"type:bigint;primaryKey;autoIncrement"`
+	Name string `gorm:"type:text;not null"`
+}
+
+func (Arch) TableName() string {
+	return "arch"
+}
+
 // Cluster table
 type Cluster struct {
 	ID                int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
@@ -56,7 +66,8 @@ type Image struct {
 	ID           int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
 	PyxisID      string    `gorm:"type:text;not null;unique"`
 	ModifiedDate time.Time `gorm:"type:timestamp with time zone not null"`
-	Digest       string    `gorm:"type:text;not null;unique"`
+	Digest       string    `gorm:"type:text;not null;index:image_digest_idx"`
+	ArchID       int64     `gorm:"type:bigint"`
 }
 
 func (i Image) TableName() string {
