@@ -184,7 +184,7 @@ func syncRepo(repo models.Repository) error {
 					Digest:       apiImage.Digest,
 				},
 			)
-		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) {
+		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) || utils.Cfg.ForceSync {
 			dbImage.PyxisID = apiImage.PyxisID
 			dbImage.ModifiedDate = apiImage.ModifiedDate
 			toSyncImages = append(toSyncImages, dbImage)
@@ -290,7 +290,7 @@ func syncRepos() {
 					Repository:   apiRepo.Repository,
 				},
 			)
-		} else if apiRepo.ModifiedDate.After(dbRepo.ModifiedDate) {
+		} else if apiRepo.ModifiedDate.After(dbRepo.ModifiedDate) || utils.Cfg.ForceSync {
 			dbRepo.ModifiedDate = apiRepo.ModifiedDate
 			dbRepo.Registry = apiRepo.Registry
 			dbRepo.Repository = apiRepo.Repository

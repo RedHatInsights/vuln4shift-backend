@@ -67,6 +67,7 @@ type Config struct {
 	// Pyxis gatherer config
 	PyxisBaseURL string
 	PyxisProfile string
+	ForceSync    bool
 }
 
 func init() {
@@ -146,6 +147,7 @@ func init() {
 	// Pyxis gatherer config
 	Cfg.PyxisBaseURL = GetEnv("PYXIS_BASE_URL", "http://localhost")
 	Cfg.PyxisProfile = GetEnv("PYXIS_PROFILE", "unknown_profile")
+	Cfg.ForceSync = GetEnv("FORCE_SYNC", false)
 }
 
 // CreateKafkaConfig adds SSL kafka sarama configuration based on clowder
