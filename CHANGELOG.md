@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.0 (2022-09-02)
+### Feature
+* **pyxis:** Store image archs ([`a87d462`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a87d46201d54bd3b5aa199a5f1c3a90ffbb3cede))
+* **database:** Add arch for image and remove digest unique constaint -> manifest list digest will be used ([`db4442d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/db4442df48cb40ea5662f3762a38930a85b44109))
+* **pyxis:** Support forcing the sync ([`1b10000`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1b10000e5b114f7c784384bf36da913131628c5a))
+
+### Fix
+* **digest-writer:** Match images with given arch ([`1db8d19`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1db8d192d434d5db4274e58db1479a91eca799a4))
+* **pyxis:** Store manifest_list_digest instead ([`dc0ae6b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/dc0ae6b02cfdeef43cf57b1d09e5e81a6b749c7b))
+
 ## v0.13.0 (2022-08-31)
 ### Feature
 * **manager:** Add sorting by cve severity for clusters ([`9c2c241`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9c2c2410f23ea2932244db4d0d09f530df966fdf))
