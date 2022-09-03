@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.1 (2022-09-03)
+### Fix
+* **pyxis:** Use docker_image_digest if manifest_list_digest is empty ([`4666f1d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4666f1d3ac258bbe283da1b51877349cdf00b466))
+
 ## v0.14.0 (2022-09-02)
 ### Feature
 * **pyxis:** Store image archs ([`a87d462`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a87d46201d54bd3b5aa199a5f1c3a90ffbb3cede))
