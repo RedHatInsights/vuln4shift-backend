@@ -39,10 +39,11 @@ type APIImageRepoDetail struct {
 }
 
 type APIImage struct {
-	PyxisID      string               `json:"_id"`
-	ModifiedDate time.Time            `json:"last_update_date"`
-	Architecture string               `json:"architecture"`
-	Repositories []APIImageRepoDetail `json:"repositories"`
+	PyxisID           string               `json:"_id"`
+	ModifiedDate      time.Time            `json:"last_update_date"`
+	Architecture      string               `json:"architecture"`
+	DockerImageDigest string               `json:"docker_image_digest"`
+	Repositories      []APIImageRepoDetail `json:"repositories"`
 }
 
 type APIRepoImagesResponse struct {
@@ -130,8 +131,8 @@ func getAPIRepoImages(registry, repository string) (map[string]APIImage, error) 
 				err := fmt.Errorf("Empty repositories field for Image Pyxis ID: %s", image.PyxisID)
 				return imageMap, err // Break here, do not sync repo if at least one image is faulty
 			}
-			if len(image.Repositories[0].Digest) == 0 {
-				err := fmt.Errorf("Empty manifest_list_digest field for Image Pyxis ID: %s", image.PyxisID)
+			if len(image.Repositories[0].Digest) == 0 && len(image.DockerImageDigest) == 0 {
+				err := fmt.Errorf("Empty manifest_list_digest and docker_image_digest fields for Image Pyxis ID: %s", image.PyxisID)
 				return imageMap, err // Break here, do not sync repo if at least one image is faulty
 			}
 			imageMap[image.PyxisID] = image

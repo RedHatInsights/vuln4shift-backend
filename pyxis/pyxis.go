@@ -190,19 +190,25 @@ func syncRepo(repo models.Repository) error {
 				dbArchMapPending[apiImage.Architecture] = dbArch
 			}
 		}
+		var digest string
+		if len(apiImage.Repositories[0].Digest) > 0 {
+			digest = apiImage.Repositories[0].Digest
+		} else {
+			digest = apiImage.DockerImageDigest
+		}
 		if dbImage, found := dbImageMap[pyxisID]; !found {
 			toSyncImages = append(
 				toSyncImages,
 				models.Image{
 					PyxisID:      apiImage.PyxisID,
 					ModifiedDate: apiImage.ModifiedDate,
-					Digest:       apiImage.Repositories[0].Digest,
+					Digest:       digest,
 					ArchID:       dbArch.ID,
 				},
 			)
 		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) || utils.Cfg.ForceSync {
 			dbImage.ModifiedDate = apiImage.ModifiedDate
-			dbImage.Digest = apiImage.Repositories[0].Digest
+			dbImage.Digest = digest
 			dbImage.ArchID = dbArch.ID
 			toSyncImages = append(toSyncImages, dbImage)
 		}
@@ -324,7 +330,7 @@ func syncRepos() {
 	for i, repo := range toSyncRepos {
 		logger.Infof("Syncing repo: repo=%s/%s [%d/%d]", repo.Registry, repo.Repository, i+1, toSyncReposCnt)
 		if err := syncRepo(repo); err != nil {
-			logger.Infof("Syncing repo failed, skipping: repo=%s/%s, err=%s", repo.Registry, repo.Repository, err)
+			logger.Warnf("Syncing repo failed, skipping: repo=%s/%s, err=%s", repo.Registry, repo.Repository, err)
 			emptyPendingCache() // Not successfully committed, don't update cache
 		} else {
 			flushPendingCache() // Update cache
