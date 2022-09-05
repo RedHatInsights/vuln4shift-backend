@@ -279,7 +279,7 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 	case ProviderQuery:
 		return &Provider{RawFilter{raw, parsedValues}, parsedValues}, nil
 	case StatusQuery:
-		statuses := ParseCapitalArray(rawValues)
+		statuses := ParseCapitalArray(parsedValues)
 		return &Status{RawFilter{raw, parsedValues}, statuses}, nil
 	case VersionQuery:
 		return &Version{RawFilter{raw, parsedValues}, parsedValues}, nil
