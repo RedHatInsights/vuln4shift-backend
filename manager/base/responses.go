@@ -2,6 +2,7 @@ package base
 
 import (
 	"errors"
+	"sort"
 
 	"github.com/gocarina/gocsv"
 )
@@ -58,6 +59,7 @@ func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterSta
 		for status := range *clusterStatuses {
 			statuses = append(statuses, status)
 		}
+		sort.Strings(statuses)
 		meta["cluster_statuses_all"] = statuses
 	}
 	if clusterVersions != nil {
@@ -65,6 +67,8 @@ func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterSta
 		for version := range *clusterVersions {
 			versions = append(versions, version)
 		}
+		// TODO: this is not correct version sort
+		sort.Strings(versions)
 		meta["cluster_versions_all"] = versions
 	}
 	if clusterProviders != nil {
@@ -72,6 +76,7 @@ func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterSta
 		for provider := range *clusterProviders {
 			providers = append(providers, provider)
 		}
+		sort.Strings(providers)
 		meta["cluster_providers_all"] = providers
 	}
 	return meta
