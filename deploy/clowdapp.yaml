@@ -18,6 +18,16 @@ objects:
     namespace: test  # namespace is overwritten by bonfire
   type: Opaque
 
+- apiVersion: v1
+  data:
+    amsclient_id:
+    amsclient_secret:
+  kind: Secret
+  metadata:
+    name: ams-client-auth
+    namespace: test
+  type: Opaque 
+
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
   metadata:
