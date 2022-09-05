@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.2 (2022-09-05)
+### Fix
+* **manager:** Support comma-separated values in status filter ([`e2025cc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e2025cc333c2617a22100b31ed6340e6c413b025))
+
 ## v0.14.1 (2022-09-03)
 ### Fix
 * **pyxis:** Use docker_image_digest if manifest_list_digest is empty ([`4666f1d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4666f1d3ac258bbe283da1b51877349cdf00b466))
