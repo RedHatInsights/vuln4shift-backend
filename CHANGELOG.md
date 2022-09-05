@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.3 (2022-09-05)
+### Fix
+* **manager:** Return meta lists in predictable order ([`feb0cdc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/feb0cdcadc910e8b5bcc8594e5a0b279c45914b5))
+
 ## v0.14.2 (2022-09-05)
 ### Fix
 * **manager:** Support comma-separated values in status filter ([`e2025cc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e2025cc333c2617a22100b31ed6340e6c413b025))
