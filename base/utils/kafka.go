@@ -114,7 +114,7 @@ func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaC
 		}
 	}
 
-	if Cfg.KafkaBroker.Cacert != nil && *Cfg.KafkaBroker.Cacert != "" {
+	if Cfg.KafkaBroker.Authtype != nil {
 		err := SetKafkaTLSConfig(saramaConfig)
 		if err != nil {
 			return nil, err
