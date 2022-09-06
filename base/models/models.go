@@ -8,9 +8,8 @@ import (
 
 // Account table
 type Account struct {
-	ID            int64  `gorm:"type:bigint;primaryKey;autoIncrement"`
-	AccountNumber string `gorm:"type:text"`
-	OrgID         string `gorm:"type:text"`
+	ID    int64  `gorm:"type:bigint;primaryKey;autoIncrement"`
+	OrgID string `gorm:"type:text"`
 }
 
 func (a Account) TableName() string {

@@ -244,10 +244,10 @@ func store(shas []string, dataSource string) {
 	_ = connection.Close()
 }
 
-func writeAccountAndOrg(accountNumber, orgId int, dataSource string) {
+func writeAccountAndOrg(orgId int, dataSource string) {
 	connection := getSQLConnection(dataSource)
-	statement := `INSERT INTO account (account_number, org_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`
-	args := []interface{}{accountNumber, orgId}
+	statement := `INSERT INTO account (org_id) VALUES ($1) ON CONFLICT DO NOTHING`
+	args := []interface{}{orgId}
 	if VERBOSE {
 		fmt.Printf("insert account SQL statement:\n\t%v\n\t%v\n", statement, args)
 	}
@@ -279,7 +279,7 @@ func main() {
 
 		readYamlConfig()
 		if flags.StoreAccount {
-			writeAccountAndOrg(flags.AccountNumber, flags.OrgID, setupDB("account"))
+			writeAccountAndOrg(flags.OrgID, setupDB("account"))
 		}
 		if flags.Store {
 			store(shas, setupDB("image"))
