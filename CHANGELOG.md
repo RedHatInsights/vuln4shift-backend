@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.4 (2022-09-06)
+### Fix
+* **manager:** Report query should use parsedValues ([`77ff00a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/77ff00aa1991f0e4d00784f1700af1e810cf5d31))
+
 ## v0.14.3 (2022-09-05)
 ### Fix
 * **manager:** Return meta lists in predictable order ([`feb0cdc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/feb0cdcadc910e8b5bcc8594e5a0b279c45914b5))
