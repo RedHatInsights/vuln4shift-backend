@@ -5,6 +5,8 @@ import (
 	"sort"
 
 	"github.com/gocarina/gocsv"
+	"golang.org/x/text/collate"
+	"golang.org/x/text/language"
 )
 
 type Error struct {
@@ -67,8 +69,8 @@ func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterSta
 		for version := range *clusterVersions {
 			versions = append(versions, version)
 		}
-		// TODO: this is not correct version sort
-		sort.Strings(versions)
+		cl := collate.New(language.English, collate.Numeric)
+		cl.SortStrings(versions)
 		meta["cluster_versions_all"] = versions
 	}
 	if clusterProviders != nil {
