@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.6 (2022-09-06)
+### Fix
+* **kafka:** Create TLS context despite empty cacert ([`a55bd38`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a55bd38bf153f425832ff63f6017db417eca936d))
+
 ## v0.14.5 (2022-09-06)
 ### Fix
 * **database:** Sorting of cluster versions ([`885e5c4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/885e5c4423c9b65ec7557e708de7332af65cb17c))
