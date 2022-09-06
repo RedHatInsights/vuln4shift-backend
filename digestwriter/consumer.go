@@ -140,10 +140,10 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 
 	// Step #3: update tables with received info
 	err = d.storage.WriteClusterInfo(
-		message.ClusterName, message.AccountNumber, message.Organization, digests)
+		message.ClusterName, message.Organization, digests)
 	if err != nil {
 		logger.WithFields(logrus.Fields{
-			accountKey: message.AccountNumber,
+			orgKey:     message.Organization,
 			clusterKey: message.ClusterName,
 			errorKey:   err.Error(),
 		}).Errorln("error updating cluster data")
@@ -196,7 +196,6 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 		requestIDKey: deserialized.RequestID,
 		versionKey:   deserialized.Version,
 		orgKey:       deserialized.Organization,
-		accountKey:   deserialized.AccountNumber,
 		clusterKey:   deserialized.ClusterName,
 	}).Debugln("parsed incoming message correctly")
 

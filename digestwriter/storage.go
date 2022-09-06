@@ -21,7 +21,7 @@ const (
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	WriteClusterInfo(cluster ClusterName, account AccountNumber, orgID OrgID, digests []string) error
+	WriteClusterInfo(cluster ClusterName, orgID OrgID, digests []string) error
 }
 
 // DBStorage is an implementation of Storage
@@ -120,7 +120,7 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID, clusterAr
 }
 
 // WriteClusterInfo updates the 'cluster' table with the provided info
-func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, account AccountNumber, orgID OrgID, digests []string) error {
+func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, digests []string) error {
 	// prepare data
 	clusterUUID, err := uuid.Parse(string(cluster))
 	if err != nil {
@@ -128,14 +128,12 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, account AccountN
 		return err
 	}
 	accountData := models.Account{
-		AccountNumber: fmt.Sprint(account),
-		OrgID:         fmt.Sprint(orgID),
+		OrgID: fmt.Sprint(orgID),
 	}
 
 	logger.WithFields(logrus.Fields{
-		rowIDKey:   accountData.ID,
-		accountKey: accountData.AccountNumber,
-		orgKey:     accountData.OrgID,
+		rowIDKey: accountData.ID,
+		orgKey:   accountData.OrgID,
 	}).Debugln("account data to insert")
 
 	tx := storage.connection.Begin()
@@ -158,9 +156,8 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, account AccountN
 	}
 
 	logger.WithFields(logrus.Fields{
-		rowIDKey:   accountData.ID,
-		accountKey: accountData.AccountNumber,
-		orgKey:     accountData.OrgID,
+		rowIDKey: accountData.ID,
+		orgKey:   accountData.OrgID,
 	}).Debugln("inserted account data successfully")
 
 	clusterInfoData := models.Cluster{
