@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.14.5 (2022-09-06)
+### Fix
+* **database:** Sorting of cluster versions ([`885e5c4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/885e5c4423c9b65ec7557e708de7332af65cb17c))
+
 ## v0.14.4 (2022-09-06)
 ### Fix
 * **manager:** Report query should use parsedValues ([`77ff00a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/77ff00aa1991f0e4d00784f1700af1e810cf5d31))
