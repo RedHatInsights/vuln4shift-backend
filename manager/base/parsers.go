@@ -271,7 +271,7 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 		return &DataFormat{RawFilter{raw, parsedValues}, format}, nil
 	case ReportQuery:
 		arrLen := 1
-		report, err := ParseBoolArray(rawValues, &arrLen)
+		report, err := ParseBoolArray(parsedValues, &arrLen)
 		if err != nil {
 			return &Report{}, err
 		}
