@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v0.15.0 (2022-09-07)
+### Feature
+* Drop account_number ([`64b1608`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64b160871d206f7eaf904cf6fe57e0841387382b))
+* **digestwriter:** Drop usage of account number ([`cccae2f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cccae2f2060f44cbfc64ffa89e5e3029b306b3ad))
+
 ## v0.14.7 (2022-09-06)
 ### Fix
 * **manager:** Sort versions by number ([`b6cb581`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b6cb5811d2aae4042d1ec86ff573c0838daad3f2))
