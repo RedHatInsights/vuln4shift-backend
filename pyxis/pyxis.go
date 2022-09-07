@@ -299,10 +299,10 @@ func syncRepos() {
 
 	toSyncRepos := []models.Repository{}
 
-	for pyxisID, apiRepo := range apiRepoMap {
+	for repoKey, apiRepo := range apiRepoMap {
 		if passed := repositoryInProfile(apiRepo.Registry, apiRepo.Repository); !passed {
 			continue
-		} else if dbRepo, found := dbRepoMap[pyxisID]; !found {
+		} else if dbRepo, found := dbRepoMap[repoKey]; !found {
 			toSyncRepos = append(
 				toSyncRepos,
 				models.Repository{
@@ -313,13 +313,14 @@ func syncRepos() {
 				},
 			)
 		} else if apiRepo.ModifiedDate.After(dbRepo.ModifiedDate) || utils.Cfg.ForceSync {
+			dbRepo.PyxisID = apiRepo.PyxisID
 			dbRepo.ModifiedDate = apiRepo.ModifiedDate
 			dbRepo.Registry = apiRepo.Registry
 			dbRepo.Repository = apiRepo.Repository
 			toSyncRepos = append(toSyncRepos, dbRepo)
-			delete(dbRepoMap, pyxisID)
+			delete(dbRepoMap, repoKey)
 		} else {
-			delete(dbRepoMap, pyxisID)
+			delete(dbRepoMap, repoKey)
 		}
 	}
 
