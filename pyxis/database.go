@@ -1,6 +1,8 @@
 package pyxis
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 
 	"app/base/models"
@@ -31,6 +33,10 @@ func dbConfigure() error {
 	return nil
 }
 
+func formatRepoMapKey(registry, repository string) string {
+	return fmt.Sprintf("%s/%s", registry, repository)
+}
+
 func prepareDbRepositories() error {
 	repoRows := []models.Repository{}
 	if err := DB.Find(&repoRows).Error; err != nil {
@@ -38,7 +44,7 @@ func prepareDbRepositories() error {
 	}
 	dbRepoMap = make(map[string]models.Repository, len(repoRows))
 	for _, repo := range repoRows {
-		dbRepoMap[repo.PyxisID] = repo
+		dbRepoMap[formatRepoMapKey(repo.Registry, repo.Repository)] = repo
 	}
 	return nil
 }

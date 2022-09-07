@@ -98,7 +98,7 @@ func getAPIRepositories() (map[string]APIRepo, error) {
 				logger.Debugf("Empty repository field for Repository Pyxis ID: %s", repo.PyxisID)
 				continue
 			}
-			repoMap[repo.PyxisID] = repo
+			repoMap[formatRepoMapKey(repo.Registry, repo.Repository)] = repo
 		}
 
 		totalPages = getTotalPages(pyxisResponse.Total)
