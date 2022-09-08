@@ -36,6 +36,9 @@ var (
 	getExposedClustersAllowedFilters = []string{
 		base.SearchQuery,
 		base.DataFormatQuery,
+		base.ProviderQuery,
+		base.StatusQuery,
+		base.VersionQuery,
 	}
 
 	getExposedClustersFilterArgs = map[string]interface{}{
