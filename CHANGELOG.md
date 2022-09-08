@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.16.1 (2022-09-08)
+### Fix
+* **pyxis:** Use repository map with reg,repo key ([`2f2c268`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2f2c26887280453de96e2c7e1b4c49528080514f))
+
 ## v0.16.0 (2022-09-08)
 ### Feature
 * **manager:** Support status, version and provider filters in exposed clusters API ([`f978366`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f978366717909f24e6baffbb40d100c1b52c844f))
