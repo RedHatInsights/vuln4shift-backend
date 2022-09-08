@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.16.0 (2022-09-08)
+### Feature
+* **manager:** Support status, version and provider filters in exposed clusters API ([`f978366`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f978366717909f24e6baffbb40d100c1b52c844f))
+
 ## v0.15.0 (2022-09-07)
 ### Feature
 * Drop account_number ([`64b1608`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64b160871d206f7eaf904cf6fe57e0841387382b))
