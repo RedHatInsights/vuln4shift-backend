@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 )
 
 // Account table
@@ -28,19 +29,20 @@ func (Arch) TableName() string {
 
 // Cluster table
 type Cluster struct {
-	ID                int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
-	UUID              uuid.UUID `gorm:"type:uuid;unique"`
-	DisplayName       string    `gorm:"type:text"`
-	Status            string    `gorm:"type:text"`
-	Type              string    `gorm:"type:text"`
-	Version           string    `gorm:"type:text"`
-	Provider          string    `gorm:"type:text"`
-	AccountID         int64     `gorm:"type:bigint;not null"`
-	CveCacheCritical  int32     `gorm:"type:int;not null;default:0"`
-	CveCacheImportant int32     `gorm:"type:int;not null;default:0"`
-	CveCacheModerate  int32     `gorm:"type:int;not null;default:0"`
-	CveCacheLow       int32     `gorm:"type:int;not null;default:0"`
-	LastSeen          time.Time `gorm:"type:timestamp with time zone not null"`
+	ID                int64        `gorm:"type:bigint;primaryKey;autoIncrement"`
+	UUID              uuid.UUID    `gorm:"type:uuid;unique"`
+	DisplayName       string       `gorm:"type:text"`
+	Status            string       `gorm:"type:text"`
+	Type              string       `gorm:"type:text"`
+	Version           string       `gorm:"type:text"`
+	Provider          string       `gorm:"type:text"`
+	AccountID         int64        `gorm:"type:bigint;not null"`
+	CveCacheCritical  int32        `gorm:"type:int;not null;default:0"`
+	CveCacheImportant int32        `gorm:"type:int;not null;default:0"`
+	CveCacheModerate  int32        `gorm:"type:int;not null;default:0"`
+	CveCacheLow       int32        `gorm:"type:int;not null;default:0"`
+	LastSeen          time.Time    `gorm:"type:timestamp with time zone not null"`
+	Workload          pgtype.JSONB `gorm:"type:jsonb"`
 }
 
 func (Cluster) TableName() string {

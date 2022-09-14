@@ -4,6 +4,7 @@ import (
 	"app/base/models"
 	"app/base/utils"
 	"app/cleaner"
+	"app/digestwriter"
 	"app/test"
 	"os"
 	"testing"
@@ -34,6 +35,9 @@ func TestRemove(t *testing.T) {
 
 	expiredTimestamp := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 	expiredCluster := models.Cluster{UUID: uuid.New(), AccountID: 13, LastSeen: expiredTimestamp, Status: "s", Version: "v"}
+	if err := expiredCluster.Workload.Set(digestwriter.Workload{}); err != nil {
+		panic(err)
+	}
 	test.DB.Save(&expiredCluster)
 	test.DB.Model(&models.Cluster{}).Count(&ogClusterCnt)
 

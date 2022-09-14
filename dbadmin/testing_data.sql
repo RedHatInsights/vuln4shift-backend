@@ -11,12 +11,12 @@ INSERT INTO account (id, org_id) VALUES
 (30, '030'),
 (31, '031');
 
-INSERT INTO cluster (id, uuid, status, version, provider, account_id, cve_cache_critical, cve_cache_important, cve_cache_moderate, cve_cache_low) VALUES
-(15, 'daac83ee-a390-420d-b892-cb9e1d006eca', 'ready'   , 'v_01', 'prov_1', 13, 0, 0, 0, 0),
-(16, '91eadf0a-3433-4862-8fc6-85e95ef7821c', 'sleeping', 'v_02', 'prov_2', 14, 0, 0, 0, 0),
-(17, '938a2b14-e6c0-4531-b203-377f9321afa6', 'up'      , 'v_03', 'prov_3', 14, 0, 0, 0, 0),
-(18, '83edaace-a390-420d-b892-cb9e1d006eca', 'ready'   , 'v_04', 'prov_4', 30, 0, 0, 0, 0),
-(19, 'adf91e0a-3433-4862-8fc6-85e95ef7821c', 'sleeping', 'v_05', 'prov_5', 31, 0, 0, 0, 0);
+INSERT INTO cluster (id, uuid, status, version, provider, account_id, cve_cache_critical, cve_cache_important, cve_cache_moderate, cve_cache_low, workload) VALUES
+(15, 'daac83ee-a390-420d-b892-cb9e1d006eca', 'ready'   , 'v_01', 'prov_1', 13, 0, 0, 0, 0, '{}'),
+(16, '91eadf0a-3433-4862-8fc6-85e95ef7821c', 'sleeping', 'v_02', 'prov_2', 14, 0, 0, 0, 0, '{}'),
+(17, '938a2b14-e6c0-4531-b203-377f9321afa6', 'up'      , 'v_03', 'prov_3', 14, 0, 0, 0, 0, '{}'),
+(18, '83edaace-a390-420d-b892-cb9e1d006eca', 'ready'   , 'v_04', 'prov_4', 30, 0, 0, 0, 0, '{}'),
+(19, 'adf91e0a-3433-4862-8fc6-85e95ef7821c', 'sleeping', 'v_05', 'prov_5', 31, 0, 0, 0, 0, '{}');
 
 INSERT INTO arch (id, name) VALUES
 (1, 'amd64');

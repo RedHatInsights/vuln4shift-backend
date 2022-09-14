@@ -70,7 +70,7 @@ type Image struct {
 	Pods       int          `json:"-"`
 	ImageCount int          `json:"imageCount"`
 	Digests    *JSONContent `json:"images"`
-	Namespaces *JSONContent `json:"-"`
+	Namespaces *JSONContent `json:"namespaces"`
 }
 
 // KafkaMessage is the structure of JSON messages produced
@@ -125,6 +125,7 @@ func produce(shas []string, account, org int, cluster, broker, topic string) {
 	}
 
 	kafkaMsg.Images.Digests = &images
+	kafkaMsg.Images.Namespaces = &images
 
 	if VERBOSE {
 		fmt.Printf("content of Kafka message to produce:\n\torg: %v\n\taccount: %v\n\tcluster:%v\n\tDigests:%v\n", kafkaMsg.Organization, kafkaMsg.AccountNumber, kafkaMsg.ClusterName, kafkaMsg.Images.Digests)

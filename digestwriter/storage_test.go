@@ -22,6 +22,7 @@ var (
 	clusterName          = digestwriter.ClusterName("84f7eedc-0000-0000-9d4d-000000000000")
 	invalidClusterName   = digestwriter.ClusterName("99z7zzzz-0000-0000-9d4d-000000000000")
 	testOrgID            = digestwriter.OrgID(1)
+	workload             = digestwriter.Workload{}
 
 	anyArgForMockSQLQueries = sqlmock.AnyArg()
 )
@@ -146,7 +147,7 @@ func TestWriteClusterInfoWrongClusterName(t *testing.T) {
 	storage, mock := NewMockStorage(t)
 
 	// call the tested method
-	err := storage.WriteClusterInfo(invalidClusterName, testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(invalidClusterName, testOrgID, workload, []string{firstDigest})
 	assert.Error(t, err, "the given UUID should not have been parsed")
 
 	// check that no SQL operations are done
@@ -167,9 +168,9 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 
 	// Expect a SELECT FROM cluster statement since the previous select returned a record
 	// Since it returns a record, there is no need to expect the INSERT INTO "cluster" statement
-	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id","cluster"."last_seen" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 AND "cluster"."last_seen" = $3 ORDER BY "cluster"."id" LIMIT 1`
+	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id","cluster"."last_seen","cluster"."workload" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 AND "cluster"."last_seen" = $3 AND "cluster"."workload" = $4 ORDER BY "cluster"."id" LIMIT 1`
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
-		WithArgs(clusterName, testAccountID, anyArgForMockSQLQueries).
+		WithArgs(clusterName, testAccountID, anyArgForMockSQLQueries, anyArgForMockSQLQueries).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "uuid", "account_id"}).AddRow(testClustedID, clusterName, testAccountID))
 
 	// Since it all went smoothly, the digest is linked to the cluster
@@ -191,7 +192,7 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 	mock.ExpectCommit()
 
 	// call the tested method
-	err := storage.WriteClusterInfo(clusterName, testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(clusterName, testOrgID, workload, []string{firstDigest})
 	assert.Nil(t, err, "No error expected")
 
 	// check that no SQL operations are done
@@ -221,14 +222,14 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 
 	// Expect a SELECT FROM cluster statement
 	// Mock that it would not return any row since there was no data for current account
-	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id","cluster"."last_seen" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 AND "cluster"."last_seen" = $3 ORDER BY "cluster"."id" LIMIT 1`
+	expectedSelect = `SELECT "cluster"."id","cluster"."uuid","cluster"."account_id","cluster"."last_seen","cluster"."workload" FROM "cluster" WHERE "cluster"."uuid" = $1 AND "cluster"."account_id" = $2 AND "cluster"."last_seen" = $3 AND "cluster"."workload" = $4 ORDER BY "cluster"."id" LIMIT 1`
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
-		WithArgs(anyArgForMockSQLQueries, anyArgForMockSQLQueries, anyArgForMockSQLQueries).
+		WithArgs(anyArgForMockSQLQueries, anyArgForMockSQLQueries, anyArgForMockSQLQueries, anyArgForMockSQLQueries).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "uuid", "account_id"}))
 	//Expect an 'INSERT INTO cluster' with the ID of the created account record
-	expectedInsert = `INSERT INTO "cluster" ("uuid","account_id","last_seen") VALUES ($1,$2,$3) ON CONFLICT ("uuid") DO UPDATE SET "uuid"="excluded"."uuid","account_id"="excluded"."account_id","last_seen"="excluded"."last_seen" RETURNING "id"`
+	expectedInsert = `INSERT INTO "cluster" ("uuid","account_id","last_seen","workload") VALUES ($1,$2,$3,$4) ON CONFLICT ("uuid") DO UPDATE SET "uuid"="excluded"."uuid","account_id"="excluded"."account_id","last_seen"="excluded"."last_seen","workload"="excluded"."workload" RETURNING "id"`
 	clusterUUID, _ := uuid.Parse(string(clusterName))
-	mock.ExpectQuery(regexp.QuoteMeta(expectedInsert)).WithArgs(clusterUUID, storedAccountID, sqlmock.AnyArg()).
+	mock.ExpectQuery(regexp.QuoteMeta(expectedInsert)).WithArgs(clusterUUID, storedAccountID, sqlmock.AnyArg(), sqlmock.AnyArg()).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(storedClusterID))
 
 	// Since it all went smoothly, the digest is linked to the cluster
@@ -252,7 +253,7 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 	mock.ExpectCommit()
 
 	// call the tested method
-	err := storage.WriteClusterInfo(clusterName, testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(clusterName, testOrgID, workload, []string{firstDigest})
 	assert.Nil(t, err, "No error expected")
 
 	// check that no SQL operations are done
@@ -276,7 +277,7 @@ func TestWriteClusterInfoErrorWritingAccount(t *testing.T) {
 	mock.ExpectRollback()
 
 	// call the tested method
-	err := storage.WriteClusterInfo(clusterName, testOrgID, []string{firstDigest})
+	err := storage.WriteClusterInfo(clusterName, testOrgID, workload, []string{firstDigest})
 	assert.Error(t, err, "account table shouldn't be updated and WriteClusterInfo should abort")
 
 	// check that no SQL operations are done
