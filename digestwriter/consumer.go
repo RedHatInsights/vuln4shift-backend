@@ -140,7 +140,7 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 
 	// Step #3: update tables with received info
 	err = d.storage.WriteClusterInfo(
-		message.ClusterName, message.Organization, digests)
+		message.ClusterName, message.Organization, *message.Workload, digests)
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			orgKey:     message.Organization,

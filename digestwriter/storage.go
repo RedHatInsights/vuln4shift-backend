@@ -21,7 +21,7 @@ const (
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	WriteClusterInfo(cluster ClusterName, orgID OrgID, digests []string) error
+	WriteClusterInfo(cluster ClusterName, orgID OrgID, workload Workload, digests []string) error
 }
 
 // DBStorage is an implementation of Storage
@@ -120,7 +120,7 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID, clusterAr
 }
 
 // WriteClusterInfo updates the 'cluster' table with the provided info
-func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, digests []string) error {
+func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, workload Workload, digests []string) error {
 	// prepare data
 	clusterUUID, err := uuid.Parse(string(cluster))
 	if err != nil {
@@ -164,6 +164,11 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, dig
 		UUID:      clusterUUID,
 		AccountID: accountData.ID,
 		LastSeen:  time.Now().UTC(),
+	}
+
+	if err := clusterInfoData.Workload.Set(workload); err != nil {
+		logger.Errorln("cannot set workload JSON")
+		return err
 	}
 
 	if err := tx.Omit(
