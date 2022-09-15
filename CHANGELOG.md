@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.17.0 (2022-09-15)
+### Feature
+* **digestwriter:** Store cluster workload JSON ([`73560ee`](https://github.com/RedHatInsights/vuln4shift-backend/commit/73560ee652d19c6a4ee6e41e0d31d55a99b9b094))
+
 ## v0.16.1 (2022-09-08)
 ### Fix
 * **pyxis:** Use repository map with reg,repo key ([`2f2c268`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2f2c26887280453de96e2c7e1b4c49528080514f))
