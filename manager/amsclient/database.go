@@ -3,6 +3,7 @@ package amsclient
 import (
 	"fmt"
 
+	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 
 	"app/base/models"
@@ -48,6 +49,10 @@ func DBSyncClusterDetails(conn *gorm.DB, accountID int64, clusterInfoMap map[str
 				clusterRow.Type = EmptyToNA(clusterInfo.Type)
 				clusterRow.Version = EmptyToNA(clusterInfo.Version)
 				clusterRow.Provider = providerStr
+				// workaround to not encode undefined value
+				if clusterRow.Workload.Status == pgtype.Undefined {
+					clusterRow.Workload.Status = pgtype.Null
+				}
 				if err := conn.Save(&clusterRow).Error; err != nil {
 					return nil, nil, nil, nil, err
 				}
