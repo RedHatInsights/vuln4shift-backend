@@ -10,8 +10,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 var (
@@ -75,22 +73,20 @@ func syncCveMetadata() {
 		}
 	}
 
-	toDeleteCves := make([]models.Cve, 0, len(dbCveMap))
-	for _, dbCve := range dbCveMap {
-		toDeleteCves = append(toDeleteCves, dbCve)
+	logger.Infof("CVEs to sync: %d", len(toSyncCves))
+
+	if err = syncCves(toSyncCves); err != nil {
+		logger.Fatalf("Error during syncing CVEs into database: %s", err)
 	}
 
-	logger.Infof("CVEs to sync: %d", len(toSyncCves))
-	logger.Infof("CVEs to delete: %d", len(toDeleteCves))
-
-	if err = syncCves(toSyncCves, toDeleteCves); err != nil {
-		logger.Fatalf("Error during syncing CVEs into database: %s", err)
+	if err = pruneCves(); err != nil {
+		logger.Fatalf("Failed to prune CVEs: %s", err)
 	}
 
 	logger.Infof("Metadata sync finished successfully")
 }
 
-func syncCves(toSyncCves, toDeleteCves []models.Cve) error {
+func syncCves(toSyncCves []models.Cve) error {
 	tx := DB.Begin()
 	// Do a rollback by default (don't need to specify on every return), will do nothing when everything is committed
 	defer tx.Rollback()
@@ -104,53 +100,31 @@ func syncCves(toSyncCves, toDeleteCves []models.Cve) error {
 		cvesInsertedUpdated.Add(float64(toSyncCvesCnt))
 	}
 
-	toDeleteCount := len(toDeleteCves)
-	if toDeleteCount > 0 {
-		/* syncError.WithLabelValues(dbDelete).Inc() */
-		/* cvesDeleted.Add(float64(toDeleteCount)) */
-		logger.Infof("Skip %d CVEs to delete", toDeleteCount)
-	}
-
 	return tx.Commit().Error
 }
 
-//nolint: deadcode
-func deleteCves(toDeleteCves []models.Cve, tx *gorm.DB) error {
-	logger.Debugf("CVEs to delete: %d", len(toDeleteCves))
+// pruneCves deletes CVEs from DB absent in recent VMaaS response.
+func pruneCves() error {
+	tx := DB.Begin()
+	defer tx.Rollback()
 
-	ids := make([]int64, 0, len(toDeleteCves))
-	for _, cve := range toDeleteCves {
-		ids = append(ids, cve.ID)
+	notInVmaasCves := make([]int64, 0, len(dbCveMap))
+	for _, dbCve := range dbCveMap {
+		notInVmaasCves = append(notInVmaasCves, dbCve.ID)
 	}
 
-	if err := tx.Where("cve_id in ?", ids).Delete(&models.AccountCveCache{}).Error; err != nil {
-		return err
+	if len(notInVmaasCves) > 0 {
+		var deletedCnt int64
+		var err error
+		if deletedCnt, err = deleteNotAffectingCves(tx, notInVmaasCves); err != nil {
+			syncError.WithLabelValues(dbDelete).Inc()
+			return errors.Wrap(err, "failed to delete CVEs from database")
+		}
+		cvesDeleted.Add(float64(deletedCnt))
+		logger.Infof("Deleted %d CVEs from database", deletedCnt)
 	}
 
-	if err := tx.Where("cve_id in ?", ids).Delete(&models.ClusterCveCache{}).Error; err != nil {
-		return err
-	}
-
-	if err := tx.Where("cve_id in ?", ids).Delete(&models.ImageCve{}).Error; err != nil {
-		return err
-	}
-
-	if err := tx.Delete(&toDeleteCves).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func insertUpdateCves(toSyncCves []models.Cve, tx *gorm.DB) error {
-	logger.Debugf("CVEs to insert/update: %d", len(toSyncCves))
-
-	if err := tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "name"}},
-		UpdateAll: true,
-	}).CreateInBatches(toSyncCves, BatchSize).Error; err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit().Error
 }
 
 func Start() {

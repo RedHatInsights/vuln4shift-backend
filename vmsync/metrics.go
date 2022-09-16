@@ -11,7 +11,7 @@ const (
 	dbConnection   = "db-connection"
 	dbFetch        = "db-fetch"
 	dbInsertUpdate = "db-insert-update"
-	/* dbDelete     = "db-delete" */
+	dbDelete       = "db-delete"
 )
 
 var (
@@ -36,12 +36,12 @@ var (
 		Name:      "cves_synced",
 	})
 
-	/* cvesDeleted = prometheus.NewCounter(prometheus.CounterOpts{
-		Help:      "How many cves were deleted during sync with VMAAS",
+	cvesDeleted = prometheus.NewCounter(prometheus.CounterOpts{
+		Help:      "How many CVEs were deleted during sync with VMaaS",
 		Namespace: "vuln4shift",
 		Subsystem: "vmsync",
 		Name:      "cves_synced",
-	}) */
+	})
 )
 
 func GetMetricsPusher() *push.Pusher {
