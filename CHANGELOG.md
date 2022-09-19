@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.17.3 (2022-09-19)
+### Fix
+* **pyxis:** Referencing attributes of apiImage will use only the last value in the loop, reference local variables instead ([`7b7bc7e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7b7bc7e8aa60ef5e02479391c161e31b4b671c26))
+
 ## v0.17.2 (2022-09-19)
 ### Fix
 * Check more image digests ([`8dbb70f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8dbb70f3bd15d93f7b8badb3729ca42f100e9da6))
