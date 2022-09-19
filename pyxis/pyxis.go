@@ -190,15 +190,18 @@ func syncRepo(repo models.Repository) error {
 				dbArchMapPending[apiImage.Architecture] = dbArch
 			}
 		}
-		var manifestListDigest, manifestSchema2Digest, dockerImageDigest *string
-		if len(apiImage.Repositories[0].ManifestListDigest) > 0 {
-			manifestListDigest = &apiImage.Repositories[0].ManifestListDigest
+		manifestListDigest := apiImage.Repositories[0].ManifestListDigest
+		manifestSchema2Digest := apiImage.Repositories[0].ManifestSchema2Digest
+		dockerImageDigest := apiImage.DockerImageDigest
+		var manifestListDigestDB, manifestSchema2DigestDB, dockerImageDigestDB *string
+		if len(manifestListDigest) > 0 {
+			manifestListDigestDB = &manifestListDigest
 		}
-		if len(apiImage.Repositories[0].ManifestSchema2Digest) > 0 {
-			manifestSchema2Digest = &apiImage.Repositories[0].ManifestSchema2Digest
+		if len(manifestSchema2Digest) > 0 {
+			manifestSchema2DigestDB = &manifestSchema2Digest
 		}
-		if len(apiImage.DockerImageDigest) > 0 {
-			dockerImageDigest = &apiImage.DockerImageDigest
+		if len(dockerImageDigest) > 0 {
+			dockerImageDigestDB = &dockerImageDigest
 		}
 		if dbImage, found := dbImageMap[pyxisID]; !found {
 			toSyncImages = append(
@@ -206,17 +209,17 @@ func syncRepo(repo models.Repository) error {
 				models.Image{
 					PyxisID:               apiImage.PyxisID,
 					ModifiedDate:          apiImage.ModifiedDate,
-					ManifestListDigest:    manifestListDigest,
-					ManifestSchema2Digest: manifestSchema2Digest,
-					DockerImageDigest:     dockerImageDigest,
+					ManifestListDigest:    manifestListDigestDB,
+					ManifestSchema2Digest: manifestSchema2DigestDB,
+					DockerImageDigest:     dockerImageDigestDB,
 					ArchID:                dbArch.ID,
 				},
 			)
 		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) || utils.Cfg.ForceSync {
 			dbImage.ModifiedDate = apiImage.ModifiedDate
-			dbImage.ManifestListDigest = manifestListDigest
-			dbImage.ManifestSchema2Digest = manifestSchema2Digest
-			dbImage.DockerImageDigest = dockerImageDigest
+			dbImage.ManifestListDigest = manifestListDigestDB
+			dbImage.ManifestSchema2Digest = manifestSchema2DigestDB
+			dbImage.DockerImageDigest = dockerImageDigestDB
 			dbImage.ArchID = dbArch.ID
 			toSyncImages = append(toSyncImages, dbImage)
 		}
