@@ -82,7 +82,8 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID, clusterAr
 	logger.Infof("trying to link digests to cluster with ID %d", clusterID)
 
 	var existingDigests []models.Image
-	queryResult := tx.Where("digest IN ? AND arch_id = ?", digests, clusterArchID).Find(&existingDigests)
+	queryResult := tx.Where("(manifest_schema2_digest IN ? OR manifest_list_digest IN ? OR docker_image_digest IN ?) AND arch_id = ?",
+		digests, digests, digests, clusterArchID).Find(&existingDigests)
 	if err := queryResult.Error; err != nil {
 		//TODO: Maybe we prefer to check digests first, and not insert anything in cluster and cluster_image tables?
 		logger.WithFields(logrus.Fields{

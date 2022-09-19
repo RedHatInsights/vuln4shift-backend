@@ -190,25 +190,33 @@ func syncRepo(repo models.Repository) error {
 				dbArchMapPending[apiImage.Architecture] = dbArch
 			}
 		}
-		var digest string
-		if len(apiImage.Repositories[0].Digest) > 0 {
-			digest = apiImage.Repositories[0].Digest
-		} else {
-			digest = apiImage.DockerImageDigest
+		var manifestListDigest, manifestSchema2Digest, dockerImageDigest *string
+		if len(apiImage.Repositories[0].ManifestListDigest) > 0 {
+			manifestListDigest = &apiImage.Repositories[0].ManifestListDigest
+		}
+		if len(apiImage.Repositories[0].ManifestSchema2Digest) > 0 {
+			manifestSchema2Digest = &apiImage.Repositories[0].ManifestSchema2Digest
+		}
+		if len(apiImage.DockerImageDigest) > 0 {
+			dockerImageDigest = &apiImage.DockerImageDigest
 		}
 		if dbImage, found := dbImageMap[pyxisID]; !found {
 			toSyncImages = append(
 				toSyncImages,
 				models.Image{
-					PyxisID:      apiImage.PyxisID,
-					ModifiedDate: apiImage.ModifiedDate,
-					Digest:       digest,
-					ArchID:       dbArch.ID,
+					PyxisID:               apiImage.PyxisID,
+					ModifiedDate:          apiImage.ModifiedDate,
+					ManifestListDigest:    manifestListDigest,
+					ManifestSchema2Digest: manifestSchema2Digest,
+					DockerImageDigest:     dockerImageDigest,
+					ArchID:                dbArch.ID,
 				},
 			)
 		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) || utils.Cfg.ForceSync {
 			dbImage.ModifiedDate = apiImage.ModifiedDate
-			dbImage.Digest = digest
+			dbImage.ManifestListDigest = manifestListDigest
+			dbImage.ManifestSchema2Digest = manifestSchema2Digest
+			dbImage.DockerImageDigest = dockerImageDigest
 			dbImage.ArchID = dbArch.ID
 			toSyncImages = append(toSyncImages, dbImage)
 		}
