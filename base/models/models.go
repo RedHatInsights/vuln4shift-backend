@@ -64,11 +64,13 @@ func (i Repository) TableName() string {
 
 // Image table
 type Image struct {
-	ID           int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
-	PyxisID      string    `gorm:"type:text;not null;unique"`
-	ModifiedDate time.Time `gorm:"type:timestamp with time zone not null"`
-	Digest       string    `gorm:"type:text;not null;index:image_digest_idx"`
-	ArchID       int64     `gorm:"type:bigint"`
+	ID                    int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
+	PyxisID               string    `gorm:"type:text;not null;unique"`
+	ModifiedDate          time.Time `gorm:"type:timestamp with time zone not null"`
+	ManifestListDigest    *string   `gorm:"type:text;index:image_manifest_list_digest_idx"`
+	ManifestSchema2Digest *string   `gorm:"type:text;index:image_manifest_schema2_digest_idx"`
+	DockerImageDigest     *string   `gorm:"type:text;index:image_docker_image_digest_idx"`
+	ArchID                int64     `gorm:"type:bigint"`
 }
 
 func (i Image) TableName() string {
