@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.17.2 (2022-09-19)
+### Fix
+* Check more image digests ([`8dbb70f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8dbb70f3bd15d93f7b8badb3729ca42f100e9da6))
+
 ## v0.17.1 (2022-09-15)
 ### Fix
 * **manager:** Do not encode undefined value ([`e7489f4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e7489f468479dd47d6258ee7d8a6910e908c5822))
