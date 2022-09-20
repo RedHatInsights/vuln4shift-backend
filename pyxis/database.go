@@ -10,11 +10,12 @@ import (
 )
 
 var (
-	DB         *gorm.DB
-	dbRepoMap  map[string]models.Repository
-	dbArchMap  map[string]models.Arch
-	dbImageMap map[string]models.Image
-	dbCveMap   map[string]models.Cve
+	DB               *gorm.DB
+	dbRepoMap        map[string]models.Repository
+	dbArchMap        map[string]models.Arch
+	dbImageMap       map[string]models.Image
+	dbCveMap         map[string]models.Cve
+	dbPyxisIDRepoMap map[string]models.Repository
 
 	// Objects to add to the cached maps above after succesful commit
 	dbArchMapPending  = map[string]models.Arch{}
@@ -43,8 +44,10 @@ func prepareDbRepositories() error {
 		return err
 	}
 	dbRepoMap = make(map[string]models.Repository, len(repoRows))
+	dbPyxisIDRepoMap = make(map[string]models.Repository, len(repoRows))
 	for _, repo := range repoRows {
 		dbRepoMap[formatRepoMapKey(repo.Registry, repo.Repository)] = repo
+		dbPyxisIDRepoMap[repo.PyxisID] = repo
 	}
 	return nil
 }
