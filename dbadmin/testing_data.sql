@@ -67,8 +67,7 @@ INSERT INTO cve (id, name, description, severity, cvss3_score, cvss3_metrics, cv
 (21, 'CVE-2022-0002', 'mock CVE 02', 'Low',       1.5, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL),
 (22, 'CVE-2022-0003', 'mock CVE 03', 'Critical',  2.6, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL),
 (23, 'CVE-2022-0004', 'mock CVE 04', 'Moderate',  7.0, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL),
-(24, 'CVE-2022-0005', 'mock CVE 05', 'Important', 0.0, NULL,                                           6.0, 'AV:L/AC:H/Au:N/C:P/I:P/A:P'),
-(25, 'CVE-2018-11108', 'unknown',    'NotSet',    0.0, NULL,                                           0.0, NULL);
+(24, 'CVE-2022-0005', 'mock CVE 05', 'Important', 0.0, NULL,                                           6.0, 'AV:L/AC:H/Au:N/C:P/I:P/A:P');
 
 INSERT INTO image_cve (image_id, cve_id) VALUES
 (1, 20),
