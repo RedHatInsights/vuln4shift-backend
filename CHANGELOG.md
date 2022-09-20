@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.18.0 (2022-09-20)
+### Feature
+* **pyxis:** Skip image CVE sync (debug purposes) ([`b999034`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b99903477394d2d2cc26bf43ed7787adc84a3eac))
+
 ## v0.17.3 (2022-09-19)
 ### Fix
 * **pyxis:** Referencing attributes of apiImage will use only the last value in the loop, reference local variables instead ([`7b7bc7e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7b7bc7e8aa60ef5e02479391c161e31b4b671c26))
