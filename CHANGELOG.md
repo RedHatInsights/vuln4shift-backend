@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.19.0 (2022-09-20)
+### Feature
+* **vmsync:** Prune CVEs during sync ([`79bb0e0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/79bb0e0a788a2c82e8784b90914e93008e270def))
+
 ## v0.18.0 (2022-09-20)
 ### Feature
 * **pyxis:** Skip image CVE sync (debug purposes) ([`b999034`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b99903477394d2d2cc26bf43ed7787adc84a3eac))
