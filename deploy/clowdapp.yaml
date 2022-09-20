@@ -244,6 +244,8 @@ objects:
           value: ${PYXIS_PROFILE}
         - name: FORCE_SYNC
           value: ${FORCE_SYNC}
+        - name: SKIP_IMAGE_CVE_SYNC
+          value: ${SKIP_IMAGE_CVE_SYNC}
         resources:
           limits:
             cpu: ${{CPU_LIMIT_PYXIS_GATHERER}}
@@ -485,6 +487,8 @@ parameters:
   required: true
   value: all
 - name: FORCE_SYNC
+  value: "false"
+- name: SKIP_IMAGE_CVE_SYNC
   value: "false"
 
 # CLEANER CONFIG

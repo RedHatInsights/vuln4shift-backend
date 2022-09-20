@@ -65,9 +65,10 @@ type Config struct {
 	VmaasPageSize  int
 
 	// Pyxis gatherer config
-	PyxisBaseURL string
-	PyxisProfile string
-	ForceSync    bool
+	PyxisBaseURL     string
+	PyxisProfile     string
+	ForceSync        bool
+	SkipImageCveSync bool
 }
 
 func init() {
@@ -148,6 +149,7 @@ func init() {
 	Cfg.PyxisBaseURL = GetEnv("PYXIS_BASE_URL", "http://localhost")
 	Cfg.PyxisProfile = GetEnv("PYXIS_PROFILE", "unknown_profile")
 	Cfg.ForceSync = GetEnv("FORCE_SYNC", false)
+	Cfg.SkipImageCveSync = GetEnv("SKIP_IMAGE_CVE_SYNC", false)
 }
 
 // CreateKafkaConfig adds SSL kafka sarama configuration based on clowder
