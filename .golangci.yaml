@@ -3,6 +3,10 @@ run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 5m
 
+linters-settings:
+  gocyclo:
+    min-complexity: 40
+
 linters:
   disable-all: true
   enable:

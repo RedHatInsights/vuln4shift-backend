@@ -3,6 +3,7 @@ package pyxis
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -74,6 +75,10 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 			syncError.WithLabelValues(dbUpdate).Inc()
 			return err
 		}
+	}
+
+	if utils.Cfg.SkipImageCveSync {
+		return nil
 	}
 
 	apiImageCves, err := getAPIImageCves(image.PyxisID)
@@ -203,12 +208,16 @@ func syncRepo(repo models.Repository) error {
 		if len(dockerImageDigest) > 0 {
 			dockerImageDigestDB = &dockerImageDigest
 		}
+		modifiedDate := apiImage.ModifiedDate
 		if dbImage, found := dbImageMap[pyxisID]; !found {
+			if utils.Cfg.SkipImageCveSync {
+				modifiedDate = time.Time{} // Set to zero value if not syncing CVEs
+			}
 			toSyncImages = append(
 				toSyncImages,
 				models.Image{
 					PyxisID:               apiImage.PyxisID,
-					ModifiedDate:          apiImage.ModifiedDate,
+					ModifiedDate:          modifiedDate,
 					ManifestListDigest:    manifestListDigestDB,
 					ManifestSchema2Digest: manifestSchema2DigestDB,
 					DockerImageDigest:     dockerImageDigestDB,
@@ -216,7 +225,10 @@ func syncRepo(repo models.Repository) error {
 				},
 			)
 		} else if apiImage.ModifiedDate.After(dbImage.ModifiedDate) || utils.Cfg.ForceSync {
-			dbImage.ModifiedDate = apiImage.ModifiedDate
+			if utils.Cfg.SkipImageCveSync {
+				modifiedDate = dbImage.ModifiedDate // Keep the original value if not syncing CVEs
+			}
+			dbImage.ModifiedDate = modifiedDate
 			dbImage.ManifestListDigest = manifestListDigestDB
 			dbImage.ManifestSchema2Digest = manifestSchema2DigestDB
 			dbImage.DockerImageDigest = dockerImageDigestDB
