@@ -12,6 +12,8 @@ import (
 var (
 	PageSize     = utils.Cfg.VmaasPageSize
 	VmaasCvesURL = utils.Cfg.VmaasBaseURL
+	// HTTP client used to call VMaaS
+	httpClient api.HTTPClient = &http.Client{}
 )
 
 type APICveRequest struct {
@@ -54,7 +56,7 @@ func getAPICves() ([]string, map[string]APICve, error) {
 	cveList := []string{}
 	cveMap := make(map[string]APICve)
 
-	client := &api.Client{HTTPClient: &http.Client{}}
+	client := &api.Client{HTTPClient: httpClient}
 	totalPages := 9999
 
 	// Vmaas indexes pages from 1

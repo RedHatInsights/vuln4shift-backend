@@ -19,8 +19,12 @@ var (
 	retries = utils.Cfg.APIRetries
 )
 
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Client struct {
-	HTTPClient *http.Client
+	HTTPClient HTTPClient
 }
 
 func init() {

@@ -86,6 +86,7 @@ func syncCveMetadata() {
 	logger.Infof("Metadata sync finished successfully")
 }
 
+// syncCves inserts or updates CVEs into the database.
 func syncCves(toSyncCves []models.Cve) error {
 	tx := DB.Begin()
 	// Do a rollback by default (don't need to specify on every return), will do nothing when everything is committed
