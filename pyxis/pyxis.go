@@ -326,16 +326,34 @@ func syncRepos() {
 		if passed := repositoryInProfile(apiRepo.Registry, apiRepo.Repository); !passed {
 			continue
 		} else if dbRepo, found := dbRepoMap[repoKey]; !found {
-			toSyncRepos = append(
-				toSyncRepos,
-				models.Repository{
-					PyxisID:      apiRepo.PyxisID,
-					ModifiedDate: apiRepo.ModifiedDate,
-					Registry:     apiRepo.Registry,
-					Repository:   apiRepo.Repository,
-				},
-			)
+			// repo is not found by its registry/repo key, but through pyxis_id, update it
+			if dbRepo, found := dbPyxisIDRepoMap[apiRepo.PyxisID]; found {
+				dbRepo.PyxisID = apiRepo.PyxisID
+				dbRepo.ModifiedDate = apiRepo.ModifiedDate
+				dbRepo.Registry = apiRepo.Registry
+				dbRepo.Repository = apiRepo.Repository
+				toSyncRepos = append(toSyncRepos, dbRepo)
+			} else {
+				// completely new repo, insert it
+				toSyncRepos = append(
+					toSyncRepos,
+					models.Repository{
+						PyxisID:      apiRepo.PyxisID,
+						ModifiedDate: apiRepo.ModifiedDate,
+						Registry:     apiRepo.Registry,
+						Repository:   apiRepo.Repository,
+					},
+				)
+			}
+		} else if dbRepo, found := dbPyxisIDRepoMap[dbRepo.PyxisID]; !found {
+			// repo is found by its registry/repo key, but not through pyxis_id, update it
+			dbRepo.PyxisID = apiRepo.PyxisID
+			dbRepo.ModifiedDate = apiRepo.ModifiedDate
+			dbRepo.Registry = apiRepo.Registry
+			dbRepo.Repository = apiRepo.Repository
+			toSyncRepos = append(toSyncRepos, dbRepo)
 		} else if apiRepo.ModifiedDate.After(dbRepo.ModifiedDate) || utils.Cfg.ForceSync {
+			// repo is found by its registry/repo key and pyxis_id but got modified, update it
 			dbRepo.PyxisID = apiRepo.PyxisID
 			dbRepo.ModifiedDate = apiRepo.ModifiedDate
 			dbRepo.Registry = apiRepo.Registry
@@ -343,6 +361,7 @@ func syncRepos() {
 			toSyncRepos = append(toSyncRepos, dbRepo)
 			delete(dbRepoMap, repoKey)
 		} else {
+			// repo is not found by its registry/repo key and pyxis_id, keep it untouched
 			delete(dbRepoMap, repoKey)
 		}
 	}
