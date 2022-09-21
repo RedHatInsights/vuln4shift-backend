@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.19.1 (2022-09-21)
+### Fix
+* **manager:** Set max header size to 65535 bytes ([`4fa6393`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4fa639376e968adbc01589d08e7cf1ceced45257))
+
 ## v0.19.0 (2022-09-20)
 ### Feature
 * **vmsync:** Prune CVEs during sync ([`79bb0e0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/79bb0e0a788a2c82e8784b90914e93008e270def))
