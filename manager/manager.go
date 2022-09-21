@@ -5,6 +5,7 @@ import (
 	"app/manager/controllers/clusters"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -140,8 +141,9 @@ func Start() {
 
 	base.RunMetrics()
 
-	err := router.Run(fmt.Sprintf(":%d", utils.Cfg.PublicPort))
+	srv := http.Server{Addr: fmt.Sprintf(":%d", utils.Cfg.PublicPort), Handler: router, MaxHeaderBytes: 65535}
 
+	err := srv.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}
