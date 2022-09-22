@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.19.2 (2022-09-22)
+### Fix
+* **pyxis:** Use both pyxis_id and reg/repo key for sync ([`3157364`](https://github.com/RedHatInsights/vuln4shift-backend/commit/315736474f2a1d771d1470f4ae2bc6eee1e91474))
+
 ## v0.19.1 (2022-09-21)
 ### Fix
 * **manager:** Set max header size to 65535 bytes ([`4fa6393`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4fa639376e968adbc01589d08e7cf1ceced45257))
