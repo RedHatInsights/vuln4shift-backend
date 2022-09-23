@@ -84,6 +84,7 @@ type KafkaMessage struct {
 var (
 	VERBOSE  = false
 	DBCONFIG *DatabaseConfig
+	ARCHID   int64
 )
 
 func generateSHA256(count int) (sha []string) {
@@ -212,8 +213,17 @@ func executeSqlStatement(connection *sql.DB, statement string, args []interface{
 	return tx.Commit()
 }
 
+func selectArchID(connection *sql.DB, statement string, args []interface{}) error {
+	tx, err := connection.Begin()
+	if err = tx.QueryRow(statement, args...).Scan(&ARCHID); err != nil {
+		fmt.Println(err.Error())
+		return tx.Rollback()
+	}
+	return tx.Commit()
+}
+
 func prepareInsertDigestsStatement(shas []string) (statement string, statementArgs []interface{}) {
-	statement = `INSERT INTO image (digest, pyxis_id, modified_date) VALUES %s`
+	statement = `INSERT INTO image (manifest_list_digest, pyxis_id, modified_date, arch_id) VALUES %s`
 
 	rand.Seed(time.Now().UnixNano())
 	var valuesIdx []string
@@ -221,10 +231,10 @@ func prepareInsertDigestsStatement(shas []string) (statement string, statementAr
 	modifiedDate := time.Now()
 
 	for _, sha := range shas {
-		statementArgs = append(statementArgs, sha, rand.Int(), modifiedDate)
+		statementArgs = append(statementArgs, sha, rand.Int(), modifiedDate, ARCHID)
 		statementIdx = len(statementArgs)
-		valuesIdx = append(valuesIdx, "($"+fmt.Sprint(statementIdx-2)+
-			", $"+fmt.Sprint(statementIdx-1)+", $"+fmt.Sprint(statementIdx)+")")
+		valuesIdx = append(valuesIdx, "($"+fmt.Sprint(statementIdx-3)+
+			", $"+fmt.Sprint(statementIdx-2)+", $"+fmt.Sprint(statementIdx-1)+", $"+fmt.Sprint(statementIdx)+")")
 	}
 	statement = fmt.Sprintf(statement, strings.Join(valuesIdx, ","))
 	return
@@ -260,6 +270,27 @@ func writeAccountAndOrg(orgId int, dataSource string) {
 	_ = connection.Close()
 }
 
+func writeAndSelectImageArch(arch string, dataSource string) {
+	connection := getSQLConnection(dataSource)
+	statement := `INSERT INTO arch (name) VALUES ($1) ON CONFLICT (name) DO NOTHING`
+	args := []interface{}{arch}
+	if VERBOSE {
+		fmt.Printf("insert account SQL statement:\n\t%v\n\t%v\n", statement, args)
+	}
+	if err := executeSqlStatement(connection, statement, args); err != nil {
+		fmt.Println("Something went wrong while writing account data")
+		fmt.Println(err.Error())
+	}
+
+	statement = `SELECT id FROM arch WHERE name = $1`
+	if err := selectArchID(connection, statement, args); err != nil {
+		fmt.Println("Something went wrong while writing account data")
+		fmt.Println(err.Error())
+	}
+
+	_ = connection.Close()
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		var flags CliFlags
@@ -283,6 +314,7 @@ func main() {
 			writeAccountAndOrg(flags.OrgID, setupDB("account"))
 		}
 		if flags.Store {
+			writeAndSelectImageArch("amd64", setupDB("arch"))
 			store(shas, setupDB("image"))
 		}
 

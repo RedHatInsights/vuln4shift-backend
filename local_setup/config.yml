@@ -1,4 +1,7 @@
 pg_table_params:
+  - arch:
+      pg_username: "pyxis_gatherer"
+      pg_password: "pyxis_gatherer_pwd"
   - image:
       pg_username: "pyxis_gatherer"
       pg_password: "pyxis_gatherer_pwd"
