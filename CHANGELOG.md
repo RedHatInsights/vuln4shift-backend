@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.19.3 (2022-09-26)
+### Fix
+* **digestwriter:** Unlink images from cluster ([`6baa5e3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6baa5e35f2e479770d349eaa722c6dd3090dbf61))
+
 ## v0.19.2 (2022-09-22)
 ### Fix
 * **pyxis:** Use both pyxis_id and reg/repo key for sync ([`3157364`](https://github.com/RedHatInsights/vuln4shift-backend/commit/315736474f2a1d771d1470f4ae2bc6eee1e91474))
