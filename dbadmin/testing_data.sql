@@ -59,6 +59,7 @@ INSERT INTO cluster_image (cluster_id, image_id) VALUES
 (15, 1),
 (16, 6),
 (17, 6),
+(17, 11),
 (18, 10),
 (19, 11);
 

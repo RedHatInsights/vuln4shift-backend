@@ -52,3 +52,22 @@ func DeleteCvesByID(t *testing.T, ids ...int64) {
 	assert.Nil(t, result.Error)
 	assert.Equal(t, int64(len(ids)), result.RowsAffected)
 }
+
+func GetClusterCves(t *testing.T, id int64) (cves []models.Cve) {
+	assert.Nil(t, DB.Model(models.Cve{}).
+		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
+		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
+		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Group("cve.id").Order("cve.id").
+		Where("cluster.id = ?", id).
+		Scan(&cves).Error)
+	return cves
+}
+
+func GetCvesTypeCount(cves []models.Cve) map[models.Severity]int64 {
+	res := make(map[models.Severity]int64)
+	for _, cve := range cves {
+		res[cve.Severity]++
+	}
+	return res
+}
