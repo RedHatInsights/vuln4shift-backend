@@ -123,7 +123,7 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 	parsedIncomingMessage.Inc()
 
 	if message.Workload.Images == nil || message.Workload.Namespaces == nil {
-		logger.Infoln("no digests were retrieved from incoming message")
+		logger.Debugln("no digests were retrieved from incoming message")
 		d.IncrementNumberOfMessagesWithEmptyDigests()
 		return nil
 	}

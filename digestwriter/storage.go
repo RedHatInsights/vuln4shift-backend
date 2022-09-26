@@ -66,26 +66,34 @@ func NewFromConnection(connection *gorm.DB) *DBStorage {
 	}
 }
 
-func prepareBulkInsertClusterImage(clusterID int64, digests []models.Image) (data []models.ClusterImage) {
-	data = make([]models.ClusterImage, len(digests))
-	for idx, digest := range digests {
-		data[idx].ClusterID = clusterID
-		data[idx].ImageID = digest.ID
+func prepareClusterImageLists(clusterID int64, currentImageIDs map[int64]struct{}, existingDigests []models.Image) (toInsert, toDelete []models.ClusterImage) {
+	toInsert = []models.ClusterImage{}
+	toDelete = []models.ClusterImage{}
+	for _, digest := range existingDigests {
+		if _, found := currentImageIDs[digest.ID]; !found {
+			clusterImage := models.ClusterImage{ClusterID: clusterID, ImageID: digest.ID}
+			toInsert = append(toInsert, clusterImage)
+		} else {
+			delete(currentImageIDs, digest.ID)
+		}
+	}
+	for imageID := range currentImageIDs {
+		clusterImage := models.ClusterImage{ClusterID: clusterID, ImageID: imageID}
+		toDelete = append(toDelete, clusterImage)
 	}
 	return
 }
 
 // linkDigestsToCluster updates the 'cluster_image' table
-func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID, clusterArchID int64, digests []string) error {
+func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterStr string, clusterID, clusterArchID int64, digests []string) error {
 	//retrieve IDs of rows in image table for the received digests
 
-	logger.Infof("trying to link digests to cluster with ID %d", clusterID)
+	logger.Debugf("trying to link digests to cluster with ID %d", clusterID)
 
 	var existingDigests []models.Image
 	queryResult := tx.Where("(manifest_schema2_digest IN ? OR manifest_list_digest IN ? OR docker_image_digest IN ?) AND arch_id = ?",
 		digests, digests, digests, clusterArchID).Find(&existingDigests)
 	if err := queryResult.Error; err != nil {
-		//TODO: Maybe we prefer to check digests first, and not insert anything in cluster and cluster_image tables?
 		logger.WithFields(logrus.Fields{
 			errorKey:     err.Error(),
 			clusterIDKey: clusterID,
@@ -96,36 +104,66 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterID, clusterAr
 	if queryResult.RowsAffected == 0 {
 		logger.WithFields(logrus.Fields{
 			clusterIDKey: clusterID,
-		}).Infoln("no digests in image table for the cluster with the given ID, nothing to do.")
+		}).Infoln("no digests in image table for the cluster with the given ID, nothing to do")
 		return nil
 	}
 
-	logger.Infof("found %d digests in image table (%d/%d)",
+	logger.WithFields(logrus.Fields{
+		clusterKey: clusterStr,
+	}).Infof("linking %d digests from image table (%d/%d found)",
 		queryResult.RowsAffected, queryResult.RowsAffected, len(digests),
 	)
 
-	clusterImageData := prepareBulkInsertClusterImage(clusterID, existingDigests)
-
-	// Do nothing on conflict. It just means that we already have
-	// the info we are trying to insert
-	if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&clusterImageData).Error; err != nil {
+	var currentClusterImages []models.ClusterImage
+	queryResult = tx.Where("cluster_id = ?", clusterID).Find(&currentClusterImages)
+	if err := queryResult.Error; err != nil {
 		logger.WithFields(logrus.Fields{
-			errorKey:    err.Error(),
-			"clusterID": clusterID,
-		}).Errorln("couldn't link cluster ID to image IDs for the given cluster")
+			errorKey:     err.Error(),
+			clusterIDKey: clusterID,
+		}).Errorln("couldn't retrieve any rows from table 'cluster_image' for the cluster with the given ID")
 		return err
 	}
+	currentImageIDs := map[int64]struct{}{}
+	for _, clusterImage := range currentClusterImages {
+		currentImageIDs[clusterImage.ImageID] = struct{}{}
+	}
+	toInsert, toDelete := prepareClusterImageLists(clusterID, currentImageIDs, existingDigests)
 
-	logger.Infoln("linked digests to cluster successfully")
+	if len(toInsert) > 0 {
+		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&toInsert).Error; err != nil {
+			logger.WithFields(logrus.Fields{
+				errorKey:    err.Error(),
+				"clusterID": clusterID,
+			}).Errorln("couldn't link cluster ID to image IDs for the given cluster")
+			return err
+		}
+	}
+
+	if len(toDelete) > 0 {
+		deleteTx := tx.Session(&gorm.Session{})
+		for _, clusterImage := range toDelete {
+			deleteTx = deleteTx.Or(&clusterImage)
+		}
+		if err := deleteTx.Delete(&models.ClusterImage{}).Error; err != nil {
+			logger.WithFields(logrus.Fields{
+				errorKey:    err.Error(),
+				"clusterID": clusterID,
+			}).Errorln("couldn't unlink cluster ID from image IDs for the given cluster")
+			return err
+		}
+	}
+
+	logger.Debugln("linked digests to cluster successfully")
 	return nil
 }
 
 // WriteClusterInfo updates the 'cluster' table with the provided info
 func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, workload Workload, digests []string) error {
 	// prepare data
-	clusterUUID, err := uuid.Parse(string(cluster))
+	clusterStr := string(cluster)
+	clusterUUID, err := uuid.Parse(clusterStr)
 	if err != nil {
-		logger.Errorln("cannot convert given cluster ID to UUID. Aborting WriteClusterInfo")
+		logger.Errorln("cannot convert given cluster ID to UUID, aborting WriteClusterInfo")
 		return err
 	}
 	accountData := models.Account{
@@ -133,8 +171,7 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, wor
 	}
 
 	logger.WithFields(logrus.Fields{
-		rowIDKey: accountData.ID,
-		orgKey:   accountData.OrgID,
+		orgKey: accountData.OrgID,
 	}).Debugln("account data to insert")
 
 	tx := storage.connection.Begin()
@@ -206,7 +243,7 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, wor
 		}
 	}
 
-	if err = storage.linkDigestsToCluster(tx, clusterInfoData.ID, archID, digests); err != nil {
+	if err = storage.linkDigestsToCluster(tx, clusterStr, clusterInfoData.ID, archID, digests); err != nil {
 		return tx.Rollback().Error
 	}
 	return tx.Commit().Error

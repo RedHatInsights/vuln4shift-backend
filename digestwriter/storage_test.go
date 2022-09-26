@@ -93,6 +93,7 @@ func TestLinkSingleDigestToCluster(t *testing.T) {
 	storage, mock := NewMockStorage(t)
 	// expected SQL statements during this test
 	expectedSelect := `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1) OR manifest_list_digest IN ($2) OR docker_image_digest IN ($3)) AND arch_id = $4`
+	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert := `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2) ON CONFLICT DO NOTHING`
 
 	mock.ExpectBegin()
@@ -100,11 +101,14 @@ func TestLinkSingleDigestToCluster(t *testing.T) {
 		WithArgs(firstDigest, firstDigest, firstDigest, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "manifest_schema2_digest", "manifest_list_digest", "docker_image_digest", "pyxis_id", "modified_date", "arch_id"}).
 			AddRow(firstDigestID, firstDigest, firstDigest, firstDigest, 5, digestModifiedAtTime, 1))
+	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect2)).
+		WithArgs(testClustedID).
+		WillReturnRows(sqlmock.NewRows([]string{"cluster_id", "image_id"}))
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WillReturnResult(sqlmock.NewResult(firstDigestID, 1))
 	mock.ExpectCommit()
 
 	// call the tested method
-	err := digestwriter.LinkDigestsToCluster(storage, testClustedID, 1, []string{firstDigest})
+	err := digestwriter.LinkDigestsToCluster(storage, string(clusterName), testClustedID, 1, []string{firstDigest})
 	if err != nil {
 		t.Errorf("error was not expected while linking the digests: %s", err)
 	}
@@ -119,6 +123,7 @@ func TestLinkMultipleDigestsToCluster(t *testing.T) {
 	storage, mock := NewMockStorage(t)
 	// expected SQL statements during this test
 	expectedSelect := `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1,$2) OR manifest_list_digest IN ($3,$4) OR docker_image_digest IN ($5,$6)) AND arch_id = $7`
+	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert := `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING`
 
 	mock.ExpectBegin()
@@ -128,11 +133,14 @@ func TestLinkMultipleDigestsToCluster(t *testing.T) {
 			AddRow(firstDigestID, firstDigest, firstDigest, firstDigest, 5, digestModifiedAtTime).
 			AddRow(secondDigestID, secondDigest, secondDigest, secondDigest, 6, digestModifiedAtTime),
 		)
+	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect2)).
+		WithArgs(testClustedID).
+		WillReturnRows(sqlmock.NewRows([]string{"cluster_id", "image_id"}))
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WillReturnResult(sqlmock.NewResult(secondDigestID, 2))
 	mock.ExpectCommit()
 
 	// call the tested method
-	err := digestwriter.LinkDigestsToCluster(storage, 1, 1, []string{firstDigest, secondDigest})
+	err := digestwriter.LinkDigestsToCluster(storage, string(clusterName), testClustedID, 1, []string{firstDigest, secondDigest})
 	if err != nil {
 		t.Errorf("error was not expected while linking the digests: %s", err)
 	}
@@ -181,12 +189,16 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 			AddRow(1, "amd64"))
 
 	expectedSelect = `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1) OR manifest_list_digest IN ($2) OR docker_image_digest IN ($3)) AND arch_id = $4`
+	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert := `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2) ON CONFLICT DO NOTHING`
 
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
 		WithArgs(firstDigest, firstDigest, firstDigest, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "manifest_schema2_digest", "manifest_list_digest", "docker_image_digest", "pyxis_id", "modified_date", "arch_id"}).
 			AddRow(firstDigestID, firstDigest, firstDigest, firstDigest, 5, digestModifiedAtTime, 1))
+	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect2)).
+		WithArgs(testClustedID).
+		WillReturnRows(sqlmock.NewRows([]string{"cluster_id", "image_id"}))
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WillReturnResult(sqlmock.NewResult(firstDigestID, 1))
 
 	mock.ExpectCommit()
@@ -240,12 +252,17 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 			AddRow(1, "amd64"))
 
 	expectedSelect = `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1) OR manifest_list_digest IN ($2) OR docker_image_digest IN ($3)) AND arch_id = $4`
+	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert = `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2) ON CONFLICT DO NOTHING`
 
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
 		WithArgs(firstDigest, firstDigest, firstDigest, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "manifest_schema2_digest", "manifest_list_digest", "docker_image_digest", "pyxis_id", "modified_date", "arch_id"}).
 			AddRow(firstDigestID, firstDigest, firstDigest, firstDigest, 5, digestModifiedAtTime, 1))
+
+	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect2)).
+		WithArgs(storedClusterID).
+		WillReturnRows(sqlmock.NewRows([]string{"cluster_id", "image_id"}))
 
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WithArgs(storedClusterID, firstDigestID).
 		WillReturnResult(sqlmock.NewResult(firstDigestID, 1))
