@@ -103,7 +103,7 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterStr string, c
 
 	if queryResult.RowsAffected == 0 {
 		logger.WithFields(logrus.Fields{
-			clusterIDKey: clusterID,
+			clusterKey: clusterStr,
 		}).Infoln("no digests in image table for the cluster with the given ID, nothing to do")
 		return nil
 	}
