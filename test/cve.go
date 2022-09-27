@@ -3,6 +3,7 @@ package test
 import (
 	"app/base/models"
 	"testing"
+	"time"
 
 	"gorm.io/gorm/clause"
 
@@ -70,4 +71,72 @@ func GetCvesTypeCount(cves []models.Cve) map[models.Severity]int64 {
 		res[cve.Severity]++
 	}
 	return res
+}
+
+func GetAccountsCves(t *testing.T, id int64) (cves []models.Cve) {
+	assert.Nil(t, DB.Model(models.Cve{}).
+		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
+		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
+		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Group("cve.id").Order("cve.id").
+		Where("cluster.account_id = ?", id).
+		Scan(&cves).Error)
+	return cves
+}
+
+func GetImagesExposed(t *testing.T, accountID, cveID int64) int64 {
+	var imagesExposed int64
+	assert.Nil(t, DB.Model(models.Cve{}).
+		Select("COUNT(DISTINCT cluster_image.image_id)").
+		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
+		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
+		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Group("cve.id").
+		Where("cluster.account_id = ? AND cve.id = ?", accountID, cveID).
+		Scan(&imagesExposed).Error)
+	return imagesExposed
+}
+
+func GetClustersExposed(t *testing.T, accountID, cveID int64) int64 {
+	var clustersExposed int64
+	assert.Nil(t, DB.Model(models.Cve{}).
+		Select("COUNT(DISTINCT cluster_image.cluster_id)").
+		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
+		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
+		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Group("cve.id").
+		Where("cluster.account_id = ? AND cve.id = ?", accountID, cveID).
+		Scan(&clustersExposed).Error)
+	return clustersExposed
+}
+
+func GetExposedClusters(t *testing.T, accountID, cveID int64) (clusters []models.Cluster) {
+	assert.Nil(t, DB.Model(models.Cluster{}).
+		Joins("JOIN cluster_image on cluster.id = cluster_image.cluster_id").
+		Joins("JOIN image_cve on cluster_image.image_id = image_cve.image_id").
+		Joins("JOIN cve on image_cve.cve_id = cve.id").
+		Where("cluster.account_id = ? AND cve.id = ?", accountID, cveID).
+		Scan(&clusters).Error)
+	return clusters
+}
+
+func GetFloat32PtrValue(f *float32) float32 {
+	if f == nil {
+		return 0
+	}
+	return *f
+}
+
+func GetStringPtrValue(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func GetUTC(t *time.Time) time.Time {
+	if t == nil {
+		return time.Time{}
+	}
+	return t.UTC()
 }
