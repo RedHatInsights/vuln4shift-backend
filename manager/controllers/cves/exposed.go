@@ -81,35 +81,9 @@ var (
 // @failure 500 {object} base.Error
 func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 	accountID := ctx.GetInt64("account_id")
-	filters := base.GetRequestedFilters(ctx)
-
-	var clusterIDs []string
-	var clusterInfoMap map[string]amsclient.ClusterInfo
-
-	// Meta section sets
-	var clusterStatuses, clusterVersions, clusterProviders map[string]struct{}
-
-	var err error
-	if utils.Cfg.AmsEnabled {
-		orgID := ctx.GetString("org_id")
-		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID)
-		if err != nil {
-			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
-			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
-			return
-		}
-		clusterIDs, clusterStatuses, clusterVersions, clusterProviders, err = amsclient.DBSyncClusterDetails(c.Conn, accountID, clusterInfoMap)
-		if err != nil {
-			ctx.AbortWithStatusJSON(
-				http.StatusInternalServerError,
-				base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
-			)
-			c.Logger.Errorf("Database error: %s", err.Error())
-			return
-		}
-	}
-
+	orgID := ctx.GetString("org_id")
 	cveName := ctx.Param("cve_name")
+	filters := base.GetRequestedFilters(ctx)
 
 	// Check if CVE exists first
 	query := c.BuildCveDetailsQuery(cveName)
@@ -128,6 +102,16 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
 		)
 		c.Logger.Errorf("Database error: %s", result.Error)
+		return
+	}
+
+	clusterIDs, clusterStatuses, clusterVersions, clusterProviders, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+		)
+		c.Logger.Errorf("Error fetching AMS data: %s", err.Error())
 		return
 	}
 
