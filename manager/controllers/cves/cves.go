@@ -75,28 +75,16 @@ type GetCvesResponse struct {
 // @failure 400 {object} base.Error
 func (c *Controller) GetCves(ctx *gin.Context) {
 	accountID := ctx.GetInt64("account_id")
+	orgID := ctx.GetString("org_id")
 
-	var clusterIDs []string
-	var clusterInfoMap map[string]amsclient.ClusterInfo
-
-	var err error
-	if utils.Cfg.AmsEnabled {
-		orgID := ctx.GetString("org_id")
-		clusterInfoMap, err = c.AMSClient.GetClustersForOrganization(orgID)
-		if err != nil {
-			c.Logger.Errorf("Error returned from AMS client: %s", err.Error())
-			ctx.AbortWithStatusJSON(http.StatusBadGateway, base.BuildErrorResponse(http.StatusBadGateway, "Error returned from AMS API"))
-			return
-		}
-		clusterIDs, _, _, _, err = amsclient.DBSyncClusterDetails(c.Conn, accountID, clusterInfoMap)
-		if err != nil {
-			ctx.AbortWithStatusJSON(
-				http.StatusInternalServerError,
-				base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
-			)
-			c.Logger.Errorf("Database error: %s", err.Error())
-			return
-		}
+	clusterIDs, _, _, _, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+		)
+		c.Logger.Errorf("Error fetching AMS data: %s", err.Error())
+		return
 	}
 
 	filters := base.GetRequestedFilters(ctx)
