@@ -20,7 +20,7 @@ func EmptyToNA(input string) string {
 	return input
 }
 
-func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID string, sync bool) ([]string, map[string]struct{}, map[string]struct{}, map[string]struct{}, error) {
+func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID string, sync bool, cveName *string) ([]string, map[string]struct{}, map[string]struct{}, map[string]struct{}, error) {
 	clusterIDs := []string{}
 	clusterStatuses := map[string]struct{}{}
 	clusterVersions := map[string]struct{}{}
@@ -28,7 +28,16 @@ func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID 
 
 	// Query all clusters in DB for given account
 	clusterRows := []models.Cluster{}
-	if err := conn.Where("account_id = ?", accountID).Order("id").Find(&clusterRows).Error; err != nil {
+	query := conn.Where("cluster.account_id = ?", accountID).Order("cluster.id")
+	if cveName != nil {
+		query = query.
+			Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
+			Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
+			Joins("JOIN cve ON image_cve.cve_id = cve.id").
+			Where("cve.name = ?", *cveName).
+			Distinct()
+	}
+	if err := query.Find(&clusterRows).Error; err != nil {
 		return nil, nil, nil, nil, err
 	}
 

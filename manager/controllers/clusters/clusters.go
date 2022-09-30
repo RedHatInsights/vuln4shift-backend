@@ -94,7 +94,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 	orgID := ctx.GetString("org_id")
 	filters := base.GetRequestedFilters(ctx)
 
-	clusterIDs, clusterStatuses, clusterVersions, clusterProviders, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled)
+	clusterIDs, clusterStatuses, clusterVersions, clusterProviders, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled, nil)
 	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,

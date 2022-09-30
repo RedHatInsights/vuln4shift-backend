@@ -77,7 +77,7 @@ func (c *Controller) GetCves(ctx *gin.Context) {
 	accountID := ctx.GetInt64("account_id")
 	orgID := ctx.GetString("org_id")
 
-	clusterIDs, _, _, _, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled)
+	clusterIDs, _, _, _, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled, nil)
 	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
