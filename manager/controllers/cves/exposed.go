@@ -105,7 +105,7 @@ func (c *Controller) GetExposedClusters(ctx *gin.Context) {
 		return
 	}
 
-	clusterIDs, clusterStatuses, clusterVersions, clusterProviders, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled)
+	clusterIDs, clusterStatuses, clusterVersions, clusterProviders, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled, &cveName)
 	if err != nil {
 		ctx.AbortWithStatusJSON(
 			http.StatusInternalServerError,
