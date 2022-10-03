@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.19.4 (2022-10-03)
+### Fix
+* **manager:** Filter *_all lists for a single CVE scope ([`a9f13e2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a9f13e233ee9508095f2bff05450f94bb3fc24d7))
+
 ## v0.19.3 (2022-09-26)
 ### Fix
 * **digestwriter:** Unlink images from cluster ([`6baa5e3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6baa5e35f2e479770d349eaa722c6dd3090dbf61))
