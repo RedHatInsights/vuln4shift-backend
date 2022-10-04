@@ -31,7 +31,7 @@ func callGetCveDetails(t *testing.T, accountID int64, cveName string, expectedSt
 func TestGetCveDetails(t *testing.T) {
 	allAccounts := test.GetAccounts(t)
 	for _, account := range allAccounts {
-		cves := test.GetAccountsCves(t, account.ID)
+		cves := test.GetAccountCves(t, account.ID)
 		for _, cve := range cves {
 			var resp GetCveDetailsResponse
 			w := callGetCveDetails(t, account.ID, cve.Name, http.StatusOK)

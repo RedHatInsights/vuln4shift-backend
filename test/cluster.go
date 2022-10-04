@@ -2,6 +2,7 @@ package test
 
 import (
 	"app/base/models"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,4 +29,28 @@ func GetCluster(t *testing.T, id int64) (cluster models.Cluster) {
 	result := DB.Model(models.Cluster{}).Where("id = ?", id).Scan(&cluster)
 	assert.Nil(t, result.Error)
 	return cluster
+}
+
+func CheckClustersMeta(t *testing.T, meta interface{}, providers, statuses, versions map[string]bool) {
+	// Actual meta
+	am := meta.(map[string]interface{})
+	// Expected meta slices without duplicates
+	ep := GetMetaKeys(providers)
+	es := GetMetaKeys(statuses)
+	ev := GetMetaKeys(versions)
+	// Actual meta slices
+	ap := GetMetaStringSlice(am["cluster_providers_all"])
+	as := GetMetaStringSlice(am["cluster_statuses_all"])
+	av := GetMetaStringSlice(am["cluster_versions_all"])
+
+	sort.Strings(ep)
+	sort.Strings(es)
+	sort.Strings(ev)
+	sort.Strings(ap)
+	sort.Strings(as)
+	sort.Strings(av)
+
+	assert.Equal(t, ep, ap)
+	assert.Equal(t, es, as)
+	assert.Equal(t, ev, av)
 }

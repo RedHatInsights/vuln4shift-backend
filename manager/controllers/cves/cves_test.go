@@ -4,6 +4,7 @@ import (
 	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
+	"app/manager/amsclient"
 	"app/manager/middlewares"
 	"app/test"
 	"encoding/json"
@@ -59,7 +60,8 @@ func TestGetCvesAffecting(t *testing.T) {
 		w := callGetCves(t, account.ID, true, http.StatusOK)
 		assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
-		expectedCves := test.GetAccountsCves(t, account.ID)
+		expectedCves := test.GetAccountCves(t, account.ID)
+		assert.Equal(t, len(resp.Data), len(expectedCves))
 		for i, ec := range expectedCves {
 			// Actual CVE
 			ac := resp.Data[i]
@@ -70,6 +72,59 @@ func TestGetCvesAffecting(t *testing.T) {
 			assert.Equal(t, test.GetImagesExposed(t, account.ID, ec.ID), *ac.ImagesExposed)
 			assert.Equal(t, test.GetClustersExposed(t, account.ID, ec.ID), *ac.ClustersExposed)
 		}
+		totalItems := test.GetMetaTotalItems(resp.Meta)
+		assert.Equal(t, float64(len(resp.Data)), totalItems)
+	}
+}
+
+func TestGetCvesAffectingAMS(t *testing.T) {
+	utils.Cfg.AmsEnabled = true
+	defer func() { utils.Cfg.AmsEnabled = false }()
+
+	allAccounts := test.GetAccounts(t)
+	for _, account := range allAccounts {
+		allClusters := test.GetAccountClusters(t, account.ID)
+		// Some subset of the account clusters
+		expectedClusters := allClusters[:len(allClusters)/2]
+
+		amsClusters := make(map[string]amsclient.ClusterInfo)
+		for _, c := range expectedClusters {
+			amsClusters[c.UUID.String()] = amsclient.ClusterInfo{
+				ID:          c.UUID.String(),
+				DisplayName: c.UUID.String(),
+				Status:      c.Status,
+				Type:        c.Type,
+				Version:     c.Version,
+				Provider:    c.Provider,
+			}
+		}
+		testController.AMSClient = &test.AMSClientMock{
+			ClustersResponse: amsClusters,
+		}
+
+		var resp GetCvesResponse
+		w := callGetCves(t, account.ID, true, http.StatusOK)
+		assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
+
+		clusterIDs := make([]int64, 0, len(expectedClusters))
+		for _, c := range expectedClusters {
+			clusterIDs = append(clusterIDs, c.ID)
+		}
+
+		expectedCves := test.GetAccountCvesForClusters(t, account.ID, clusterIDs)
+		assert.Equal(t, len(expectedCves), len(resp.Data))
+		for i, ec := range expectedCves {
+			// Actual CVE
+			ac := resp.Data[i]
+			assert.Equal(t, ec.Name, test.GetStringPtrValue(ac.Name))
+			assert.Equal(t, ec.Severity, *ac.Severity)
+			assert.Equal(t, ec.Cvss2Score, test.GetFloat32PtrValue(ac.Cvss2Score))
+			assert.Equal(t, ec.Description, test.GetStringPtrValue(ac.Description))
+			assert.Equal(t, test.GetImagesExposed(t, account.ID, ec.ID), *ac.ImagesExposed)
+			assert.Equal(t, test.GetClustersExposedLimitClusters(t, account.ID, ec.ID, clusterIDs), *ac.ClustersExposed)
+		}
+		totalItems := test.GetMetaTotalItems(resp.Meta)
+		assert.Equal(t, float64(len(resp.Data)), totalItems)
 	}
 }
 
