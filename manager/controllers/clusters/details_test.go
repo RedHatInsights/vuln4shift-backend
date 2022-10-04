@@ -1,6 +1,8 @@
 package clusters
 
 import (
+	"app/base/utils"
+	"app/manager/amsclient"
 	"app/test"
 	"encoding/json"
 	"net/http"
@@ -45,6 +47,36 @@ func TestGetClusterDetails(t *testing.T) {
 			assert.Equal(t, cluster.UUID.String(), resp.Data.UUID)
 			assert.Equal(t, cluster.LastSeen.UTC(), resp.Data.LastSeen.UTC())
 			assert.Equal(t, cluster.UUID.String(), resp.Data.DisplayName)
+		}
+	}
+}
+
+func TestGetClusterDetailsAMS(t *testing.T) {
+	utils.Cfg.AmsEnabled = true
+	defer func() { utils.Cfg.AmsEnabled = false }()
+
+	allAccounts := test.GetAccounts(t)
+	for _, account := range allAccounts {
+		accountClusters := test.GetAccountClusters(t, account.ID)
+		for _, c := range accountClusters {
+			testController.AMSClient = &test.AMSClientMock{
+				ClusterResponse: amsclient.ClusterInfo{
+					ID:          c.UUID.String(),
+					DisplayName: c.UUID.String(),
+					Status:      c.Status,
+					Type:        c.Type,
+					Version:     c.Version,
+					Provider:    c.Provider,
+				},
+			}
+
+			var resp GetClusterDetailsResponse
+			w := callGetClusterDetails(t, account.ID, c.UUID.String(), http.StatusOK)
+
+			assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
+			assert.Equal(t, c.UUID.String(), resp.Data.UUID)
+			assert.Equal(t, c.LastSeen.UTC(), resp.Data.LastSeen.UTC())
+			assert.Equal(t, c.UUID.String(), resp.Data.DisplayName)
 		}
 	}
 }

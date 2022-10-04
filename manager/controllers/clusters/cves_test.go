@@ -53,6 +53,8 @@ func TestGetClusterCves(t *testing.T) {
 				assert.Equal(t, ec.Severity, *ac.Severity)
 				assert.Equal(t, ec.PublicDate, ac.PublicDate)
 			}
+			totalItems := test.GetMetaTotalItems(resp.Meta)
+			assert.Equal(t, float64(len(resp.Data)), totalItems)
 		}
 	}
 }
