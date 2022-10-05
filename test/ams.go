@@ -1,23 +1,23 @@
 package test
 
 import (
-	"app/manager/amsclient"
+	"app/base/ams"
 )
 
 type AMSClientMock struct {
-	ClustersResponse map[string]amsclient.ClusterInfo
-	ClusterResponse  amsclient.ClusterInfo
+	ClustersResponse map[string]ams.ClusterInfo
+	ClusterResponse  ams.ClusterInfo
 }
 
 func (c *AMSClientMock) GetClustersForOrganization(orgID string) (
-	map[string]amsclient.ClusterInfo,
+	map[string]ams.ClusterInfo,
 	error,
 ) {
 	return c.ClustersResponse, nil
 }
 
 func (c *AMSClientMock) GetSingleClusterInfoForOrganization(orgID string, clusterID string) (
-	amsclient.ClusterInfo, error,
+	ams.ClusterInfo, error,
 ) {
 	return c.ClusterResponse, nil
 }

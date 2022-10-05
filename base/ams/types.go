@@ -1,4 +1,4 @@
-package amsclient
+package ams
 
 type ClusterInfo struct {
 	ID          string

@@ -1,10 +1,10 @@
 package cves
 
 import (
+	"app/base/ams"
 	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
-	"app/manager/amsclient"
 	"app/manager/middlewares"
 	"app/test"
 	"encoding/json"
@@ -87,9 +87,9 @@ func TestGetCvesAffectingAMS(t *testing.T) {
 		// Some subset of the account clusters
 		expectedClusters := allClusters[:len(allClusters)/2]
 
-		amsClusters := make(map[string]amsclient.ClusterInfo)
+		amsClusters := make(map[string]ams.ClusterInfo)
 		for _, c := range expectedClusters {
-			amsClusters[c.UUID.String()] = amsclient.ClusterInfo{
+			amsClusters[c.UUID.String()] = ams.ClusterInfo{
 				ID:          c.UUID.String(),
 				DisplayName: c.UUID.String(),
 				Status:      c.Status,

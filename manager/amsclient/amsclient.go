@@ -2,6 +2,7 @@
 package amsclient
 
 import (
+	"app/base/ams"
 	"fmt"
 	"net/http"
 	"time"
@@ -40,11 +41,11 @@ var (
 // AMSClient allow us to interact the AMS API
 type AMSClient interface {
 	GetClustersForOrganization(string) (
-		clusterInfoMap map[string]ClusterInfo,
+		clusterInfoMap map[string]ams.ClusterInfo,
 		err error,
 	)
 	GetSingleClusterInfoForOrganization(string, string) (
-		ClusterInfo, error,
+		ams.ClusterInfo, error,
 	)
 }
 
@@ -99,7 +100,7 @@ func NewAMSClientWithTransport(transport http.RoundTripper) (AMSClient, error) {
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
 // If nil is passed for filters, default filters will be applied. To select empty filters, pass an empty slice.
 func (c *amsClientImpl) GetClustersForOrganization(orgID string) (
-	clusterInfoMap map[string]ClusterInfo,
+	clusterInfoMap map[string]ams.ClusterInfo,
 	err error,
 ) {
 	c.logger.Debugf("looking up active clusters for the organization: %s", orgID)
@@ -126,7 +127,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID string) (
 }
 
 func (c *amsClientImpl) GetSingleClusterInfoForOrganization(orgID string, clusterID string) (
-	clusterInfo ClusterInfo, err error,
+	clusterInfo ams.ClusterInfo, err error,
 ) {
 	tStart := time.Now()
 
@@ -192,10 +193,10 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 	subscriptionListRequest *accMgmt.SubscriptionsListRequest,
 	searchQuery string,
 ) (
-	clusterInfoMap map[string]ClusterInfo,
+	clusterInfoMap map[string]ams.ClusterInfo,
 	err error,
 ) {
-	clusterInfoMap = map[string]ClusterInfo{}
+	clusterInfoMap = map[string]ams.ClusterInfo{}
 	for pageNum := 1; ; pageNum++ {
 		var err error
 		subscriptionListRequest = subscriptionListRequest.
@@ -215,7 +216,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 		}
 
 		for _, item := range response.Items().Slice() {
-			clusterInfo := ClusterInfo{}
+			clusterInfo := ams.ClusterInfo{}
 			clusterIDstr, ok := item.GetExternalClusterID()
 			// we could exclude empty external_cluster_id in the query, but we want to log these special clusters
 			if !ok || clusterIDstr == "" {

@@ -1,8 +1,8 @@
 package clusters
 
 import (
+	"app/base/ams"
 	"app/base/utils"
-	"app/manager/amsclient"
 	"app/test"
 	"encoding/json"
 	"net/http"
@@ -60,7 +60,7 @@ func TestGetClusterDetailsAMS(t *testing.T) {
 		accountClusters := test.GetAccountClusters(t, account.ID)
 		for _, c := range accountClusters {
 			testController.AMSClient = &test.AMSClientMock{
-				ClusterResponse: amsclient.ClusterInfo{
+				ClusterResponse: ams.ClusterInfo{
 					ID:          c.UUID.String(),
 					DisplayName: c.UUID.String(),
 					Status:      c.Status,
