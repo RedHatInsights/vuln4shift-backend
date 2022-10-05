@@ -1,8 +1,8 @@
 package cves
 
 import (
+	"app/base/ams"
 	"app/base/utils"
-	"app/manager/amsclient"
 	"app/test"
 	"encoding/json"
 	"net/http"
@@ -70,7 +70,7 @@ func TestGetExposedClustersAMSSubset(t *testing.T) {
 
 			c := expectedClusters[0]
 			testController.AMSClient = &test.AMSClientMock{
-				ClustersResponse: map[string]amsclient.ClusterInfo{
+				ClustersResponse: map[string]ams.ClusterInfo{
 					c.UUID.String(): {
 						ID:          c.UUID.String(),
 						DisplayName: c.UUID.String(),
@@ -113,12 +113,12 @@ func TestGetExposedClustersAMS(t *testing.T) {
 			expectedStatuses := make(map[string]bool)
 			expectedVersions := make(map[string]bool)
 
-			amsClusters := make(map[string]amsclient.ClusterInfo)
+			amsClusters := make(map[string]ams.ClusterInfo)
 			for _, c := range expectedClusters {
 				expectedProviders[c.Provider] = true
 				expectedStatuses[c.Status] = true
 				expectedVersions[c.Version] = true
-				amsClusters[c.UUID.String()] = amsclient.ClusterInfo{
+				amsClusters[c.UUID.String()] = ams.ClusterInfo{
 					ID:          c.UUID.String(),
 					DisplayName: c.UUID.String(),
 					Status:      c.Status,

@@ -1,6 +1,7 @@
 package clusters
 
 import (
+	"app/base/ams"
 	"errors"
 	"net/http"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"gorm.io/gorm"
 
 	"app/base/utils"
-	"app/manager/amsclient"
 	"app/manager/base"
 )
 
@@ -51,7 +51,7 @@ func (c *Controller) GetClusterDetails(ctx *gin.Context) {
 		return
 	}
 
-	var clusterInfo amsclient.ClusterInfo
+	var clusterInfo ams.ClusterInfo
 	if utils.Cfg.AmsEnabled {
 		orgID := ctx.GetString("org_id")
 		clusterInfo, err = c.AMSClient.GetSingleClusterInfoForOrganization(orgID, clusterID.String())

@@ -1,10 +1,10 @@
 package clusters
 
 import (
+	"app/base/ams"
 	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
-	"app/manager/amsclient"
 	"app/manager/middlewares"
 	"app/test"
 	"encoding/json"
@@ -83,12 +83,12 @@ func TestGetClustersAMS(t *testing.T) {
 		expectedStatuses := make(map[string]bool)
 		expectedVersions := make(map[string]bool)
 
-		amsClusters := make(map[string]amsclient.ClusterInfo)
+		amsClusters := make(map[string]ams.ClusterInfo)
 		for _, c := range expectedClusters {
 			expectedProviders[c.Provider] = true
 			expectedStatuses[c.Status] = true
 			expectedVersions[c.Version] = true
-			amsClusters[c.UUID.String()] = amsclient.ClusterInfo{
+			amsClusters[c.UUID.String()] = ams.ClusterInfo{
 				ID:          c.UUID.String(),
 				DisplayName: c.UUID.String(),
 				Status:      c.Status,
@@ -147,12 +147,12 @@ func TestGetClustersAMSSubset(t *testing.T) {
 		expectedStatuses := make(map[string]bool)
 		expectedVersions := make(map[string]bool)
 
-		amsClusters := make(map[string]amsclient.ClusterInfo)
+		amsClusters := make(map[string]ams.ClusterInfo)
 		for _, c := range expectedClusters {
 			expectedProviders[c.Provider] = true
 			expectedStatuses[c.Status] = true
 			expectedVersions[c.Version] = true
-			amsClusters[c.UUID.String()] = amsclient.ClusterInfo{
+			amsClusters[c.UUID.String()] = ams.ClusterInfo{
 				ID:          c.UUID.String(),
 				DisplayName: c.UUID.String(),
 				Status:      c.Status,
