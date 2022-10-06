@@ -33,6 +33,13 @@ func GetMetaKeys(ks map[string]bool) (keys []string) {
 	return keys
 }
 
+func GetClusterDetailKeys(ks map[string]struct{}) (keys []string) {
+	for k := range ks {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func GetMetaStringSlice(i interface{}) []string {
 	arr := i.([]interface{})
 	res := make([]string, 0, len(arr))
