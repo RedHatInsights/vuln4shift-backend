@@ -31,6 +31,19 @@ func GetCluster(t *testing.T, id int64) (cluster models.Cluster) {
 	return cluster
 }
 
+func CheckClusterMetaSlices(t *testing.T, ep, ap, es, as, ev, av []string) {
+	sort.Strings(ep)
+	sort.Strings(es)
+	sort.Strings(ev)
+	sort.Strings(ap)
+	sort.Strings(as)
+	sort.Strings(av)
+
+	assert.Equal(t, ep, ap)
+	assert.Equal(t, es, as)
+	assert.Equal(t, ev, av)
+}
+
 func CheckClustersMeta(t *testing.T, meta interface{}, providers, statuses, versions map[string]bool) {
 	// Actual meta
 	am := meta.(map[string]interface{})
@@ -43,14 +56,12 @@ func CheckClustersMeta(t *testing.T, meta interface{}, providers, statuses, vers
 	as := GetMetaStringSlice(am["cluster_statuses_all"])
 	av := GetMetaStringSlice(am["cluster_versions_all"])
 
-	sort.Strings(ep)
-	sort.Strings(es)
-	sort.Strings(ev)
-	sort.Strings(ap)
-	sort.Strings(as)
-	sort.Strings(av)
+	CheckClusterMetaSlices(t, ep, ap, es, as, ev, av)
+}
 
-	assert.Equal(t, ep, ap)
-	assert.Equal(t, es, as)
-	assert.Equal(t, ev, av)
+func CheckClusterDetails(t *testing.T, ep, es, ev map[string]bool, ap, as, av map[string]struct{}) {
+	CheckClusterMetaSlices(t,
+		GetMetaKeys(ep), GetClusterDetailKeys(ap),
+		GetMetaKeys(es), GetClusterDetailKeys(as),
+		GetMetaKeys(ev), GetClusterDetailKeys(av))
 }
