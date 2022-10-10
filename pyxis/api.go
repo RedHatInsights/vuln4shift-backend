@@ -13,11 +13,12 @@ import (
 )
 
 var (
-	PyxisBaseURL       = utils.Cfg.PyxisBaseURL
-	PyxisReposURL      = fmt.Sprintf("%s/repositories", PyxisBaseURL)
-	PyxisRepoImagesURL = fmt.Sprintf("%s/repositories/registry/%%s/repository/%%s/images", PyxisBaseURL)
-	PyxisImageCvesURL  = fmt.Sprintf("%s/images/id/%%s/vulnerabilities", PyxisBaseURL)
-	PageSize           = 500
+	PyxisBaseURL                      = utils.Cfg.PyxisBaseURL
+	PyxisReposURL                     = fmt.Sprintf("%s/repositories", PyxisBaseURL)
+	PyxisRepoImagesURL                = fmt.Sprintf("%s/repositories/registry/%%s/repository/%%s/images", PyxisBaseURL)
+	PyxisImageCvesURL                 = fmt.Sprintf("%s/images/id/%%s/vulnerabilities", PyxisBaseURL)
+	PageSize                          = 500
+	httpClient         api.HTTPClient = &http.Client{}
 )
 
 type APIRepo struct {
@@ -76,7 +77,7 @@ func getTotalPages(totalItems int) int {
 func getAPIRepositories() (map[string]APIRepo, error) {
 	repoMap := make(map[string]APIRepo)
 
-	client := &api.Client{HTTPClient: &http.Client{}}
+	client := &api.Client{HTTPClient: httpClient}
 	totalPages := 9999
 
 	// Pyxis indexes pages from 0
@@ -112,7 +113,7 @@ func getAPIRepositories() (map[string]APIRepo, error) {
 func getAPIRepoImages(registry, repository string) (map[string]APIImage, error) {
 	imageMap := make(map[string]APIImage)
 
-	client := &api.Client{HTTPClient: &http.Client{}}
+	client := &api.Client{HTTPClient: httpClient}
 	repoImagesURL := fmt.Sprintf(PyxisRepoImagesURL, registry, repository)
 	totalPages := 9999
 
@@ -154,7 +155,7 @@ func getAPIImageCves(imagePyxisID string) ([]string, error) {
 	cveList := []string{}
 	cveMap := make(map[string]struct{})
 
-	client := &api.Client{HTTPClient: &http.Client{}}
+	client := &api.Client{HTTPClient: httpClient}
 	imageCvesURL := fmt.Sprintf(PyxisImageCvesURL, imagePyxisID)
 	totalPages := 9999
 
