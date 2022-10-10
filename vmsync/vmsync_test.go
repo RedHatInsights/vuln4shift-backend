@@ -47,14 +47,6 @@ const VmaasRespMock = `{
 
 const VmaasCvesCnt = 1
 
-func NewVmaasAPIMock(status string, code int, response []byte) *test.HTTPClientMock {
-	return &test.HTTPClientMock{
-		Status:     status,
-		StatusCode: code,
-		RespBytes:  response,
-	}
-}
-
 // Test sync with preloading CVEs from DB like on startup.
 func TestSyncCveMetadataPreload(t *testing.T) {
 	beforeCnt := len(test.GetAllCves(t))
@@ -173,7 +165,7 @@ func TestMain(m *testing.M) {
 	PageSize = 5000
 
 	// Mock HTTP client used to call VMaaS
-	httpClient = NewVmaasAPIMock("OK", 200, []byte(VmaasRespMock))
+	httpClient = test.NewAPIMock("OK", 200, []byte(VmaasRespMock))
 
 	err = test.ResetDB()
 	if err != nil {
