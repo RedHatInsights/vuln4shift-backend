@@ -47,12 +47,12 @@ func registerMissingCves(tx *gorm.DB, apiImageCves []string) error {
 	if toInsertCvesCnt > 0 {
 		// Use conflict clause as the cve table can be changed from vmaas-sync
 		// TODO: needs to be sorted insert to avoid deadlocks
-		if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "name"}}, DoNothing: true}).Create(&toInsertCves).Error; err != nil {
+		result := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "name"}}, DoNothing: true}).Create(&toInsertCves)
+		if result.Error != nil {
 			syncError.WithLabelValues(dbRegisterMissingCves).Inc()
-			return err
+			return result.Error
 		}
-		missingCvesRegistered.Add(float64(toInsertCvesCnt))
-
+		missingCvesRegistered.Add(float64(result.RowsAffected))
 	}
 
 	// Add newly inserted CVEs to the cache after commit
