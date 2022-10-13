@@ -41,6 +41,8 @@ INSERT INTO repository (id, pyxis_id, modified_date, registry, repository) VALUE
 (3, '57ea8cd99c624c035f96f332', '2022-03-03 03:12:33.343305+00', 'registry.access.redhat.com', 'rhel7/sadc'),
 (4, '57ea8cd99c624c035f96f334', '2022-02-02 02:33:44.343305+00', 'registry.access.redhat.com', 'rhel6');
 
+SELECT setval('repository_id_seq', (SELECT COUNT(*) FROM repository), true);
+
 INSERT INTO repository_image(repository_id, image_id) VALUES
 (1, 1),
 (1, 2),
