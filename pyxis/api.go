@@ -132,9 +132,13 @@ func getAPIRepoImages(registry, repository string) (map[string]APIImage, error) 
 				err := fmt.Errorf("Empty repositories field for Image Pyxis ID: %s", image.PyxisID)
 				return imageMap, err // Break here, do not sync repo if at least one image is faulty
 			}
-			if len(image.Repositories[0].ManifestListDigest) == 0 && len(image.Repositories[0].ManifestSchema2Digest) == 0 && len(image.DockerImageDigest) == 0 {
-				err := fmt.Errorf("Empty manifest_list_digest, manifest_schema2_digest and docker_image_digest fields for Image Pyxis ID: %s", image.PyxisID)
-				return imageMap, err // Break here, do not sync repo if at least one image is faulty
+			if len(image.DockerImageDigest) == 0 {
+				for _, detail := range image.Repositories {
+					if len(detail.ManifestListDigest) == 0 && len(detail.ManifestSchema2Digest) == 0 {
+						err := fmt.Errorf("Empty manifest_list_digest, manifest_schema2_digest and docker_image_digest fields for Image Pyxis ID: %s", image.PyxisID)
+						return imageMap, err // Break here, do not sync repo if at least one image is faulty
+					}
+				}
 			}
 			imageMap[image.PyxisID] = image
 		}
