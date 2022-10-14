@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.19.6 (2022-10-14)
+### Fix
+* **pyxis:** Improve repo images check ([`f073940`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f073940fc1a831672a1c4b0707d221a94dc887b6))
+
 ## v0.19.5 (2022-10-11)
 ### Fix
 * **pyxis:** Correct registerMissingCves metric incrementation ([`35fe26d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/35fe26d6c6d940c770596e38e8c1628c14bf7731))
