@@ -5,6 +5,7 @@ import (
 	"app/base/utils"
 	"app/test"
 	"encoding/json"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
@@ -72,6 +73,12 @@ func TestGetApiCves(t *testing.T) {
 		i++
 		assert.True(t, reflect.DeepEqual(cve, cves[cveName]))
 	}
+}
+
+func TestGetApiCvesFailRequest(t *testing.T) {
+	httpClient = test.NewAPIMock("Bad Request", 400, nil)
+	_, _, err := getAPICves()
+	assert.NotNil(t, err)
 }
 
 func TestPruneCves(t *testing.T) {
@@ -150,6 +157,44 @@ func TestSyncCves(t *testing.T) {
 
 	// Remove inserted CVEs
 	test.DeleteCvesByID(t, toSyncCves[0].ID, toSyncCves[1].ID)
+}
+
+func TestGetMetricsPusher(t *testing.T) {
+	oldPrometheusGateway := utils.Cfg.PrometheusPushGateway
+	defer func() { utils.Cfg.PrometheusPushGateway = oldPrometheusGateway }()
+	utils.Cfg.PrometheusPushGateway = "localhost:7537"
+
+	checkPush := func(rw http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "PUT", r.Method)
+		assert.Equal(t, "/metrics/job/vmsync", r.RequestURI)
+	}
+
+	go func() {
+		http.HandleFunc("/", checkPush)
+		assert.Nil(t, http.ListenAndServe(utils.Cfg.PrometheusPushGateway, nil))
+	}()
+
+	pusher := GetMetricsPusher()
+	assert.Nil(t, pusher.Push())
+}
+
+func TestDbConfigure(t *testing.T) {
+	err := dbConfigure()
+	assert.Nil(t, err)
+}
+
+func TestDbConfigureInvalidDSN(t *testing.T) {
+	prevUser := utils.Cfg.DbUser
+	prevPswd := utils.Cfg.DbPassword
+	utils.Cfg.DbUser = ""
+	utils.Cfg.DbPassword = ""
+	defer func() {
+		utils.Cfg.DbUser = prevUser
+		utils.Cfg.DbPassword = prevPswd
+	}()
+
+	err := dbConfigure()
+	assert.NotNil(t, err)
 }
 
 func TestMain(m *testing.M) {
