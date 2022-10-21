@@ -8,10 +8,12 @@ import (
 	ginprometheus "github.com/zsais/go-gin-prometheus"
 )
 
+var logFatalf = log.Fatalf
+
 func exposeOnPort(app *gin.Engine, port int) {
 	err := app.Run(fmt.Sprintf(":%d", port))
 	if err != nil {
-		log.Fatalf(err.Error())
+		logFatalf(err.Error())
 	}
 }
 

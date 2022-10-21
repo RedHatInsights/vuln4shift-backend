@@ -72,6 +72,10 @@ type Config struct {
 }
 
 func init() {
+	initConfig()
+}
+
+func initConfig() {
 	// Database config
 	if clowder.IsClowderEnabled() {
 		Cfg.DbHost = clowder.LoadedConfig.Database.Hostname
@@ -154,6 +158,10 @@ func init() {
 
 // CreateKafkaConfig adds SSL kafka sarama configuration based on clowder
 func SetKafkaSSLConfig(config *sarama.Config) error {
+	if config == nil {
+		return errors.New("sarama config is required")
+	}
+
 	broker := Cfg.KafkaBroker
 
 	if broker.Sasl == nil {

@@ -4,8 +4,6 @@ import (
 	"app/base/logging"
 	"context"
 	"errors"
-	"fmt"
-	"os"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -36,8 +34,7 @@ func setupLogger() {
 		var err error
 		logger, err = logging.CreateLogger(Cfg.LoggingLevel)
 		if err != nil {
-			fmt.Println("Error setting up logger.")
-			os.Exit(1)
+			logFatalf("Error setting up logger: %s", err.Error())
 		}
 		logger.SetFormatter(&logrus.TextFormatter{
 			FullTimestamp: true,
