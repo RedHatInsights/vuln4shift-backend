@@ -13,7 +13,7 @@ import (
 	"app/manager/base"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redhatinsights/platform-go-middlewares/identity"
+	"github.com/redhatinsights/identity"
 	"gorm.io/gorm"
 )
 
