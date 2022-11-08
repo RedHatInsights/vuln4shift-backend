@@ -5,7 +5,7 @@ import (
 	"app/base/utils"
 	"app/test"
 	"encoding/json"
-	"net/http"
+	"errors"
 	"os"
 	"reflect"
 	"testing"
@@ -76,9 +76,10 @@ func TestGetApiCves(t *testing.T) {
 }
 
 func TestGetApiCvesFailRequest(t *testing.T) {
-	httpClient = test.NewAPIMock("Bad Request", 400, nil)
+	errMsg := "expected error"
+	httpClient = test.NewAPIMock("Bad Request", 400, nil, errors.New(errMsg))
 	_, _, err := getAPICves()
-	assert.NotNil(t, err)
+	assert.Equal(t, errMsg, err.Error())
 }
 
 func TestPruneCves(t *testing.T) {
@@ -160,19 +161,12 @@ func TestSyncCves(t *testing.T) {
 }
 
 func TestGetMetricsPusher(t *testing.T) {
+	srv := test.GetMetricsServer(t, "PUT", "vmsync")
+	defer srv.Close()
+
 	oldPrometheusGateway := utils.Cfg.PrometheusPushGateway
 	defer func() { utils.Cfg.PrometheusPushGateway = oldPrometheusGateway }()
-	utils.Cfg.PrometheusPushGateway = "localhost:7537"
-
-	checkPush := func(rw http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "PUT", r.Method)
-		assert.Equal(t, "/metrics/job/vmsync", r.RequestURI)
-	}
-
-	go func() {
-		http.HandleFunc("/", checkPush)
-		assert.Nil(t, http.ListenAndServe(utils.Cfg.PrometheusPushGateway, nil))
-	}()
+	utils.Cfg.PrometheusPushGateway = srv.URL
 
 	pusher := GetMetricsPusher()
 	assert.Nil(t, pusher.Push())
@@ -210,7 +204,7 @@ func TestMain(m *testing.M) {
 	PageSize = 5000
 
 	// Mock HTTP client used to call VMaaS
-	httpClient = test.NewAPIMock("OK", 200, []byte(VmaasRespMock))
+	httpClient = test.NewAPIMock("OK", 200, []byte(VmaasRespMock), nil)
 
 	err = test.ResetDB()
 	if err != nil {

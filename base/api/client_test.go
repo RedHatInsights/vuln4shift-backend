@@ -85,9 +85,9 @@ func TestRetryRequestFail(t *testing.T) {
 func NewClientMock(status string, code int, resp []byte) Client {
 	return Client{
 		HTTPClient: &test.HTTPClientMock{
-			Status:     status,
-			StatusCode: code,
-			RespBytes:  resp,
+			Status:       status,
+			StatusCode:   code,
+			URLRespBytes: map[string][]byte{test.APIMockDefaultResponseURLKey: resp},
 		}}
 }
 

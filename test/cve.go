@@ -47,6 +47,11 @@ func GetCveByID(t *testing.T, id int64) *models.Cve {
 	return cve
 }
 
+func GetCvesByName(t *testing.T, names ...string) (cves []models.Cve) {
+	assert.Nil(t, DB.Model(models.Cve{}).Where("name in (?)", names).Order("id").Scan(&cves).Error)
+	return cves
+}
+
 func DeleteCvesByID(t *testing.T, ids ...int64) {
 	result := DB.Delete(&models.Cve{}, ids)
 	assert.Nil(t, result.Error)

@@ -25,26 +25,48 @@ type Response struct {
 }
 
 type HTTPClientMock struct {
-	Status     string
-	StatusCode int
-	RespBytes  []byte
+	Status       string
+	StatusCode   int
+	URLRespBytes map[string][]byte
+	Err          error
 }
 
-func NewAPIMock(status string, code int, response []byte) *HTTPClientMock {
+// APIMockDefaultResponseURLKey is used to simplify single URI cases.
+const APIMockDefaultResponseURLKey = "default"
+
+func NewAPIMock(status string, code int, response []byte, err error) *HTTPClientMock {
 	return &HTTPClientMock{
-		Status:     status,
-		StatusCode: code,
-		RespBytes:  response,
+		Status:       status,
+		StatusCode:   code,
+		URLRespBytes: map[string][]byte{APIMockDefaultResponseURLKey: response},
+		Err:          err,
+	}
+}
+
+func NewAPIMockMultiEndpoint(status string, code int, responses map[string][]byte, err error) *HTTPClientMock {
+	return &HTTPClientMock{
+		Status:       status,
+		StatusCode:   code,
+		URLRespBytes: responses,
+		Err:          err,
 	}
 }
 
 func (m *HTTPClientMock) Do(req *http.Request) (*http.Response, error) {
-	r := ioutil.NopCloser(bytes.NewReader(m.RespBytes))
+	var resp []byte
+
+	if r, found := m.URLRespBytes[APIMockDefaultResponseURLKey]; found {
+		resp = r
+	} else {
+		resp = m.URLRespBytes[req.URL.Path]
+	}
+
+	r := ioutil.NopCloser(bytes.NewReader(resp))
 	return &http.Response{
 		Status:     m.Status,
 		StatusCode: m.StatusCode,
 		Body:       r,
-	}, nil
+	}, m.Err
 }
 
 type HTTPRequestChecker struct {

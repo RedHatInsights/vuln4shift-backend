@@ -25,3 +25,7 @@ func GetImageByPyxisID(t *testing.T, id string) (img models.Image) {
 func DeleteImage(t *testing.T, pyxisID string) {
 	assert.Nil(t, DB.Where("pyxis_id = ?", pyxisID).Delete(&models.Image{}).Error)
 }
+
+func CreateImage(t *testing.T, image models.Image) {
+	assert.Nil(t, DB.Create(&image).Error)
+}
