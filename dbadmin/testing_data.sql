@@ -41,8 +41,6 @@ INSERT INTO repository (id, pyxis_id, modified_date, registry, repository) VALUE
 (3, '57ea8cd99c624c035f96f332', '2022-03-03 03:12:33.343305+00', 'registry.access.redhat.com', 'rhel7/sadc'),
 (4, '57ea8cd99c624c035f96f334', '2022-02-02 02:33:44.343305+00', 'registry.access.redhat.com', 'rhel6');
 
-SELECT setval('repository_id_seq', (SELECT COUNT(*) FROM repository), true);
-
 INSERT INTO repository_image(repository_id, image_id) VALUES
 (1, 1),
 (1, 2),
@@ -87,3 +85,10 @@ INSERT INTO image_cve (image_id, cve_id) VALUES
 (10, 22),
 (11, 23),
 (11, 24);
+
+SELECT setval('repository_id_seq', COALESCE((SELECT MAX(id)+1 FROM repository), 1), false);
+SELECT setval('image_id_seq', COALESCE((SELECT MAX(id)+1 FROM image), 1), false);
+SELECT setval('cve_id_seq', COALESCE((SELECT MAX(id)+1 FROM cve), 1), false);
+SELECT setval('cluster_id_seq', COALESCE((SELECT MAX(id)+1 FROM cluster), 1), false);
+SELECT setval('arch_id_seq', COALESCE((SELECT MAX(id)+1 FROM arch), 1), false);
+SELECT setval('account_id_seq', COALESCE((SELECT MAX(id)+1 FROM account), 1), false);

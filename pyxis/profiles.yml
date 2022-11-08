@@ -11,3 +11,6 @@
         - ubi9-beta/ubi
         - ubi9-beta/ubi-minimal
         - ubi9-beta/ubi-micro
+        - rhel7.1
+        - rhel7/sadc
+        - rhel6

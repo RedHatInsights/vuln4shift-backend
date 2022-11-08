@@ -19,7 +19,7 @@ func checkPrometheus(t *testing.T, port int) {
 }
 
 func TestPrometheus(t *testing.T) {
-	StartPrometheus("test_subsystem")
+	StartPrometheus("test_subsystem_utils")
 	time.Sleep(time.Millisecond * 50)
 
 	port := Cfg.MetricsPort
