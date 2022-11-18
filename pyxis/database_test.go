@@ -9,12 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDbConfigure(t *testing.T) {
-	defer func() { DB = test.DB }()
-
-	assert.Nil(t, dbConfigure())
-}
-
 func TestPrepareDbRepositories(t *testing.T) {
 	expectedRepos := test.GetAllRepos(t)
 

@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"app/base/models"
 	"context"
 	"database/sql"
 	"fmt"
 	"net/url"
+
+	"gorm.io/gorm"
 
 	"github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib" // Needed to make pgx work with database/sql
@@ -32,4 +35,15 @@ func GetStandardDbConnection(admin bool) (*sql.DB, error) {
 	dbURL := GetDbURL(admin)
 	conn, err := sql.Open("pgx", dbURL)
 	return conn, err
+}
+
+func DbConfigure() (*gorm.DB, error) {
+	dsn := GetDbURL(false)
+
+	db, err := models.GetGormConnection(dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }

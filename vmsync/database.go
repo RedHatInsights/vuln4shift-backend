@@ -2,7 +2,6 @@ package vmsync
 
 import (
 	"app/base/models"
-	"app/base/utils"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -12,17 +11,6 @@ var (
 	DB       *gorm.DB
 	dbCveMap map[string]models.Cve
 )
-
-func dbConfigure() error {
-	dsn := utils.GetDbURL(false)
-	var err error
-	DB, err = models.GetGormConnection(dsn)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func prepareDbCvesMap() error {
 	var cveRows []models.Cve

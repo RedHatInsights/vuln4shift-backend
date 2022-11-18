@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 
 	"app/base/models"
-	"app/base/utils"
 )
 
 var (
@@ -22,17 +21,6 @@ var (
 	dbImageMapPending = map[string]models.Image{}
 	dbCveMapPending   = map[string]models.Cve{}
 )
-
-func dbConfigure() error {
-	dsn := utils.GetDbURL(false)
-	var err error
-	DB, err = models.GetGormConnection(dsn)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func formatRepoMapKey(registry, repository string) string {
 	return fmt.Sprintf("%s/%s", registry, repository)

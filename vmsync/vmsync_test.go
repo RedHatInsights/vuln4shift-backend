@@ -172,25 +172,6 @@ func TestGetMetricsPusher(t *testing.T) {
 	assert.Nil(t, pusher.Push())
 }
 
-func TestDbConfigure(t *testing.T) {
-	err := dbConfigure()
-	assert.Nil(t, err)
-}
-
-func TestDbConfigureInvalidDSN(t *testing.T) {
-	prevUser := utils.Cfg.DbUser
-	prevPswd := utils.Cfg.DbPassword
-	utils.Cfg.DbUser = ""
-	utils.Cfg.DbPassword = ""
-	defer func() {
-		utils.Cfg.DbUser = prevUser
-		utils.Cfg.DbPassword = prevPswd
-	}()
-
-	err := dbConfigure()
-	assert.NotNil(t, err)
-}
-
 func TestMain(m *testing.M) {
 	db, err := models.GetGormConnection(utils.GetDbURL(false))
 	if err != nil {
