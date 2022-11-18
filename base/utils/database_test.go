@@ -73,6 +73,26 @@ func TestGetStandardDbConnectionAdmin(t *testing.T) {
 	assert.NotNil(t, conn)
 }
 
+func TestDbConfigure(t *testing.T) {
+	db, err := DbConfigure()
+	assert.Nil(t, err)
+	assert.NotNil(t, db)
+}
+
+func TestDbConfigureInvalidDSN(t *testing.T) {
+	prevUser := Cfg.DbUser
+	prevPswd := Cfg.DbPassword
+	Cfg.DbUser = ""
+	Cfg.DbPassword = ""
+	defer func() {
+		Cfg.DbUser = prevUser
+		Cfg.DbPassword = prevPswd
+	}()
+
+	_, err := DbConfigure()
+	assert.NotNil(t, err)
+}
+
 func TestMain(m *testing.M) {
 	dbUser = Cfg.DbUser
 	dbPswd = Cfg.DbPassword

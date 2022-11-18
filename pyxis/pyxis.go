@@ -388,7 +388,9 @@ func Start() {
 
 	parseProfiles() // Parse static yaml file with profiles (list of repositories)
 
-	if err := dbConfigure(); err != nil {
+	var err error
+	DB, err = utils.DbConfigure()
+	if err != nil {
 		syncError.WithLabelValues(dbConnection).Inc()
 		logger.Fatalf("Unable to get GORM connection: %s", err)
 	}

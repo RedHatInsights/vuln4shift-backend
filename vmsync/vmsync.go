@@ -133,10 +133,13 @@ func Start() {
 
 	pusher := GetMetricsPusher()
 
-	if err := dbConfigure(); err != nil {
+	var err error
+	DB, err = utils.DbConfigure()
+	if err != nil {
 		syncError.WithLabelValues(dbConnection).Inc()
 		logger.Fatalf("Unable to get GORM connection: %s", err)
 	}
+
 	if err := prepareDbCvesMap(); err != nil {
 		syncError.WithLabelValues(dbFetch).Inc()
 		logger.Fatalf("Unable to fetch data from DB: %s", err)
