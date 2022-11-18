@@ -25,6 +25,7 @@ type HTTPClient interface {
 
 type Client struct {
 	HTTPClient HTTPClient
+	Header     *http.Header
 }
 
 func init() {
@@ -49,9 +50,15 @@ func (c *Client) Request(method, url string, requestPtr, responsePtr interface{}
 	}
 
 	request, err := http.NewRequest(method, url, body)
-	request.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return 0, err
+	}
+
+	if c.Header != nil {
+		request.Header = *c.Header
+	} else {
+		// Set default header
+		request.Header.Set("Content-Type", "application/json")
 	}
 
 	response, err := c.HTTPClient.Do(request)
