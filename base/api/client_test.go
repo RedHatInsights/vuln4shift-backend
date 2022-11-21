@@ -82,6 +82,20 @@ func TestRetryRequestFail(t *testing.T) {
 	assert.Equal(t, c, http.StatusBadRequest)
 }
 
+func TestIsSuccessCode(t *testing.T) {
+	cases := map[int]bool{
+		199: false,
+		200: true,
+		201: true,
+		299: true,
+		300: false,
+	}
+
+	for code, valid := range cases {
+		assert.Equal(t, valid, IsSuccessCode(code))
+	}
+}
+
 func NewClientMock(status string, code int, resp []byte) Client {
 	return Client{
 		HTTPClient: &test.HTTPClientMock{

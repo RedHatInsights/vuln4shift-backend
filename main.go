@@ -4,6 +4,7 @@ import (
 	"app/cleaner"
 	"app/dbadmin"
 	"app/digestwriter"
+	"app/expsync"
 	"app/manager"
 	"app/pyxis"
 	"app/vmsync"
@@ -26,6 +27,8 @@ func main() {
 			digestwriter.Start()
 		case "cleaner":
 			cleaner.Start()
+		case "expsync":
+			expsync.Start()
 		default:
 			log.Fatalf("Unknown service name: %s\n", os.Args[1])
 		}

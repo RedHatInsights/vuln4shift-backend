@@ -204,6 +204,22 @@ services:
       - 3005:3000
     restart: unless-stopped
 
+  vuln4shift_expsync:
+    command: /vuln4shift/main expsync
+    container_name: vuln4shift-expsync
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: vuln4shift/app:latest
+    env_file:
+      - ./conf/common.env
+      - ./conf/expsync.env
+    depends_on:
+      vuln4shift_database:
+        condition: service_started
+    profiles:
+      - expsync
+
 volumes:
   vuln4shift-db-data:
   zookeeper_data:

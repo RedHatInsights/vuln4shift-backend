@@ -48,10 +48,11 @@ const VmaasRespMock = `{
 
 const VmaasCvesCnt = 1
 
-// Test sync with preloading CVEs from DB like on startup.
+// Test sync with preloading CVEs from DB like on the startup.
 func TestSyncCveMetadataPreload(t *testing.T) {
 	beforeCnt := len(test.GetAllCves(t))
 	assert.Nil(t, prepareDbCvesMap())
+
 	// CVEs from VMaaS response must be inserted into DB during this sync.
 	// CVEs from test DB are not pruned because they are associated with an image.
 	syncCveMetadata()

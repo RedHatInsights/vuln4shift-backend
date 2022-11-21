@@ -93,3 +93,7 @@ func (c *Client) RetryRequest(method string, url string, requestPtr interface{},
 	}
 	return statusCode, err
 }
+
+func IsSuccessCode(code int) bool {
+	return code >= http.StatusOK && code < http.StatusMultipleChoices
+}

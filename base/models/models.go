@@ -101,6 +101,7 @@ type Cve struct {
 	ModifiedDate *time.Time `gorm:"type:timestamp with time zone null"`
 	RedhatURL    string     `gorm:"type:text"`
 	SecondaryURL string     `gorm:"type:text"`
+	ExploitData  []byte     `gorm:"type:jsonb,default:null"`
 }
 
 func (c Cve) TableName() string {
