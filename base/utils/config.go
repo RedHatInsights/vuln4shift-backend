@@ -43,6 +43,7 @@ type Config struct {
 	CveAggregatorPass   string
 	ManagerPass         string
 	CleanerPass         string
+	ExploitGathererPass string
 	SchemaMigration     int
 
 	// Manager config
@@ -69,6 +70,10 @@ type Config struct {
 	PyxisProfile     string
 	ForceSync        bool
 	SkipImageCveSync bool
+
+	// Exploits sync config
+	ExploitFileURL string
+	GitToken       string
 }
 
 func init() {
@@ -118,6 +123,7 @@ func initConfig() {
 	Cfg.CveAggregatorPass = GetEnv("USER_CVE_AGGREGATOR_PASS", "")
 	Cfg.ManagerPass = GetEnv("USER_MANAGER_PASS", "")
 	Cfg.CleanerPass = GetEnv("USER_CLEANER_PASS", "")
+	Cfg.ExploitGathererPass = GetEnv("USER_EXPLOIT_GATHERER_PASS", "")
 	Cfg.SchemaMigration = GetEnv("SCHEMA_MIGRATION", 0)
 
 	// Manager config
@@ -154,6 +160,10 @@ func initConfig() {
 	Cfg.PyxisProfile = GetEnv("PYXIS_PROFILE", "unknown_profile")
 	Cfg.ForceSync = GetEnv("FORCE_SYNC", false)
 	Cfg.SkipImageCveSync = GetEnv("SKIP_IMAGE_CVE_SYNC", false)
+
+	// Exploits sync config
+	Cfg.ExploitFileURL = GetEnv("EXPLOIT_FILE_URL", "http://localhost")
+	Cfg.GitToken = GetEnv("GIT_TOKEN", "")
 }
 
 // CreateKafkaConfig adds SSL kafka sarama configuration based on clowder

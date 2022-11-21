@@ -63,12 +63,12 @@ INSERT INTO cluster_image (cluster_id, image_id) VALUES
 (18, 10),
 (19, 11);
 
-INSERT INTO cve (id, name, description, severity, cvss3_score, cvss3_metrics, cvss2_score, cvss2_metrics) VALUES
-(20, 'CVE-2022-0001', 'mock CVE 01', 'High',      0.0, NULL,                                           8.0, 'AV:L/AC:H/Au:N/C:P/I:P/A:P'),
-(21, 'CVE-2022-0002', 'mock CVE 02', 'Low',       1.5, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL),
-(22, 'CVE-2022-0003', 'mock CVE 03', 'Critical',  2.6, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL),
-(23, 'CVE-2022-0004', 'mock CVE 04', 'Moderate',  7.0, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL),
-(24, 'CVE-2022-0005', 'mock CVE 05', 'Important', 0.0, NULL,                                           6.0, 'AV:L/AC:H/Au:N/C:P/I:P/A:P');
+INSERT INTO cve (id, name, description, severity, cvss3_score, cvss3_metrics, cvss2_score, cvss2_metrics, exploit_data) VALUES
+(20, 'CVE-2022-0001', 'mock CVE 01', 'High',      0.0, NULL,                                           8.0, 'AV:L/AC:H/Au:N/C:P/I:P/A:P', '[{"date": "2022-01-01", "source": "CISA", "reference": "N/A"}]'),
+(21, 'CVE-2022-0002', 'mock CVE 02', 'Low',       1.5, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL, NULL),
+(22, 'CVE-2022-0003', 'mock CVE 03', 'Critical',  2.6, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL, NULL),
+(23, 'CVE-2022-0004', 'mock CVE 04', 'Moderate',  7.0, 'CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N', 0.0, NULL, '[{"date": "2022-01-01", "source": "CISA", "reference": "N/A"}]'),
+(24, 'CVE-2022-0005', 'mock CVE 05', 'Important', 0.0, NULL,                                           6.0, 'AV:L/AC:H/Au:N/C:P/I:P/A:P', NULL);
 
 INSERT INTO image_cve (image_id, cve_id) VALUES
 (1, 20),

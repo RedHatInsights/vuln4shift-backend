@@ -43,6 +43,7 @@ func setDbUsersPasswords(conn *sql.DB) {
 	setDbUserPassword(conn, "cve_aggregator", utils.Cfg.CveAggregatorPass)
 	setDbUserPassword(conn, "manager", utils.Cfg.ManagerPass)
 	setDbUserPassword(conn, "cleaner", utils.Cfg.CleanerPass)
+	setDbUserPassword(conn, "exploit_gatherer", utils.Cfg.ExploitGathererPass)
 }
 
 func dropInvalidCve(conn *sql.DB) {

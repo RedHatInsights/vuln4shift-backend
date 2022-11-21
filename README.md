@@ -18,6 +18,9 @@ Vulnerabilities detection for OpenShift images.
     # Sync Pyxis data
     docker-compose run --rm vuln4shift_pyxis
 
+    # Sync Exploit data
+    docker-compose run --rm vuln4shift_expsync
+
     # psql console
     docker-compose exec vuln4shift_database psql -U vuln4shift_admin vuln4shift
 
