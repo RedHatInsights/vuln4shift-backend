@@ -45,11 +45,11 @@ def extract_image_shas(cluster_workload):
     return images
 
 
-def match_image(row, sha_type, images):
-    images[row[2]] = {"matched": sha_type,
-                      "pyxis_id": row[1],
-                      "name": f"{row[5]}/{row[6]}",
-                      "cves": [x for x in json.loads(row[7]) if x]}
+def match_image(row, sha_type_idx, sha_type, images):
+    images[row[sha_type_idx]] = {"matched": sha_type,
+                                 "pyxis_id": row[1],
+                                 "name": f"{row[5]}/{row[6]}",
+                                 "cves": [x for x in json.loads(row[7]) if x]}
 
 
 def match_images(cluster_image_rows, images):
@@ -58,15 +58,13 @@ def match_images(cluster_image_rows, images):
     cluster_image_rows = cluster_image_rows[1:]
     for row in cluster_image_rows:
         if row[2] in images:
-            match_image(row, "manifest_schema2_digest", images)
-            continue
+            match_image(row, 2, "manifest_schema2_digest", images)
         elif row[3] in images:
-            match_image(row, "manifest_list_digest", images)
-            continue
+            match_image(row, 3, "manifest_list_digest", images)
         elif row[4] in images:
-            match_image(row, "docker_image_digest", images)
-            continue
-        print(f"ERR: Image id not found: {row[0]}")
+            match_image(row, 4, "docker_image_digest", images)
+        else:
+            print(f"ERR: Image id not found: {row[0]}")
 
 
 def main():
