@@ -47,6 +47,7 @@ func TestGetCveDetails(t *testing.T) {
 			assert.Equal(t, cve.Cvss3Metrics, test.GetStringPtrValue(ac.Cvss3Metrics))
 			assert.Equal(t, cve.RedhatURL, test.GetStringPtrValue(ac.RedhatURL))
 			assert.Equal(t, test.GetUTC(cve.PublicDate), test.GetUTC(ac.PublicDate))
+			assert.Equal(t, len(cve.ExploitData) != 0, bool(ac.Exploits))
 		}
 	}
 }
