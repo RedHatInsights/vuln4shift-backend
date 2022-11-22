@@ -27,6 +27,7 @@ const (
 	ProviderQuery         = "provider"
 	StatusQuery           = "status"
 	VersionQuery          = "version"
+	ExploitsQuery         = "exploits"
 )
 
 const (
@@ -348,6 +349,23 @@ type Version struct {
 func (v *Version) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 	if len(v.Values) > 0 {
 		tx.Where("cluster.version IN ?", v.Values)
+	}
+	return nil
+}
+
+// Exploits filters only CVEs with known exploits
+// ex. exploits=true
+type Exploits struct {
+	RawFilter
+	Value bool
+}
+
+// ApplyQuery searches for version in an array
+func (e *Exploits) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if e.Value {
+		tx.Where("cve.exploit_data IS NOT NULL")
+	} else {
+		tx.Where("cve.exploit_data IS NULL")
 	}
 	return nil
 }

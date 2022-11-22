@@ -23,7 +23,7 @@ var (
 	testController Controller
 )
 
-func callGetCves(t *testing.T, accountID int64, affectedClusters bool, expectedStatus int) *httptest.ResponseRecorder {
+func callGetCves(t *testing.T, accountID int64, affectedClusters bool, expectedStatus int, filters map[string][]string) *httptest.ResponseRecorder {
 	header := http.Header{}
 	header.Set("Content-Type", "application/json")
 
@@ -32,10 +32,17 @@ func callGetCves(t *testing.T, accountID int64, affectedClusters bool, expectedS
 		urlValues["affected_clusters"] = []string{"true", "false"}
 	}
 
+	if filters != nil {
+		for filter, value := range filters {
+			urlValues[filter] = value
+		}
+	}
+
 	ctx, w := test.MockGinRequest(header, "GET", nil, gin.Params{}, urlValues)
 	ctx.Set("account_id", accountID)
 
 	testFilterer(ctx)
+
 	testController.GetCves(ctx)
 
 	assert.Equal(t, expectedStatus, w.Code)
@@ -46,7 +53,7 @@ func TestGetCvesNonAffecting(t *testing.T) {
 	account := test.GetAccounts(t)[0]
 
 	var resp GetCvesResponse
-	w := callGetCves(t, account.ID, false, http.StatusOK)
+	w := callGetCves(t, account.ID, false, http.StatusOK, nil)
 	assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	allCves := test.GetAllCves(t)
@@ -57,7 +64,7 @@ func TestGetCvesAffecting(t *testing.T) {
 	allAccounts := test.GetAccounts(t)
 	for _, account := range allAccounts {
 		var resp GetCvesResponse
-		w := callGetCves(t, account.ID, true, http.StatusOK)
+		w := callGetCves(t, account.ID, true, http.StatusOK, nil)
 		assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 		expectedCves := test.GetAccountCves(t, account.ID)
@@ -71,6 +78,7 @@ func TestGetCvesAffecting(t *testing.T) {
 			assert.Equal(t, ec.Description, test.GetStringPtrValue(ac.Description))
 			// assert.Equal(t, test.GetImagesExposed(t, account.ID, ec.ID), *ac.ImagesExposed)
 			assert.Equal(t, test.GetClustersExposed(t, account.ID, ec.ID), *ac.ClustersExposed)
+			assert.Equal(t, len(ec.ExploitData) != 0, bool(ac.Exploits))
 		}
 		totalItems := test.GetMetaTotalItems(resp.Meta)
 		assert.Equal(t, float64(len(resp.Data)), totalItems)
@@ -103,7 +111,7 @@ func TestGetCvesAffectingAMS(t *testing.T) {
 		}
 
 		var resp GetCvesResponse
-		w := callGetCves(t, account.ID, true, http.StatusOK)
+		w := callGetCves(t, account.ID, true, http.StatusOK, nil)
 		assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 		clusterIDs := make([]int64, 0, len(expectedClusters))
@@ -122,9 +130,42 @@ func TestGetCvesAffectingAMS(t *testing.T) {
 			assert.Equal(t, ec.Description, test.GetStringPtrValue(ac.Description))
 			// assert.Equal(t, test.GetImagesExposed(t, account.ID, ec.ID), *ac.ImagesExposed)
 			assert.Equal(t, test.GetClustersExposedLimitClusters(t, account.ID, ec.ID, clusterIDs), *ac.ClustersExposed)
+			assert.Equal(t, len(ec.ExploitData) != 0, bool(ac.Exploits))
 		}
 		totalItems := test.GetMetaTotalItems(resp.Meta)
 		assert.Equal(t, float64(len(resp.Data)), totalItems)
+	}
+}
+
+func TestGetCvesExploitsFilterTrue(t *testing.T) {
+	account := test.GetAccounts(t)[0]
+
+	filters := map[string][]string{
+		"exploits": {"true"},
+	}
+
+	var resp GetCvesResponse
+	w := callGetCves(t, account.ID, false, http.StatusOK, filters)
+	assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
+
+	for _, cveSelect := range resp.Data {
+		assert.True(t, bool(cveSelect.Exploits))
+	}
+}
+
+func TestGetCvesExploitsFilterFalse(t *testing.T) {
+	account := test.GetAccounts(t)[0]
+
+	filters := map[string][]string{
+		"exploits": {"false"},
+	}
+
+	var resp GetCvesResponse
+	w := callGetCves(t, account.ID, false, http.StatusOK, filters)
+	assert.Nil(t, json.Unmarshal(w.Body.Bytes(), &resp))
+
+	for _, cveSelect := range resp.Data {
+		assert.False(t, bool(cveSelect.Exploits))
 	}
 }
 
