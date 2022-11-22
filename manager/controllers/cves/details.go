@@ -2,6 +2,7 @@ package cves
 
 import (
 	"app/base/models"
+	"app/base/utils"
 	"app/manager/base"
 	"errors"
 	"fmt"
@@ -16,15 +17,16 @@ import (
 // @Description CVE details data
 // @Description presents in response
 type GetCveDetailsSelect struct {
-	Cvss2Score   *float32        `json:"cvss2_score"`
-	Cvss2Metrics *string         `json:"cvss2_metrics"`
-	Cvss3Score   *float32        `json:"cvss3_score"`
-	Cvss3Metrics *string         `json:"cvss3_metrics"`
-	Description  string          `json:"description"`
-	Severity     models.Severity `json:"severity"`
-	PublicDate   *time.Time      `json:"publish_date"`
-	Name         string          `json:"synopsis"`
-	RedhatURL    *string         `json:"redhat_url"`
+	Cvss2Score   *float32            `json:"cvss2_score"`
+	Cvss2Metrics *string             `json:"cvss2_metrics"`
+	Cvss3Score   *float32            `json:"cvss3_score"`
+	Cvss3Metrics *string             `json:"cvss3_metrics"`
+	Description  string              `json:"description"`
+	Severity     models.Severity     `json:"severity"`
+	PublicDate   *time.Time          `json:"publish_date"`
+	Name         string              `json:"synopsis"`
+	RedhatURL    *string             `json:"redhat_url"`
+	Exploits     utils.ByteArrayBool `json:"exploits" gorm:"column:exploit_data"`
 }
 
 type GetCveDetailsResponse struct {
@@ -77,6 +79,6 @@ func (c *Controller) GetCveDetails(ctx *gin.Context) {
 func (c *Controller) BuildCveDetailsQuery(cveName string) *gorm.DB {
 	return c.Conn.Table("cve").
 		Select(`name, description, public_date, severity, cvss2_score, cvss2_metrics, 
-                       cvss3_score, cvss3_metrics, redhat_url`).
+                       cvss3_score, cvss3_metrics, redhat_url, exploit_data`).
 		Where("cve.name = ?", cveName)
 }
