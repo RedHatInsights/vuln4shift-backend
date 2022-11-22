@@ -283,6 +283,13 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 		return &Status{RawFilter{raw, parsedValues}, statuses}, nil
 	case VersionQuery:
 		return &Version{RawFilter{raw, parsedValues}, parsedValues}, nil
+	case ExploitsQuery:
+		arrLen := 1
+		exploits, err := ParseBoolArray(parsedValues, &arrLen)
+		if err != nil {
+			return &Exploits{}, err
+		}
+		return &Exploits{RawFilter{raw, parsedValues}, exploits[0]}, nil
 	default:
 		return &Search{}, ErrInvalidFilterArgument
 	}
