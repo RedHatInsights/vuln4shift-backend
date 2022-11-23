@@ -2,6 +2,7 @@ package clusters
 
 import (
 	"app/base/models"
+	"app/base/utils"
 	"app/manager/base"
 	"net/http"
 	"time"
@@ -12,7 +13,7 @@ import (
 )
 
 var getClusterCvesAllowedFilters = []string{base.SearchQuery, base.PublishedQuery,
-	base.SeverityQuery, base.CvssScoreQuery, base.DataFormatQuery}
+	base.SeverityQuery, base.CvssScoreQuery, base.DataFormatQuery, base.ExploitsQuery}
 
 var getClusterCvesFilterArgs = map[string]interface{}{
 	base.SortFilterArgs: base.SortArgs{
@@ -32,13 +33,14 @@ var getClusterCvesFilterArgs = map[string]interface{}{
 // @Description CVE in cluster data
 // @Description presents in response
 type GetClusterCvesSelect struct {
-	Cvss2Score    *float32         `json:"cvss2_score" csv:"cvss2_score"`
-	Cvss3Score    *float32         `json:"cvss3_score" csv:"cvss3_score"`
-	Description   *string          `json:"description" csv:"description"`
-	Severity      *models.Severity `json:"severity" csv:"severity"`
-	PublicDate    *time.Time       `json:"publish_date" csv:"publish_date"`
-	Name          *string          `json:"synopsis" csv:"synopsis"`
-	ImagesExposed *int64           `json:"-" csv:"-"`
+	Cvss2Score    *float32            `json:"cvss2_score" csv:"cvss2_score"`
+	Cvss3Score    *float32            `json:"cvss3_score" csv:"cvss3_score"`
+	Description   *string             `json:"description" csv:"description"`
+	Severity      *models.Severity    `json:"severity" csv:"severity"`
+	PublicDate    *time.Time          `json:"publish_date" csv:"publish_date"`
+	Name          *string             `json:"synopsis" csv:"synopsis"`
+	ImagesExposed *int64              `json:"-" csv:"-"`
+	Exploits      utils.ByteArrayBool `json:"exploits" csv:"exploits" gorm:"column:exploit_data"`
 }
 
 type GetClusterCvesResponse struct {
@@ -65,6 +67,7 @@ type GetClusterCvesResponse struct {
 // @Param published       query []string false "CVE publish date: (from date),(to date)"              collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
 // @Param severity        query []string false "array of severity names"                              enums(NotSet,None,Low,Medium,Moderate,Important,High,Critical)
 // @Param cvss_score      query []number false "CVSS score of CVE: (from float),(to float)"           collectionFormat(multi) collectionFormat(csv) minItems(2) maxItems(2)
+// @Param exploits        query bool     false "boolean for known exploits"
 // @router /clusters/{cluster_id}/cves [get]
 // @success 200 {object} GetClusterCvesResponse
 // @failure 400 {object} base.Error
@@ -134,7 +137,7 @@ func (c *Controller) ClusterExists(accountID int64, clusterID uuid.UUID) (bool, 
 func (c *Controller) BuildClusterCvesQuery(accountID int64, clusterID uuid.UUID) *gorm.DB {
 	return c.Conn.Table("cve").
 		Select(`cve.cvss2_score, cve.cvss3_score, cve.description, cve.severity,
-			cve.public_date, cve.name,
+			cve.public_date, cve.name, cve.exploit_data,
 			COUNT(DISTINCT cluster_image.image_id) as images_exposed`).
 		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
 		Joins("JOIN cluster_image ON cluster_image.image_id = image_cve.image_id").
