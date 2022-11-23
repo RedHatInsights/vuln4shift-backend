@@ -384,7 +384,7 @@ func syncRepos() {
 func Start() {
 	logger.Info("Starting Pyxis sync.")
 
-	pusher := GetMetricsPusher()
+	pusher := getMetricsPusher()
 
 	parseProfiles() // Parse static yaml file with profiles (list of repositories)
 

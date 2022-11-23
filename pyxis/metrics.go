@@ -19,6 +19,8 @@ const (
 	dbImageNotInCache         = "db-image-not-in-cache"
 	dbCveNotInCache           = "db-cve-not-in-cache"
 	dbRegisterMissingCves     = "db-register-missing-cves"
+
+	job = "pyxis"
 )
 
 var (
@@ -72,18 +74,14 @@ var (
 	})
 )
 
-func GetMetricsPusher() *push.Pusher {
-	registry := prometheus.NewRegistry()
-	registry.MustRegister(
+func getMetricsPusher() *push.Pusher {
+	return utils.GetMetricsPusher(
+		job,
 		syncError,
 		pyxisRequestError,
 		syncedImages,
 		deletedImages,
 		missingCvesRegistered,
 		imageCvesDeleted,
-		imageCvesInserted,
-	)
-	pusher := push.New(utils.Cfg.PrometheusPushGateway, "pyxis").Gatherer(registry)
-
-	return pusher
+		imageCvesInserted)
 }

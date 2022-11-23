@@ -169,7 +169,7 @@ func TestGetMetricsPusher(t *testing.T) {
 	defer func() { utils.Cfg.PrometheusPushGateway = oldPrometheusGateway }()
 	utils.Cfg.PrometheusPushGateway = srv.URL
 
-	pusher := GetMetricsPusher()
+	pusher := getMetricsPusher()
 	assert.Nil(t, pusher.Push())
 }
 
