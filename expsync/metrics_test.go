@@ -9,7 +9,7 @@ import (
 )
 
 func TestGetMetricsPusher(t *testing.T) {
-	srv := test.GetMetricsServer(t, "PUT", "expsync")
+	srv := test.GetMetricsServer(t, "PUT", job)
 	defer srv.Close()
 
 	oldPrometheusGateway := utils.Cfg.PrometheusPushGateway

@@ -131,7 +131,7 @@ func pruneCves() error {
 func Start() {
 	logger.Info("Starting vmaas sync.")
 
-	pusher := GetMetricsPusher()
+	pusher := getMetricsPusher()
 
 	var err error
 	DB, err = utils.DbConfigure()

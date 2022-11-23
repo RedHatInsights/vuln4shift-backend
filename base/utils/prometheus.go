@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/push"
+
 	"github.com/gin-gonic/gin"
 	ginprometheus "github.com/zsais/go-gin-prometheus"
 )
@@ -30,4 +33,11 @@ func StartPrometheus(subsystem string) {
 	} else {
 		go exposeOnPort(app, metricsPort)
 	}
+}
+
+func GetMetricsPusher(job string, collectors ...prometheus.Collector) *push.Pusher {
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(collectors...)
+
+	return push.New(Cfg.PrometheusPushGateway, job).Gatherer(registry)
 }
