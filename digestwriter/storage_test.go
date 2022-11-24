@@ -4,6 +4,7 @@ package digestwriter_test
 // storage.go
 
 import (
+	"app/base/models"
 	"app/digestwriter"
 	"database/sql"
 	"regexp"
@@ -95,6 +96,10 @@ func TestLinkSingleDigestToCluster(t *testing.T) {
 	expectedSelect := `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1) OR manifest_list_digest IN ($2) OR docker_image_digest IN ($3)) AND arch_id = $4`
 	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert := `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2) ON CONFLICT DO NOTHING`
+	expectedCacheInsert := `UPDATE cluster SET cve_cache_critical = c.c, cve_cache_important = c.i, cve_cache_moderate = c.m, cve_cache_low = c.l FROM (SELECT COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $1 THEN cve.id ELSE NULL END), 0) AS c,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $2 THEN cve.id ELSE NULL END), 0) AS i,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $3 THEN cve.id ELSE NULL END), 0) AS m,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $4 THEN cve.id ELSE NULL END), 0) AS l FROM "image_cve" JOIN cve ON cve.id = image_cve.cve_id WHERE image_cve.image_id IN ($5)) AS c WHERE cluster.id = $6`
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
@@ -105,6 +110,9 @@ func TestLinkSingleDigestToCluster(t *testing.T) {
 		WithArgs(testClustedID).
 		WillReturnRows(sqlmock.NewRows([]string{"cluster_id", "image_id"}))
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WillReturnResult(sqlmock.NewResult(firstDigestID, 1))
+	mock.ExpectExec(regexp.QuoteMeta(expectedCacheInsert)).
+		WithArgs(models.Critical, models.Important, models.Moderate, models.Low, firstDigestID, testClustedID).
+		WillReturnResult(sqlmock.NewResult(testClustedID, 1))
 	mock.ExpectCommit()
 
 	// call the tested method
@@ -125,6 +133,10 @@ func TestLinkMultipleDigestsToCluster(t *testing.T) {
 	expectedSelect := `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1,$2) OR manifest_list_digest IN ($3,$4) OR docker_image_digest IN ($5,$6)) AND arch_id = $7`
 	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert := `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING`
+	expectedCacheInsert := `UPDATE cluster SET cve_cache_critical = c.c, cve_cache_important = c.i, cve_cache_moderate = c.m, cve_cache_low = c.l FROM (SELECT COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $1 THEN cve.id ELSE NULL END), 0) AS c,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $2 THEN cve.id ELSE NULL END), 0) AS i,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $3 THEN cve.id ELSE NULL END), 0) AS m,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $4 THEN cve.id ELSE NULL END), 0) AS l FROM "image_cve" JOIN cve ON cve.id = image_cve.cve_id WHERE image_cve.image_id IN ($5,$6)) AS c WHERE cluster.id = $7`
 
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
@@ -137,6 +149,9 @@ func TestLinkMultipleDigestsToCluster(t *testing.T) {
 		WithArgs(testClustedID).
 		WillReturnRows(sqlmock.NewRows([]string{"cluster_id", "image_id"}))
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WillReturnResult(sqlmock.NewResult(secondDigestID, 2))
+	mock.ExpectExec(regexp.QuoteMeta(expectedCacheInsert)).
+		WithArgs(models.Critical, models.Important, models.Moderate, models.Low, firstDigestID, secondDigestID, testClustedID).
+		WillReturnResult(sqlmock.NewResult(testClustedID, 1))
 	mock.ExpectCommit()
 
 	// call the tested method
@@ -191,6 +206,10 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 	expectedSelect = `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1) OR manifest_list_digest IN ($2) OR docker_image_digest IN ($3)) AND arch_id = $4`
 	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert := `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2) ON CONFLICT DO NOTHING`
+	expectedCacheInsert := `UPDATE cluster SET cve_cache_critical = c.c, cve_cache_important = c.i, cve_cache_moderate = c.m, cve_cache_low = c.l FROM (SELECT COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $1 THEN cve.id ELSE NULL END), 0) AS c,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $2 THEN cve.id ELSE NULL END), 0) AS i,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $3 THEN cve.id ELSE NULL END), 0) AS m,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $4 THEN cve.id ELSE NULL END), 0) AS l FROM "image_cve" JOIN cve ON cve.id = image_cve.cve_id WHERE image_cve.image_id IN ($5)) AS c WHERE cluster.id = $6`
 
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
 		WithArgs(firstDigest, firstDigest, firstDigest, 1).
@@ -200,7 +219,9 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 		WithArgs(testClustedID).
 		WillReturnRows(sqlmock.NewRows([]string{"cluster_id", "image_id"}))
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WillReturnResult(sqlmock.NewResult(firstDigestID, 1))
-
+	mock.ExpectExec(regexp.QuoteMeta(expectedCacheInsert)).
+		WithArgs(models.Critical, models.Important, models.Moderate, models.Low, firstDigestID, testClustedID).
+		WillReturnResult(sqlmock.NewResult(testClustedID, 1))
 	mock.ExpectCommit()
 
 	// call the tested method
@@ -254,6 +275,10 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 	expectedSelect = `SELECT * FROM "image" WHERE (manifest_schema2_digest IN ($1) OR manifest_list_digest IN ($2) OR docker_image_digest IN ($3)) AND arch_id = $4`
 	expectedSelect2 := `SELECT * FROM "cluster_image" WHERE cluster_id = $1`
 	expectedInsert = `INSERT INTO "cluster_image" ("cluster_id","image_id") VALUES ($1,$2) ON CONFLICT DO NOTHING`
+	expectedCacheInsert := `UPDATE cluster SET cve_cache_critical = c.c, cve_cache_important = c.i, cve_cache_moderate = c.m, cve_cache_low = c.l FROM (SELECT COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $1 THEN cve.id ELSE NULL END), 0) AS c,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $2 THEN cve.id ELSE NULL END), 0) AS i,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $3 THEN cve.id ELSE NULL END), 0) AS m,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = $4 THEN cve.id ELSE NULL END), 0) AS l FROM "image_cve" JOIN cve ON cve.id = image_cve.cve_id WHERE image_cve.image_id IN ($5)) AS c WHERE cluster.id = $6`
 
 	mock.ExpectQuery(regexp.QuoteMeta(expectedSelect)).
 		WithArgs(firstDigest, firstDigest, firstDigest, 1).
@@ -266,6 +291,10 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 
 	mock.ExpectExec(regexp.QuoteMeta(expectedInsert)).WithArgs(storedClusterID, firstDigestID).
 		WillReturnResult(sqlmock.NewResult(firstDigestID, 1))
+
+	mock.ExpectExec(regexp.QuoteMeta(expectedCacheInsert)).
+		WithArgs(models.Critical, models.Important, models.Moderate, models.Low, firstDigestID, storedClusterID).
+		WillReturnResult(sqlmock.NewResult(testClustedID, 1))
 
 	mock.ExpectCommit()
 

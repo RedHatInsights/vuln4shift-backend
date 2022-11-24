@@ -66,9 +66,9 @@ func NewFromConnection(connection *gorm.DB) *DBStorage {
 	}
 }
 
+// prepareClusterImageLists recalculates previously inserted cluster images
+// with newly obtained images and returns the differences
 func prepareClusterImageLists(clusterID int64, currentImageIDs map[int64]struct{}, existingDigests []models.Image) (toInsert, toDelete []models.ClusterImage) {
-	toInsert = []models.ClusterImage{}
-	toDelete = []models.ClusterImage{}
 	for _, digest := range existingDigests {
 		if _, found := currentImageIDs[digest.ID]; !found {
 			clusterImage := models.ClusterImage{ClusterID: clusterID, ImageID: digest.ID}
@@ -82,6 +82,30 @@ func prepareClusterImageLists(clusterID int64, currentImageIDs map[int64]struct{
 		toDelete = append(toDelete, clusterImage)
 	}
 	return
+}
+
+// updateClusterCache updates the cache section of cluster row in db
+func (storage *DBStorage) updateClusterCache(tx *gorm.DB, clusterID int64, existingDigests []models.Image) error {
+	digestIDs := make([]int64, 0, len(existingDigests))
+	for _, digest := range existingDigests {
+		digestIDs = append(digestIDs, digest.ID)
+	}
+
+	subquery := tx.Table("image_cve").
+		Select(`COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS c,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS i,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS m,
+				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS l`,
+			models.Critical, models.Important, models.Moderate, models.Low).
+		Joins("JOIN cve ON cve.id = image_cve.cve_id").
+		Where("image_cve.image_id IN ?", digestIDs)
+
+	res := tx.Exec(`UPDATE cluster SET cve_cache_critical = c.c, cve_cache_important = c.i, cve_cache_moderate = c.m, cve_cache_low = c.l FROM (?) AS c WHERE cluster.id = ?`, subquery, clusterID)
+	if res.Error != nil {
+		return fmt.Errorf("couldn't save cluster cache: %s", res.Error.Error())
+	}
+
+	return nil
 }
 
 // linkDigestsToCluster updates the 'cluster_image' table
@@ -149,6 +173,17 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterStr string, c
 				errorKey:    err.Error(),
 				"clusterID": clusterID,
 			}).Errorln("couldn't unlink cluster ID from image IDs for the given cluster")
+			return err
+		}
+	}
+
+	if len(toInsert) > 0 || len(toDelete) > 0 {
+		err := storage.updateClusterCache(tx, clusterID, existingDigests)
+		if err != nil {
+			logger.WithFields(logrus.Fields{
+				errorKey:     err.Error(),
+				clusterIDKey: clusterID,
+			}).Errorln("couldn't update cluster cve cache")
 			return err
 		}
 	}
