@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.20.0 (2022-11-28)
+### Feature
+* **digestwriter:** Add cve-cluster cache calculation ([`495bb12`](https://github.com/RedHatInsights/vuln4shift-backend/commit/495bb1238ce2471729cdefab01eff756ccae2b67))
+
 ## v0.19.6 (2022-10-14)
 ### Fix
 * **pyxis:** Improve repo images check ([`f073940`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f073940fc1a831672a1c4b0707d221a94dc887b6))
