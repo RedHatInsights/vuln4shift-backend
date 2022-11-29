@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"app/base/models"
 	"app/base/utils"
 	"app/manager/amsclient"
 	"app/manager/base"
@@ -129,19 +128,6 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 }
 
 func (c *Controller) BuildClustersQuery(accountID int64, clusterIDs []string) *gorm.DB {
-	subquery := c.Conn.Table("cluster").
-		Select(`cluster.id,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS cc,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS ic,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS mc,
-				COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END) AS lc`,
-			models.Critical, models.Important, models.Moderate, models.Low).
-		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
-		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
-		Joins("JOIN cve ON image_cve.cve_id = cve.id").
-		Where("cluster.account_id = ?", accountID).
-		Group("cluster.id")
-
 	query := c.Conn.Table("cluster").
 		Select(`cluster.uuid,
 				COALESCE(cluster.display_name, cluster.uuid::text) as display_name,
@@ -149,10 +135,11 @@ func (c *Controller) BuildClustersQuery(accountID int64, clusterIDs []string) *g
 				COALESCE(cluster.type, 'N/A') as type,
 				COALESCE(cluster.version, 'N/A') as version,
 				COALESCE(cluster.provider, 'N/A') as provider,
-				COALESCE(cc, 0) AS critical_count, COALESCE(ic, 0) AS important_count,
-				COALESCE(mc, 0) AS moderate_count, COALESCE(lc, 0) AS low_count,
+				cluster.cve_cache_critical AS critical_count,
+				cluster.cve_cache_important AS important_count,
+				cluster.cve_cache_moderate AS moderate_count,
+				cluster.cve_cache_low AS low_count,
 				cluster.last_seen`).
-		Joins("LEFT JOIN (?) AS cluster_cves ON cluster.id = cluster_cves.id", subquery).
 		Where("cluster.account_id = ?", accountID)
 
 	if utils.Cfg.AmsEnabled {
