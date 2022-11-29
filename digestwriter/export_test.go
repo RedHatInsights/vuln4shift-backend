@@ -16,7 +16,6 @@ var (
 	// functions from consumer.go source file
 	ExtractDigestsFromMessage = extractDigestsFromMessage
 	ParseMessage              = parseMessage
-	SetupLogger               = setupLogger
 )
 
 // kafka-related functions

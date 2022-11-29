@@ -23,7 +23,7 @@ const (
 	ExitStatusConsumerError
 )
 
-func setupLogger() {
+func SetupLogger() {
 	if logger == nil {
 		var err error
 		logger, err = utils.CreateLogger(utils.Cfg.LoggingLevel)
@@ -49,7 +49,7 @@ func startConsumer(storage Storage) (*utils.KafkaConsumer, error) {
 
 // Start function tries to start the digest writer service.
 func Start() {
-	setupLogger()
+	SetupLogger()
 	logger.Infoln("Initializing digest writer...")
 
 	RunMetrics()

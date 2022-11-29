@@ -85,7 +85,7 @@ func prepareClusterImageLists(clusterID int64, currentImageIDs map[int64]struct{
 }
 
 // updateClusterCache updates the cache section of cluster row in db
-func (storage *DBStorage) updateClusterCache(tx *gorm.DB, clusterID int64, existingDigests []models.Image) error {
+func (storage *DBStorage) UpdateClusterCache(tx *gorm.DB, clusterID int64, existingDigests []models.Image) error {
 	digestIDs := make([]int64, 0, len(existingDigests))
 	for _, digest := range existingDigests {
 		digestIDs = append(digestIDs, digest.ID)
@@ -177,13 +177,15 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterStr string, c
 		}
 	}
 
-	err := storage.updateClusterCache(tx, clusterID, existingDigests)
-	if err != nil {
-		logger.WithFields(logrus.Fields{
-			errorKey:     err.Error(),
-			clusterIDKey: clusterID,
-		}).Errorln("couldn't update cluster cve cache")
-		return err
+	if len(toInsert) > 0 || len(toDelete) > 0 {
+		err := storage.UpdateClusterCache(tx, clusterID, existingDigests)
+		if err != nil {
+			logger.WithFields(logrus.Fields{
+				errorKey:     err.Error(),
+				clusterIDKey: clusterID,
+			}).Errorln("couldn't update cluster cve cache")
+			return err
+		}
 	}
 
 	logger.Debugln("linked digests to cluster successfully")
