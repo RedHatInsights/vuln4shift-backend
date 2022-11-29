@@ -88,7 +88,7 @@ type DigestConsumer struct {
 // NewConsumer constructs a new instance of Consumer interface
 // specialized in consuming from SHA extractor's result topic
 func NewConsumer(storage Storage) (*utils.KafkaConsumer, error) {
-	setupLogger()
+	SetupLogger()
 	processor := DigestConsumer{
 		storage,
 		0,

@@ -1,6 +1,8 @@
 package test
 
 import (
+	"app/base/models"
+	"app/digestwriter"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -69,6 +71,38 @@ func ReverseWalkFindFile(filename string) (string, error) {
 	return datapath, nil
 }
 
+func PopulateClusterCveCache(DB *gorm.DB) error {
+	digestwriter.SetupLogger()
+	storage, err := digestwriter.NewStorage()
+	if err != nil {
+		return err
+	}
+
+	clusters := []models.Cluster{}
+	if res := DB.Find(&clusters); res.Error != nil {
+		return res.Error
+	}
+
+	for _, cluster := range clusters {
+		clusterDigests := []models.Image{}
+		subq := DB.Table("cluster_image").
+			Joins("JOIN image ON cluster_image.image_id = image.id").
+			Where("cluster_image.cluster_id = ?", cluster.ID)
+		if res := DB.Joins("JOIN (?) AS cluster_image ON image.id = cluster_image.image_id", subq).
+			Find(&clusterDigests); res.Error != nil {
+			return res.Error
+		}
+		if err := storage.UpdateClusterCache(DB, cluster.ID, clusterDigests); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func PopulateCaches(DB *gorm.DB) error {
+	return PopulateClusterCveCache(DB)
+}
+
 func ResetDB() error {
 	if testingDataPath == "" {
 		var err error
@@ -94,5 +128,8 @@ func ResetDB() error {
 		return err
 	}
 	_, err = plainDb.Exec(string(buf))
-	return err
+	if err != nil {
+		return err
+	}
+	return PopulateCaches(DB)
 }
