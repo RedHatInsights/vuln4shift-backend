@@ -177,15 +177,13 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterStr string, c
 		}
 	}
 
-	if len(toInsert) > 0 || len(toDelete) > 0 {
-		err := storage.updateClusterCache(tx, clusterID, existingDigests)
-		if err != nil {
-			logger.WithFields(logrus.Fields{
-				errorKey:     err.Error(),
-				clusterIDKey: clusterID,
-			}).Errorln("couldn't update cluster cve cache")
-			return err
-		}
+	err := storage.updateClusterCache(tx, clusterID, existingDigests)
+	if err != nil {
+		logger.WithFields(logrus.Fields{
+			errorKey:     err.Error(),
+			clusterIDKey: clusterID,
+		}).Errorln("couldn't update cluster cve cache")
+		return err
 	}
 
 	logger.Debugln("linked digests to cluster successfully")
