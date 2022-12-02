@@ -17,12 +17,11 @@ var getClusterCvesAllowedFilters = []string{base.SearchQuery, base.PublishedQuer
 var getClusterCvesFilterArgs = map[string]interface{}{
 	base.SortFilterArgs: base.SortArgs{
 		SortableColumns: map[string]string{
-			"id":             "cve.id",
-			"cvss_score":     "GREATEST(cve.cvss3_score, cve.cvss2_score)",
-			"severity":       "cve.severity",
-			"publish_date":   "cve.public_date",
-			"synopsis":       "cve.name",
-			"images_exposed": "images_exposed",
+			"id":           "cve.id",
+			"cvss_score":   "GREATEST(cve.cvss3_score, cve.cvss2_score)",
+			"severity":     "cve.severity",
+			"publish_date": "cve.public_date",
+			"synopsis":     "cve.name",
 		},
 		DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 	},
@@ -39,7 +38,7 @@ type GetClusterCvesSelect struct {
 	Severity      *models.Severity `json:"severity" csv:"severity"`
 	PublicDate    *time.Time       `json:"publish_date" csv:"publish_date"`
 	Name          *string          `json:"synopsis" csv:"synopsis"`
-	ImagesExposed *int64           `json:"images_exposed" csv:"images_exposed"`
+	ImagesExposed *int64           `json:"-" csv:"-"`
 }
 
 type GetClusterCvesResponse struct {
