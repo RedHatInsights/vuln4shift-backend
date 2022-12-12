@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.21.0 (2022-12-12)
+### Feature
+* **manager:** Add exploits field to cluster cves ([`c9200d2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c9200d2e5e22c3639bbd244b3e14d75b2ec84f71))
+* **manager:** Add exploits field to cve details endpoint ([`c4eb52b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c4eb52ba4231bcd961bec58b699992e9f374c2d0))
+* **manager:** Add exploits field to cve endpoint ([`2aee3f9`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2aee3f9511006627733f6b73d0c3fc24b7469b24))
+* **expsync:** Add exploit sync job ([`cdc5202`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cdc5202288aa108dbdf16a9b87db393b57b54ee5))
+
 ## v0.20.0 (2022-11-28)
 ### Feature
 * **digestwriter:** Add cve-cluster cache calculation ([`495bb12`](https://github.com/RedHatInsights/vuln4shift-backend/commit/495bb1238ce2471729cdefab01eff756ccae2b67))
