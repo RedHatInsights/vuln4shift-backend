@@ -30,6 +30,10 @@ func ListQuery(tx *gorm.DB, allowedFilters []string, filters map[string]Filter,
 	}
 	usedFilters = utils.CopyMap(uf, usedFilters)
 
+	if result == nil {
+		return
+	}
+
 	res = tx.Find(result)
 	if res.Error != nil {
 		dbError = res.Error

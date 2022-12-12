@@ -143,6 +143,7 @@ func GetExposedClusters(t *testing.T, accountID, cveID int64) (clusters []models
 		Joins("JOIN cluster_image on cluster.id = cluster_image.cluster_id").
 		Joins("JOIN image_cve on cluster_image.image_id = image_cve.image_id").
 		Joins("JOIN cve on image_cve.cve_id = cve.id").
+		Group("cluster.id").
 		Where("cluster.account_id = ? AND cve.id = ?", accountID, cveID).
 		Scan(&clusters).Error)
 	return clusters
