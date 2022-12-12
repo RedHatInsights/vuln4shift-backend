@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.22.0 (2022-12-12)
+### Feature
+* **manager:** Add exposed clusters count endpoint ([`387729a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/387729a9d847626ce6b744cfe8a0251785c0f3a8))
+
 ## v0.21.0 (2022-12-12)
 ### Feature
 * **manager:** Add exploits field to cluster cves ([`c9200d2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c9200d2e5e22c3639bbd244b3e14d75b2ec84f71))
