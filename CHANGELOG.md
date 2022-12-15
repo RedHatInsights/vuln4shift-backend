@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.24.0 (2022-12-15)
+### Feature
+* Log to cloudwatch (+minor refactor) ([`cd71d29`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cd71d2984b6f03109616d9bff045b0552bc0b599))
+
 ## v0.23.0 (2022-12-15)
 ### Feature
 * **pyxis:** Validate cves from pyxis ([`a6023c3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a6023c3a295872ce87a681b28a11dea80e3b1371))
