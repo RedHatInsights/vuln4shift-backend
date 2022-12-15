@@ -30,3 +30,12 @@ func TestCopyMap(t *testing.T) {
 	CopyMap(src, dst)
 	assert.True(t, reflect.DeepEqual(src, dst))
 }
+
+func TestIsValidCVE(t *testing.T) {
+	assert.True(t, IsValidCVE("CVE-2022-2001"))
+	assert.False(t, IsValidCVE("VE-2022-2001"))
+	assert.False(t, IsValidCVE("CVE-2022-"))
+	assert.False(t, IsValidCVE("CVE--2001"))
+	assert.False(t, IsValidCVE("CVE"))
+	assert.False(t, IsValidCVE("CVE-2022"))
+}
