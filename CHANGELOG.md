@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.23.0 (2022-12-15)
+### Feature
+* **pyxis:** Validate cves from pyxis ([`a6023c3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a6023c3a295872ce87a681b28a11dea80e3b1371))
+
 ## v0.22.0 (2022-12-12)
 ### Feature
 * **manager:** Add exposed clusters count endpoint ([`387729a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/387729a9d847626ce6b744cfe8a0251785c0f3a8))
