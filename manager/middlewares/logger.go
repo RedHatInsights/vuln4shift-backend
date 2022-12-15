@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"app/base/logging"
 	"app/base/utils"
 	"net/http"
 	"time"
@@ -14,7 +13,7 @@ import (
 // Function sets up a logger which is later used for every
 // request on the API to be logged.
 func Logger() gin.HandlerFunc {
-	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err := utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		panic("Invalid LOGGING_LEVEL environment variable set")
 	}

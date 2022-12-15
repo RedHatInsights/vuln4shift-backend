@@ -1,7 +1,6 @@
 package cleaner
 
 import (
-	"app/base/logging"
 	"app/base/utils"
 	"fmt"
 	"os"
@@ -14,7 +13,7 @@ type Cleaner interface {
 
 // Start starts the cleaner job
 func Start() {
-	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err := utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		fmt.Println("Error setting up logger")
 		os.Exit(1)

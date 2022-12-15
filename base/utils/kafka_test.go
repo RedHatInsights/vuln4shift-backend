@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"app/base/logging"
 	"context"
 	"errors"
 	"fmt"
@@ -272,7 +271,7 @@ func (i interceptor) Write(p []byte) (n int, err error) {
 
 func setupTestLogger(t *testing.T) {
 	var err error
-	logger, err = logging.CreateLogger(Cfg.LoggingLevel)
+	logger, err = CreateLogger(Cfg.LoggingLevel)
 	assert.Nil(t, err)
 }
 

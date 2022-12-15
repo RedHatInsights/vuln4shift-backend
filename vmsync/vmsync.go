@@ -1,7 +1,6 @@
 package vmsync
 
 import (
-	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
 	"fmt"
@@ -19,7 +18,7 @@ var (
 
 func init() {
 	var err error
-	logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err = utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		fmt.Println("Error setting up logger.")
 		os.Exit(1)

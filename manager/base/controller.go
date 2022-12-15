@@ -1,7 +1,6 @@
 package base
 
 import (
-	"app/base/logging"
 	"app/base/utils"
 	"app/manager/amsclient"
 	"fmt"
@@ -18,7 +17,7 @@ type Controller struct {
 }
 
 func CreateControllerLogger() *logrus.Logger {
-	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err := utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		fmt.Println("Error setting up logger.")
 		os.Exit(1)

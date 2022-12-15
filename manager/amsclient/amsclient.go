@@ -12,7 +12,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"app/base/logging"
 	"app/base/utils"
 )
 
@@ -63,7 +62,7 @@ func NewAMSClient() (AMSClient, error) {
 
 // NewAMSClientWithTransport creates an AMSClient from the configuration, enabling to use a transport wrapper
 func NewAMSClientWithTransport(transport http.RoundTripper) (AMSClient, error) {
-	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err := utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		panic("invalid LOGGING_LEVEL enviroment variable set")
 	}

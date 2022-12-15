@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Shopify/sarama v1.32.0
+	github.com/aws/aws-sdk-go v1.38.51
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gocarina/gocsv v0.0.0-20220729221910-a7386ae0b221
 	github.com/golang-migrate/migrate/v4 v4.15.1
@@ -16,6 +17,7 @@ require (
 	github.com/prometheus/client_golang v1.12.1
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/redhatinsights/identity v0.0.0-20220719174832-36a7b1cbeff1
+	github.com/redhatinsights/platform-go-middlewares v0.20.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
@@ -71,6 +73,7 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.14.4 // indirect

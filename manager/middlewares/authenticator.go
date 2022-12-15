@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
 	"app/manager/base"
@@ -32,7 +31,7 @@ func getOrgID(id *identity.XRHID) (string, error) {
 // has x-rh-identity sent and upserts
 // the user to the db
 func Authenticate(db *gorm.DB) gin.HandlerFunc {
-	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err := utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		panic("Invalid LOGGING_LEVEL enviroment variable set")
 	}

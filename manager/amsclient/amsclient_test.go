@@ -2,7 +2,6 @@ package amsclient
 
 import (
 	"app/base/ams"
-	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
 	"app/test"
@@ -250,7 +249,7 @@ func newTestAMSClient(t *testing.T, APIResponses map[string][]byte, pageLimit in
 	conn, err := builder.Build()
 	assert.Nil(t, err)
 
-	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err := utils.CreateLogger(utils.Cfg.LoggingLevel)
 	assert.Nil(t, err)
 
 	return &amsClientImpl{

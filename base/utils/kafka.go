@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"app/base/logging"
 	"context"
 	"errors"
 	"time"
@@ -32,7 +31,7 @@ var (
 func setupLogger() {
 	if logger == nil {
 		var err error
-		logger, err = logging.CreateLogger(Cfg.LoggingLevel)
+		logger, err = CreateLogger(Cfg.LoggingLevel)
 		if err != nil {
 			logFatalf("Error setting up logger: %s", err.Error())
 		}
