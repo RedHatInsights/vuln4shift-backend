@@ -2,7 +2,6 @@ package cves
 
 import (
 	"app/base/ams"
-	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
 	"app/manager/middlewares"
@@ -181,7 +180,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	logger, err := logging.CreateLogger("DEBUG")
+	logger, err := utils.CreateLogger("DEBUG")
 	if err != nil {
 		panic(err)
 	}

@@ -3,7 +3,6 @@ package digestwriter
 // Entry point of the digestwriter package
 
 import (
-	"app/base/logging"
 	"app/base/utils"
 	"fmt"
 	"os"
@@ -27,7 +26,7 @@ const (
 func setupLogger() {
 	if logger == nil {
 		var err error
-		logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
+		logger, err = utils.CreateLogger(utils.Cfg.LoggingLevel)
 		if err != nil {
 			fmt.Println("Error setting up logger.")
 			os.Exit(1)

@@ -1,4 +1,4 @@
-package logging
+package utils
 
 import (
 	"errors"
@@ -42,5 +42,6 @@ func CreateLogger(level string) (*logrus.Logger, error) {
 
 	logger.SetLevel(logrusLevel)
 	logger.SetOutput(os.Stdout)
+	trySetupCloudWatchLogging(logger)
 	return logger, nil
 }

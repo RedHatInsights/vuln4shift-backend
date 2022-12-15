@@ -1,7 +1,6 @@
 package cleaner
 
 import (
-	"app/base/logging"
 	"app/base/models"
 	"app/base/utils"
 	"errors"
@@ -22,7 +21,7 @@ type ClusterCleaner struct {
 
 // NewClusterCleaner builds ClusterCleaner
 func NewClusterCleaner(clusterRetentionDays uint) (*ClusterCleaner, error) {
-	logger, err := logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err := utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		return nil, fmt.Errorf("Cannot create logger: %s", err)
 	}

@@ -32,9 +32,13 @@ type Config struct {
 	MetricsPath string
 
 	// Common app config
-	LoggingLevel          string
-	APIRetries            int
-	PrometheusPushGateway string
+	LoggingLevel              string
+	APIRetries                int
+	PrometheusPushGateway     string
+	CloudWatchAccessKeyID     string
+	CloudWatchSecretAccesskey string
+	CloudWatchRegion          string
+	CloudWatchLogGroup        string
 
 	// DB admin config
 	ArchiveDbWriterPass string
@@ -115,6 +119,20 @@ func initConfig() {
 	Cfg.LoggingLevel = GetEnv("LOGGING_LEVEL", "INVALID")
 	Cfg.APIRetries = GetEnv("API_RETRIES", 0)
 	Cfg.PrometheusPushGateway = GetEnv("PROMETHEUS_PUSHGATEWAY", "pushgateway")
+	if clowder.IsClowderEnabled() {
+		cwCfg := clowder.LoadedConfig.Logging.Cloudwatch
+		if cwCfg != nil {
+			Cfg.CloudWatchAccessKeyID = cwCfg.AccessKeyId
+			Cfg.CloudWatchSecretAccesskey = cwCfg.SecretAccessKey
+			Cfg.CloudWatchRegion = cwCfg.Region
+			Cfg.CloudWatchLogGroup = cwCfg.LogGroup
+		}
+	} else {
+		Cfg.CloudWatchAccessKeyID = GetEnv("CLOUDWATCH_ACCESS_KEY_ID", "")
+		Cfg.CloudWatchSecretAccesskey = GetEnv("CLOUDWATCH_SECRET_ACCESS_KEY", "")
+		Cfg.CloudWatchRegion = GetEnv("CLOUDWATCH_REGION", "")
+		Cfg.CloudWatchLogGroup = GetEnv("CLOUDWATCH_LOG_GROUP", "")
+	}
 
 	// DB admin config
 	Cfg.ArchiveDbWriterPass = GetEnv("USER_ARCHIVE_DB_WRITER_PASS", "")

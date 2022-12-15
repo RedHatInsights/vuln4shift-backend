@@ -10,7 +10,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"app/base/logging"
 	"app/base/utils"
 )
 
@@ -30,7 +29,7 @@ type Client struct {
 
 func init() {
 	var err error
-	logger, err = logging.CreateLogger(utils.Cfg.LoggingLevel)
+	logger, err = utils.CreateLogger(utils.Cfg.LoggingLevel)
 	if err != nil {
 		fmt.Println("Error setting up logger.")
 		os.Exit(1)
