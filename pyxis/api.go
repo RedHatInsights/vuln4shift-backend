@@ -180,6 +180,10 @@ func getAPIImageCves(imagePyxisID string) ([]string, error) {
 
 	cveList = make([]string, 0, len(cveMap))
 	for cve := range cveMap {
+		if !utils.IsValidCVE(cve) {
+			logger.Warnf("Invalid CVE obtained from pyxis: %s, skipping", cve)
+			continue
+		}
 		cveList = append(cveList, cve)
 	}
 	sort.Strings(cveList)

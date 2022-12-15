@@ -2,12 +2,25 @@ package utils
 
 import (
 	"os"
+	"regexp"
 	"strconv"
 )
 
 // DefValueType value types for default value of environment variables string | int | bool
 type DefValueType interface {
 	string | int | bool
+}
+
+var (
+	cveRegex *regexp.Regexp
+)
+
+func init() {
+	re, err := regexp.Compile("^CVE-[0-9]+-[0-9]+$")
+	if err != nil {
+		panic(err)
+	}
+	cveRegex = re
 }
 
 // GetEnv Load environment variable or return default value of DefValueType
@@ -43,4 +56,8 @@ func CopyMap[K comparable, V any](src map[K]V, dst map[K]V) map[K]V {
 		dst[k] = v
 	}
 	return dst
+}
+
+func IsValidCVE(cve string) bool {
+	return cveRegex.MatchString(cve)
 }
