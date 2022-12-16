@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v0.25.0 (2022-12-16)
+### Feature
+* **tests:** Init caches on unit test db ([`92a6803`](https://github.com/RedHatInsights/vuln4shift-backend/commit/92a6803640969f1b2fc6f8765c7499bcddfd5a64))
+* **manager:** Start returning cluster-cve cached counts ([`0d3fcf7`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0d3fcf7e1490b378c49473a57bbae81ec15e3dca))
+
 ## v0.24.0 (2022-12-15)
 ### Feature
 * Log to cloudwatch (+minor refactor) ([`cd71d29`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cd71d2984b6f03109616d9bff045b0552bc0b599))
