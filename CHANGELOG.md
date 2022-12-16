@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.25.1 (2022-12-16)
+### Fix
+* **expsync:** Add missing clowdapp env vars ([`5efc954`](https://github.com/RedHatInsights/vuln4shift-backend/commit/5efc954d32c3bf449bc7f35e9aff5d74c25b6710))
+
 ## v0.25.0 (2022-12-16)
 ### Feature
 * **tests:** Init caches on unit test db ([`92a6803`](https://github.com/RedHatInsights/vuln4shift-backend/commit/92a6803640969f1b2fc6f8765c7499bcddfd5a64))
