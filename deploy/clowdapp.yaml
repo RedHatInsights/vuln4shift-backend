@@ -307,6 +307,10 @@ objects:
                 name: vuln4shift-db-passwds
           - name: LOGGING_LEVEL
             value: ${LOGGING_LEVEL}
+          - name: PROMETHEUS_PUSHGATEWAY
+            value: ${PROMETHEUS_PUSHGATEWAY}
+          - name: API_RETRIES
+            value: ${API_RETRIES}
           - name: EXPLOIT_FILE_URL
             value: ${{EXPLOIT_FILE_URL}}
           - name: GIT_TOKEN
