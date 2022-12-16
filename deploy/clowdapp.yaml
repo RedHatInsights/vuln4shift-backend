@@ -21,8 +21,8 @@ objects:
 
 - apiVersion: v1
   data:
-    amsclient_id:
-    amsclient_secret:
+    amsclient_id: ""
+    amsclient_secret: ""
   kind: Secret
   metadata:
     name: ams-client-auth
