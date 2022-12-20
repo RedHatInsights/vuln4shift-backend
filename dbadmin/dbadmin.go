@@ -83,10 +83,23 @@ func Start() {
 
 	schemaMigration := utils.Cfg.SchemaMigration // Check env variable to migrate to specific version
 
-	if schemaMigration < 0 {
-		err = m.Up() // Upgrade to the latest
+	version, dirty, err := m.Version()
+	if err == migrate.ErrNilVersion {
+		log.Printf("No migration has been applied yet")
+	} else if err != nil {
+		log.Fatalf("Unexpected error occurred: %s", err.Error())
+	}
+	log.Printf("Current schema version: %d", version)
+
+	if dirty && schemaMigration > 0 {
+		log.Printf("Forcing migration version")
+		err = m.Force(schemaMigration) // Force migration if DB is dirty and version is specified
 	} else {
-		err = m.Migrate(uint(schemaMigration)) // Upgrade/Downgrade to the specific version
+		if schemaMigration < 0 {
+			err = m.Up() // Upgrade to the latest
+		} else {
+			err = m.Migrate(uint(schemaMigration)) // Upgrade/Downgrade to the specific version
+		}
 	}
 
 	if err != nil {
