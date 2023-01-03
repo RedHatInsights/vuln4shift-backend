@@ -2,8 +2,9 @@ package utils
 
 import (
 	"context"
-	"errors"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/Shopify/sarama"
 	"github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ var (
 	logger *logrus.Logger
 )
 
-func setupLogger() {
+func SetupLogger() {
 	if logger == nil {
 		var err error
 		logger, err = CreateLogger(Cfg.LoggingLevel)
@@ -76,12 +77,14 @@ type KafkaConsumer struct {
 	Ready                                chan bool
 	Cancel                               context.CancelFunc
 	Processor                            Processor
+	// Shutdown function called during Close operation
+	Shutdown func()
 }
 
 // NewKafkaConsumer constructs new implementation of KafkaConsumer, using
 // the default sarama config if none is provided
 func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaConsumer, error) {
-	setupLogger()
+	SetupLogger()
 	if Cfg.KafkaBrokerAddress == "" {
 		return nil, errors.New("unable to get env var: KAFKA_BROKER_ADDRESS")
 	}
@@ -90,6 +93,9 @@ func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaC
 	}
 	if Cfg.KafkaBrokerIncomingTopic == "" {
 		return nil, errors.New("unable to get env var: KAFKA_BROKER_INCOMING_TOPIC")
+	}
+	if Cfg.KafkaPayloadTrackerTopic == "" {
+		return nil, errors.New("unable to get env var: KAFKA_PAYLOAD_TRACKER_TOPIC")
 	}
 	if saramaConfig == nil {
 		saramaConfig = sarama.NewConfig()
@@ -205,6 +211,11 @@ func (consumer *KafkaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession,
 
 // Close method closes all resources used by consumer
 func (consumer *KafkaConsumer) Close() error {
+	// Call optional shutdown operation if defined
+	if sd := consumer.Shutdown; sd != nil {
+		sd()
+	}
+
 	if consumer.Cancel != nil {
 		consumer.Cancel()
 	}
@@ -281,4 +292,166 @@ func (consumer *KafkaConsumer) GetNumberOfErrorsConsumingMessages() uint64 {
 // IncrementNumberOfErrorsConsumingMessages increments number of errors during consuming messages
 func (consumer *KafkaConsumer) IncrementNumberOfErrorsConsumingMessages() {
 	consumer.numberOfErrorsConsumingMessages++
+}
+
+// Writer interface for writing messages to Kafka topic
+type Writer interface {
+	// Input returns channel receiving messages to be sent to the topic
+	Input() chan<- *sarama.ProducerMessage
+	// Successes returns channel containing messages successfully sent
+	Successes() <-chan *sarama.ProducerMessage
+	// Errors returns channel containing write errors
+	Errors() <-chan *sarama.ProducerError
+	Close() error
+}
+
+// Producer interface for publishing Kafka messages
+type Producer interface {
+	SendMessage(key, value sarama.Encoder)
+	Close()
+}
+
+// KafkaProducerConfig configuration for connecting with Kafka broker
+type KafkaProducerConfig struct {
+	// Address broker's address in <host>:<port> format
+	Address string
+	// Topic name of Kafka topic to consume from
+	Topic string
+}
+
+type KafkaProducer struct {
+	Config                               *KafkaProducerConfig
+	numberOfSuccessfullyProducedMessages uint64
+	numberOfErrorsProducingMessages      uint64
+	Writer                               Writer
+	Enqueued                             int
+}
+
+func NewKafkaProducer(saramaConfig *sarama.Config, address, topic string) (*KafkaProducer, error) {
+	SetupLogger()
+
+	if address == "" {
+		return nil, errors.New("empty broker address")
+	}
+	if topic == "" {
+		return nil, errors.New("empty producer topic")
+	}
+	if saramaConfig == nil {
+		saramaConfig = sarama.NewConfig()
+		saramaConfig.Version = sarama.V0_10_2_0
+
+		timeout, err := time.ParseDuration(Cfg.KafkaProducerTimeout)
+		if err == nil && timeout != 0 {
+			saramaConfig.Net.DialTimeout = timeout
+			saramaConfig.Net.ReadTimeout = timeout
+			saramaConfig.Net.WriteTimeout = timeout
+		}
+	}
+
+	if Cfg.KafkaBroker.Sasl != nil {
+		err := SetKafkaSSLConfig(saramaConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if Cfg.KafkaBroker.Authtype != nil {
+		err := SetKafkaTLSConfig(saramaConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	writer, err := sarama.NewAsyncProducer([]string{address}, saramaConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new Sarama async producer")
+	}
+
+	producer := &KafkaProducer{
+		Config: &KafkaProducerConfig{
+			Address: address,
+			Topic:   topic,
+		},
+		numberOfSuccessfullyProducedMessages: 0,
+		numberOfErrorsProducingMessages:      0,
+		Writer:                               writer,
+		Enqueued:                             0,
+	}
+
+	return producer, nil
+}
+
+func (producer *KafkaProducer) awaitWriteResult() error {
+	select {
+	case msg := <-producer.Writer.Successes():
+		logger.Debugf("successfully sent a message with a key=%s to the %s topic", msg.Key, producer.Config.Topic)
+		producer.IncrementNumberOfSuccessfullyProducedMessages()
+		producer.Enqueued--
+		return nil
+	case err := <-producer.Writer.Errors():
+		producer.IncrementNumberOfErrorsProducingMessages()
+		producer.Enqueued--
+		return err
+	}
+}
+
+func (producer *KafkaProducer) write(msg *sarama.ProducerMessage) error {
+	select {
+	case producer.Writer.Input() <- msg:
+		logger.Debugf("enqueued new message with a key=%s on the %s topic", msg.Key, producer.Config.Topic)
+		producer.Enqueued++
+		return producer.awaitWriteResult()
+	case err := <-producer.Writer.Errors():
+		producer.IncrementNumberOfErrorsProducingMessages()
+		producer.Enqueued--
+		return err
+	}
+}
+
+// SendMessage composes Sarama message and sends it to the topic waiting for returning success or error value
+func (producer *KafkaProducer) SendMessage(key, value sarama.Encoder) {
+	msg := &sarama.ProducerMessage{
+		Topic:     producer.Config.Topic,
+		Key:       key,
+		Value:     value,
+		Timestamp: time.Now(),
+	}
+
+	logger.Debugf("attempting to send a new message with a key=%s on the %s topic", key, producer.Config.Topic)
+	if err := producer.write(msg); err != nil {
+		logger.Errorf("failed to write kafka message: %s", err.Error())
+	}
+}
+
+// Close closes underlying Writer which must be called to not leak memory, logging errors for potentially lost enqueued messages in the process
+func (producer *KafkaProducer) Close() {
+	if producer.Enqueued > 0 {
+		logger.Warnf("closing underlying Kafka writer with %d unprocessed messages", producer.Enqueued)
+	}
+
+	if err := producer.Writer.Close(); err != nil {
+		logger.Errorf("errors occurred during closing underlying Kafka writer: %s", err.Error())
+	}
+
+	logger.Info("successfully closed kafka producer")
+}
+
+// GetNumberOfSuccessfullyProducedMessages returns number of produced messages
+func (producer *KafkaProducer) GetNumberOfSuccessfullyProducedMessages() uint64 {
+	return producer.numberOfSuccessfullyProducedMessages
+}
+
+// IncrementNumberOfSuccessfullyProducedMessages increments number of produced messages
+func (producer *KafkaProducer) IncrementNumberOfSuccessfullyProducedMessages() {
+	producer.numberOfSuccessfullyProducedMessages++
+}
+
+// GetNumberOfErrorsProducingMessages returns number of errors during producing messages
+func (producer *KafkaProducer) GetNumberOfErrorsProducingMessages() uint64 {
+	return producer.numberOfErrorsProducingMessages
+}
+
+// IncrementNumberOfErrorsProducingMessages increments number of errors during producing messages
+func (producer *KafkaProducer) IncrementNumberOfErrorsProducingMessages() {
+	producer.numberOfErrorsProducingMessages++
 }
