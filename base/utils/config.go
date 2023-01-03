@@ -63,6 +63,8 @@ type Config struct {
 	KafkaBrokerConsumerGroup string
 	KafkaBrokerIncomingTopic string
 	KafkaConsumerTimeout     string
+	KafkaProducerTimeout     string
+	KafkaPayloadTrackerTopic string
 
 	// VMaaS sync config
 	VmaasBaseURL   string
@@ -153,6 +155,7 @@ func initConfig() {
 
 	// Digest writer config
 	requestedKafkaBrokerTopic := GetEnv("KAFKA_BROKER_INCOMING_TOPIC", "")
+	requestedKafkaPayloadTrackerTopic := GetEnv("KAFKA_PAYLOAD_TRACKER_TOPIC", "")
 	if clowder.IsClowderEnabled() {
 		if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
 			Cfg.KafkaBroker = clowder.LoadedConfig.Kafka.Brokers[0]
@@ -161,12 +164,17 @@ func initConfig() {
 		if _, ok := clowder.KafkaTopics[requestedKafkaBrokerTopic]; ok {
 			Cfg.KafkaBrokerIncomingTopic = clowder.KafkaTopics[requestedKafkaBrokerTopic].Name
 		}
+		if _, ok := clowder.KafkaTopics[requestedKafkaPayloadTrackerTopic]; ok {
+			Cfg.KafkaPayloadTrackerTopic = clowder.KafkaTopics[requestedKafkaPayloadTrackerTopic].Name
+		}
 	} else {
 		Cfg.KafkaBrokerAddress = GetEnv("KAFKA_BROKER_ADDRESS", "")
 		Cfg.KafkaBrokerIncomingTopic = requestedKafkaBrokerTopic
+		Cfg.KafkaPayloadTrackerTopic = requestedKafkaPayloadTrackerTopic
 	}
 	Cfg.KafkaBrokerConsumerGroup = GetEnv("KAFKA_BROKER_CONSUMER_GROUP", "")
 	Cfg.KafkaConsumerTimeout = GetEnv("KAFKA_CONSUMER_TIMEOUT", "")
+	Cfg.KafkaProducerTimeout = GetEnv("KAFKA_PRODUCER_TIMEOUT", "")
 
 	// VMaaS sync config
 	Cfg.VmaasBaseURL = GetEnv("VMAAS_BASE_URL", "http://localhost")
