@@ -1,6 +1,8 @@
 package digestwriter
 
-import "app/base/utils"
+import (
+	"app/base/utils"
+)
 
 // Export for testing
 //
@@ -26,6 +28,7 @@ func NewDummyConsumerWithProcessor(storage Storage) (*utils.KafkaConsumer, *Dige
 	processor := DigestConsumer{
 		storage,
 		0,
+		nil,
 	}
 	consumer := utils.KafkaConsumer{
 		Processor: &processor,
