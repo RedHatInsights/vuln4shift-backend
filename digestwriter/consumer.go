@@ -29,6 +29,11 @@ const (
 	rowIDKey = "row_id"
 )
 
+const (
+	errNoDigests   = "no digests were retrieved from incoming message"
+	errClusterData = "error updating cluster data"
+)
+
 // OrgID data type represents organization ID.
 type OrgID uint32
 
@@ -83,20 +88,43 @@ type IncomingMessage struct {
 type DigestConsumer struct {
 	storage                          Storage
 	numberOfMessagesWithEmptyDigests uint64
+	PayloadTracker                   *utils.KafkaProducer
+}
+
+// startPayloadTracker starts Payload Tracker Kafka producer.
+func startPayloadTracker() (*utils.KafkaProducer, error) {
+	ptWriter, err := utils.NewKafkaProducer(nil, utils.Cfg.KafkaBrokerAddress, utils.Cfg.KafkaPayloadTrackerTopic)
+	if err != nil {
+		return nil, err
+	}
+
+	return ptWriter, nil
 }
 
 // NewConsumer constructs a new instance of Consumer interface
 // specialized in consuming from SHA extractor's result topic
 func NewConsumer(storage Storage) (*utils.KafkaConsumer, error) {
 	SetupLogger()
-	processor := DigestConsumer{
-		storage,
-		0,
-	}
-	consumer, err := utils.NewKafkaConsumer(nil, &processor)
+
+	payloadTrackerProducer, err := startPayloadTracker()
 	if err != nil {
 		return nil, err
 	}
+
+	processor := DigestConsumer{
+		storage,
+		0,
+		payloadTrackerProducer,
+	}
+	consumer, err := utils.NewKafkaConsumer(nil, &processor)
+	if err != nil {
+		payloadTrackerProducer.Close()
+		return nil, err
+	}
+
+	// Release Payload Tracker producer resources during DigestConsumer Close
+	consumer.Shutdown = payloadTrackerProducer.Close
+
 	return consumer, err
 }
 
@@ -113,18 +141,31 @@ func (d *DigestConsumer) IncrementNumberOfMessagesWithEmptyDigests() {
 
 // ProcessMessage processes an incoming message
 func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
+	logger.Debugf("processing incoming message with a key=%s", msg.Key)
+
 	// Step #1: parse the incoming message
 	message, err := parseMessage(msg.Value)
 	if err != nil {
 		parseIncomingMessageError.Inc()
 		return err
 	}
-
 	parsedIncomingMessage.Inc()
 
+	// Set up payload tracker event
+	ptEvent := utils.NewPayloadTrackerEvent(string(message.RequestID))
+	ptEvent.SetOrgIDFromUint(uint32(message.Organization))
+
+	// Send Payload Tracker message with status received
+	ptEvent.UpdateStatusReceived()
+	d.sendPayloadTrackerMessage(&ptEvent)
+
+	// Defer sending another Payload Tracker message with status success or error set later on
+	defer d.sendPayloadTrackerMessage(&ptEvent)
+
 	if message.Workload.Images == nil || message.Workload.Namespaces == nil {
-		logger.Debugln("no digests were retrieved from incoming message")
+		logger.Debugln(errNoDigests)
 		d.IncrementNumberOfMessagesWithEmptyDigests()
+		ptEvent.UpdateStatusError(errNoDigests)
 		return nil
 	}
 
@@ -146,13 +187,23 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 			orgKey:     message.Organization,
 			clusterKey: message.ClusterName,
 			errorKey:   err.Error(),
-		}).Errorln("error updating cluster data")
+		}).Errorln(errClusterData)
 		storedMessagesError.Inc()
+		ptEvent.UpdateStatusError(errClusterData)
 		return err
 	}
 
+	ptEvent.UpdateStatusSuccess()
 	storedMessagesOk.Inc()
 	return nil
+}
+
+// sendPayloadTrackerMessage sends Kafka message to Payload Tracker and logs errors
+func (d *DigestConsumer) sendPayloadTrackerMessage(event *utils.PayloadTrackerEvent) {
+	logger.Debugf("sending Payload Tracker message with status %s", event.Status)
+	if err := event.SendKafkaMessage(d.PayloadTracker); err != nil {
+		logger.Errorf("failed to send Payload Tracker message: %s", err.Error())
+	}
 }
 
 func extractDigestsFromMessage(workload Workload) (digests []string) {
