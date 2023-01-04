@@ -40,7 +40,7 @@ func init() {
 	//so the Cfg object is empty.
 	Cfg.LoggingLevel = "DEBUG"
 	//init the logger so it does not have to be initialized in each test
-	setupLogger()
+	SetupLogger()
 }
 
 // TestHandleMessageProcessorNotSet verifies that the handleMessage panics if
@@ -126,18 +126,19 @@ func TestSetupLoggerFail(t *testing.T) {
 	}
 
 	logger = nil
-	setupLogger()
+	SetupLogger()
 }
 
-func initKafkaBroker(sasl, address, consumerGroup, incomingTopic string) {
+func initKafkaBroker(sasl, address, consumerGroup, incomingTopic, payloadTrackerTopic string) {
 	Cfg.KafkaBroker = createTestBroker(sasl)
 	Cfg.KafkaBrokerAddress = address
 	Cfg.KafkaBrokerConsumerGroup = consumerGroup
 	Cfg.KafkaBrokerIncomingTopic = incomingTopic
+	Cfg.KafkaPayloadTrackerTopic = payloadTrackerTopic
 }
 
 func TestNewKafkaConsumer(t *testing.T) {
-	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic")
+	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic", "test-pt-topic")
 
 	cfg := sarama.NewConfig()
 	cfg.Metadata.Full = false
@@ -146,7 +147,7 @@ func TestNewKafkaConsumer(t *testing.T) {
 }
 
 func TestNewKafkaConsumerInvalidAddress(t *testing.T) {
-	initKafkaBroker(sarama.SASLTypePlaintext, "", "", "")
+	initKafkaBroker(sarama.SASLTypePlaintext, "", "", "", "test-pt-topic")
 
 	cfg := sarama.NewConfig()
 	cfg.Metadata.Full = false
@@ -155,7 +156,7 @@ func TestNewKafkaConsumerInvalidAddress(t *testing.T) {
 }
 
 func TestNewKafkaConsumerInvalidConsumerGroup(t *testing.T) {
-	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "", "")
+	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "", "", "test-pt-topic")
 
 	cfg := sarama.NewConfig()
 	cfg.Metadata.Full = false
@@ -164,7 +165,7 @@ func TestNewKafkaConsumerInvalidConsumerGroup(t *testing.T) {
 }
 
 func TestNewKafkaConsumerInvalidTopic(t *testing.T) {
-	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "")
+	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "", "test-pt-topic")
 
 	cfg := sarama.NewConfig()
 	cfg.Metadata.Full = false
@@ -172,15 +173,24 @@ func TestNewKafkaConsumerInvalidTopic(t *testing.T) {
 	assert.Equal(t, "unable to get env var: KAFKA_BROKER_INCOMING_TOPIC", err.Error())
 }
 
+func TestNewKafkaConsumerInvalidPayloadTrackerTopic(t *testing.T) {
+	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic", "")
+
+	cfg := sarama.NewConfig()
+	cfg.Metadata.Full = false
+	_, err := NewKafkaConsumer(cfg, nil)
+	assert.Equal(t, "unable to get env var: KAFKA_PAYLOAD_TRACKER_TOPIC", err.Error())
+}
+
 func TestNewKafkaConsumerOutOfBrokers(t *testing.T) {
-	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic")
+	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic", "test-pt-topic")
 
 	_, err := NewKafkaConsumer(sarama.NewConfig(), nil)
 	assert.Equal(t, "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)", err.Error())
 }
 
 func TestNewKafkaConsumerNilConfig(t *testing.T) {
-	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic")
+	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic", "test-pt-topic")
 
 	_, err := NewKafkaConsumer(nil, nil)
 	// Expected to fail on NewClient call with config.Metadata.Full of sarama set to true.
@@ -369,4 +379,29 @@ func TestKafkaConsumerIncrementErr(t *testing.T) {
 	consumer.IncrementNumberOfErrorsConsumingMessages()
 	after := consumer.numberOfErrorsConsumingMessages
 	assert.Equal(t, before+1, after)
+}
+
+func TestKafkaProducerSendMessages(t *testing.T) {
+	setupTestLogger(t)
+
+	topic := "test-producer-topic"
+
+	testWriter := CreateSaramaAsyncWriterMock()
+	go testWriter.StartProcessing(t)
+
+	testProducer := CreateKafkaProducerMock(topic, testWriter)
+	defer testProducer.Close()
+
+	expectedDelivered := 6
+	for i := 0; i < expectedDelivered; i++ {
+		testProducer.SendMessage(sarama.StringEncoder("test-key"), sarama.StringEncoder("test-val"))
+	}
+
+	expectedUndelivered := 3
+	for i := 0; i < expectedUndelivered; i++ {
+		testProducer.SendMessage(sarama.StringEncoder(SaramaMockInvalidKey), sarama.StringEncoder("test-val"))
+	}
+
+	assert.Equal(t, uint64(expectedDelivered), testProducer.GetNumberOfSuccessfullyProducedMessages())
+	assert.Equal(t, uint64(expectedUndelivered), testProducer.GetNumberOfErrorsProducingMessages())
 }
