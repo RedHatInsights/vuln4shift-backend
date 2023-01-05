@@ -42,6 +42,9 @@ objects:
     - replicas: 3
       partitions: 2
       topicName: ${KAFKA_BROKER_INCOMING_TOPIC}
+    - replicas: 3
+      partitions: 2
+      topicName: ${KAFKA_PAYLOAD_TRACKER_TOPIC}
     dependencies: []
 
     deployments:
@@ -169,10 +172,14 @@ objects:
           value: ${LOGGING_LEVEL}
         - name: KAFKA_BROKER_INCOMING_TOPIC
           value: ${KAFKA_BROKER_INCOMING_TOPIC}
+        - name: KAFKA_PAYLOAD_TRACKER_TOPIC
+          value: ${KAFKA_PAYLOAD_TRACKER_TOPIC}
         - name: KAFKA_BROKER_CONSUMER_GROUP
           value: ${DIGEST_WRITER_CONSUMER_GROUP}
         - name: KAFKA_CONSUMER_TIMEOUT
           value: ${KAFKA_CONSUMER_TIMEOUT}
+        - name: KAFKA_PRODUCER_TIMEOUT
+          value: ${KAFKA_PRODUCER_TIMEOUT}
         - name: GIN_MODE
           value: ${GIN_MODE}
         resources:
@@ -523,8 +530,14 @@ parameters:
   description: Topic with incoming cluster data from sha-extractor
   required: true
   value: ccx.image.sha.results
+- name: KAFKA_PAYLOAD_TRACKER_TOPIC
+  description: Topic for writing payload tracker messages
+  required: true
+  value: platform.payload-status
 - name: KAFKA_CONSUMER_TIMEOUT
   description: Timeout for kafka consumer
+- name: KAFKA_PRODUCER_TIMEOUT
+  description: Timeout for kafka producer
   required: false
 
 # VMAAS SYNC CONFIG
