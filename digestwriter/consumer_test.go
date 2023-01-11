@@ -1,4 +1,15 @@
-package digestwriter_test
+package digestwriter
+
+import (
+	"app/base/utils"
+	"encoding/json"
+	"testing"
+	"time"
+
+	"github.com/Shopify/sarama"
+
+	"github.com/stretchr/testify/assert"
+)
 
 //
 //// Unit test definitions for functions and methods defined in source file
@@ -316,3 +327,84 @@ package digestwriter_test
 //	// check  all SQL-related expectations were met
 //	checkAllExpectations(t, mock)
 //}
+
+const testCCXMessage = `{ "OrgID": 14, "Arch": "amd64", "AccountNumber": 14, "ClusterName": "daac83ee-a390-420d-b892-cb9e1d006eca", "Images": { "imageCount": 1, "images": { "images": { "first_digest": { "extra_content": [ "more_content_1", "more_content_2", "more_content_3" ], "extra_content": "extra_content_value" }, "second_digest": { "second_digest_inner_data": "some_value" } } }, "namespaces": { "test": { "shapes": [] } } }, "Version": 1, "RequestID": "test-req" }`
+
+func TestProcessMessage(t *testing.T) {
+	SetupLogger()
+	utils.SetupLogger()
+
+	topic := "payload-tracker-topic"
+	testWriter := utils.CreateSaramaAsyncWriterMock()
+	go testWriter.StartProcessing(t)
+
+	testProducer := utils.CreateKafkaProducerMock(topic, testWriter)
+	defer testProducer.Close()
+
+	storage, err := NewStorage()
+	assert.Nil(t, err)
+
+	testConsumer := DigestConsumer{
+		storage:                          storage,
+		numberOfMessagesWithEmptyDigests: 0,
+		PayloadTracker:                   testProducer,
+	}
+
+	msg := &sarama.ConsumerMessage{
+		Timestamp: time.Now(),
+		Value:     []byte(testCCXMessage),
+		Topic:     "ccx.image.sha.results",
+	}
+
+	// Signal informing Kafka producer started sending messages already
+	ready := make(chan bool)
+	go func() {
+		for {
+			if testProducer.Enqueued > 0 {
+				ready <- true
+			}
+		}
+	}()
+
+	// Should trigger producing Payload Tracker message
+	assert.Nil(t, testConsumer.ProcessMessage(msg))
+
+	// Await KafkaProducer
+	select {
+	case <-ready:
+	// Proceed
+	case <-time.After(time.Millisecond * 500):
+		t.Fatal("Kafka producer could not start producing messages within time constraints")
+	}
+
+	for ts := time.Now(); ; {
+		if testProducer.Enqueued == 0 && testProducer.GetNumberOfSuccessfullyProducedMessages() == uint64(2) {
+			break
+		}
+		if time.Since(ts) > time.Millisecond*1000 {
+			t.Fatal("Kafka producer could not finish producing messages within time constraints")
+		}
+	}
+
+	// Should send received and success message only
+	assert.Equal(t, uint64(2), testProducer.GetNumberOfSuccessfullyProducedMessages())
+	assert.Equal(t, uint64(0), testProducer.GetNumberOfErrorsProducingMessages())
+	assert.Equal(t, 0, testProducer.Enqueued)
+
+	assert.Equal(t, 2, len(testWriter.ProcessedMessages))
+
+	expectedMessages := make([]utils.PayloadTrackerEvent, 0, 2)
+	for _, msg := range testWriter.ProcessedMessages {
+		bs, err := msg.Value.Encode()
+		assert.Nil(t, err)
+
+		var ptEvent utils.PayloadTrackerEvent
+		assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+
+		expectedMessages = append(expectedMessages, ptEvent)
+	}
+
+	assert.Equal(t, 2, len(expectedMessages))
+	assert.Equal(t, utils.PayloadTrackerStatusReceived, expectedMessages[0].Status)
+	assert.Equal(t, utils.PayloadTrackerStatusSuccess, expectedMessages[1].Status)
+}
