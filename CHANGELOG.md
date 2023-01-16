@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.26.0 (2023-01-16)
+### Feature
+* **digestwriter:** Add Payload Tracker kafka producer ([`4f039e3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4f039e3b9d009d37b9839a0a2bf43763c5131047))
+* **base:** Add Payload Tracker event ([`18b4cc5`](https://github.com/RedHatInsights/vuln4shift-backend/commit/18b4cc54bba10a01a8b7721c210cec3b544f6080))
+* **base:** Add Kafka producer ([`cdc203c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cdc203c0afb24a0ba8c8f07a3a26fbe78fe69434))
+
 ## v0.25.1 (2022-12-16)
 ### Fix
 * **expsync:** Add missing clowdapp env vars ([`5efc954`](https://github.com/RedHatInsights/vuln4shift-backend/commit/5efc954d32c3bf449bc7f35e9aff5d74c25b6710))
