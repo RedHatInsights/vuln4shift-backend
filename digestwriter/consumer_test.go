@@ -328,28 +328,64 @@ import (
 //	checkAllExpectations(t, mock)
 //}
 
-const testCCXMessage = `{ "OrgID": 14, "Arch": "amd64", "AccountNumber": 14, "ClusterName": "daac83ee-a390-420d-b892-cb9e1d006eca", "Images": { "imageCount": 1, "images": { "images": { "first_digest": { "extra_content": [ "more_content_1", "more_content_2", "more_content_3" ], "extra_content": "extra_content_value" }, "second_digest": { "second_digest_inner_data": "some_value" } } }, "namespaces": { "test": { "shapes": [] } } }, "Version": 1, "RequestID": "test-req" }`
+const (
+	testCCXMessage            = `{ "OrgID": 14, "Arch": "amd64", "AccountNumber": 14, "ClusterName": "daac83ee-a390-420d-b892-cb9e1d006eca", "Images": { "imageCount": 1, "images": { "images": { "first_digest": { "extra_content": [ "more_content_1", "more_content_2", "more_content_3" ], "extra_content": "extra_content_value" }, "second_digest": { "second_digest_inner_data": "some_value" } } }, "namespaces": { "test": { "shapes": [] } } }, "Version": 1, "RequestID": "test-req" }`
+	testCCXMessageNoImages    = `{ "OrgID": 14, "AccountNumber": 14, "ClusterName": "daac83ee-a390-420d-b892-cb9e1d006eca", "Images": { "imageCount": 0, "images": {}}, "Version": 1, "RequestID": "test-req" }`
+	testCCXMessageInvalidUUID = `{ "OrgID": 14, "Arch": "invalid", "AccountNumber": 14, "ClusterName": "daae-a390-420d-b892-cb006eca", "Images": { "imageCount": 1, "images": { "images": { "first_digest": { "extra_content": [ "more_content_1", "more_content_2", "more_content_3" ], "extra_content": "extra_content_value" }, "second_digest": { "second_digest_inner_data": "some_value" } } }, "namespaces": { "test": { "shapes": [] } } }, "Version": 1, "RequestID": "test-req" }`
+)
 
-func TestProcessMessage(t *testing.T) {
+func setupTestPayloadTracker(t *testing.T) (*utils.SaramaAsyncWriterMock, *utils.KafkaProducer) {
 	SetupLogger()
 	utils.SetupLogger()
 	usePayloadTracker = true
 
 	topic := "payload-tracker-topic"
-	testWriter := utils.CreateSaramaAsyncWriterMock()
-	go testWriter.StartProcessing(t)
+	writer := utils.CreateSaramaAsyncWriterMock()
+	go writer.StartProcessing(t)
 
-	testProducer := utils.CreateKafkaProducerMock(topic, testWriter)
-	defer testProducer.Close()
+	producer := utils.CreateKafkaProducerMock(topic, writer)
 
+	return writer, producer
+}
+
+func setupTestDigestConsumer(t *testing.T, payloadTracker *utils.KafkaProducer) *DigestConsumer {
 	storage, err := NewStorage()
 	assert.Nil(t, err)
 
-	testConsumer := DigestConsumer{
+	return &DigestConsumer{
 		storage:                          storage,
 		numberOfMessagesWithEmptyDigests: 0,
-		PayloadTracker:                   testProducer,
+		PayloadTracker:                   payloadTracker,
 	}
+}
+
+func awaitProcessingMessage(t *testing.T, testProducer *utils.KafkaProducer, testConsumer *DigestConsumer, msg *sarama.ConsumerMessage, successProduced, producingErrors int) error {
+	// Should trigger producing Payload Tracker message
+	err := testConsumer.ProcessMessage(msg)
+	var errMsg string
+	if err != nil {
+		errMsg = err.Error()
+	}
+
+	for ts := time.Now(); ; {
+		if testProducer.Enqueued == 0 &&
+			testProducer.GetNumberOfSuccessfullyProducedMessages() == uint64(successProduced) &&
+			testProducer.GetNumberOfErrorsProducingMessages() == uint64(producingErrors) {
+			break
+		}
+		if time.Since(ts) > time.Millisecond*3000 {
+			t.Fatalf("Kafka producer could not finish producing messages within time constraints. Err=%s", errMsg)
+		}
+	}
+
+	return err
+}
+
+func TestProcessMessage(t *testing.T) {
+	testWriter, testProducer := setupTestPayloadTracker(t)
+	defer testProducer.Close()
+
+	testConsumer := setupTestDigestConsumer(t, testProducer)
 
 	msg := &sarama.ConsumerMessage{
 		Timestamp: time.Now(),
@@ -357,17 +393,7 @@ func TestProcessMessage(t *testing.T) {
 		Topic:     "ccx.image.sha.results",
 	}
 
-	// Should trigger producing Payload Tracker message
-	assert.Nil(t, testConsumer.ProcessMessage(msg))
-
-	for ts := time.Now(); ; {
-		if testProducer.Enqueued == 0 && testProducer.GetNumberOfSuccessfullyProducedMessages() == uint64(2) {
-			break
-		}
-		if time.Since(ts) > time.Millisecond*1000 {
-			t.Fatal("Kafka producer could not finish producing messages within time constraints")
-		}
-	}
+	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
 
 	// Should send received and success message only
 	assert.Equal(t, uint64(2), testProducer.GetNumberOfSuccessfullyProducedMessages())
@@ -390,4 +416,51 @@ func TestProcessMessage(t *testing.T) {
 	assert.Equal(t, 2, len(expectedMessages))
 	assert.Equal(t, utils.PayloadTrackerStatusReceived, expectedMessages[0].Status)
 	assert.Equal(t, utils.PayloadTrackerStatusSuccess, expectedMessages[1].Status)
+}
+
+func TestProcessMessageNoImages(t *testing.T) {
+	testWriter, testProducer := setupTestPayloadTracker(t)
+	defer testProducer.Close()
+
+	testConsumer := setupTestDigestConsumer(t, testProducer)
+
+	msg := &sarama.ConsumerMessage{
+		Timestamp: time.Now(),
+		Value:     []byte(testCCXMessageNoImages),
+		Topic:     "ccx.image.sha.results",
+	}
+
+	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
+
+	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
+	assert.Nil(t, err)
+	var ptEvent utils.PayloadTrackerEvent
+	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+
+	assert.Equal(t, "error", ptEvent.Status)
+	assert.Equal(t, "no digests were retrieved from incoming message", ptEvent.StatusMsg)
+}
+
+func TestProcessMessageUUID(t *testing.T) {
+	testWriter, testProducer := setupTestPayloadTracker(t)
+	defer testProducer.Close()
+
+	testConsumer := setupTestDigestConsumer(t, testProducer)
+
+	msg := &sarama.ConsumerMessage{
+		Timestamp: time.Now(),
+		Value:     []byte(testCCXMessageInvalidUUID),
+		Topic:     "ccx.image.sha.results",
+	}
+
+	err := awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0)
+	assert.Equal(t, "invalid UUID length: 28", err.Error())
+
+	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
+	assert.Nil(t, err)
+	var ptEvent utils.PayloadTrackerEvent
+	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+
+	assert.Equal(t, "error", ptEvent.Status)
+	assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
 }
