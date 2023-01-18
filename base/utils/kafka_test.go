@@ -394,12 +394,13 @@ func TestKafkaProducerSendMessages(t *testing.T) {
 
 	expectedDelivered := 6
 	for i := 0; i < expectedDelivered; i++ {
-		testProducer.SendMessage(sarama.StringEncoder("test-key"), sarama.StringEncoder("test-val"))
+		assert.Nil(t, testProducer.SendMessage(sarama.StringEncoder("test-key"), sarama.StringEncoder("test-val")))
 	}
 
 	expectedUndelivered := 3
 	for i := 0; i < expectedUndelivered; i++ {
-		testProducer.SendMessage(sarama.StringEncoder(SaramaMockInvalidKey), sarama.StringEncoder("test-val"))
+		assert.Equal(t, "kafka: Failed to produce message to topic test-producer-topic: ",
+			testProducer.SendMessage(sarama.StringEncoder(SaramaMockInvalidKey), sarama.StringEncoder("test-val")).Error())
 	}
 
 	assert.Equal(t, uint64(expectedDelivered), testProducer.GetNumberOfSuccessfullyProducedMessages())
