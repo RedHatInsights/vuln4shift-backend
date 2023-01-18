@@ -34,6 +34,20 @@ var (
 		Subsystem: "digestwriter",
 		Name:      "stored_messages_error",
 	})
+
+	payloadTrackerMessageSent = prometheus.NewCounter(prometheus.CounterOpts{
+		Help:      "Number of messages sent to Payload Tracker",
+		Namespace: "vuln4shift",
+		Subsystem: "digestwriter",
+		Name:      "payload_tracker_message_sent",
+	})
+
+	payloadTrackerError = prometheus.NewCounter(prometheus.CounterOpts{
+		Help:      "Number of Payload Tracker errors",
+		Namespace: "vuln4shift",
+		Subsystem: "digestwriter",
+		Name:      "payload_tracker_error",
+	})
 )
 
 func RunMetrics() {
@@ -42,6 +56,8 @@ func RunMetrics() {
 		parseIncomingMessageError,
 		storedMessagesOk,
 		storedMessagesError,
+		payloadTrackerMessageSent,
+		payloadTrackerError,
 		utils.ConsumedMessages,
 		utils.ConsumingErrors,
 	)

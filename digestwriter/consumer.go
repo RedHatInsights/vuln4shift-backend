@@ -170,7 +170,7 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 
 	// Send Payload Tracker message with status received
 	ptEvent.UpdateStatusReceived()
-	d.sendPayloadTrackerMessage(&ptEvent)
+	go d.sendPayloadTrackerMessage(&ptEvent)
 
 	// Defer sending another Payload Tracker message with status success or error set later on
 	defer d.sendPayloadTrackerMessage(&ptEvent)
@@ -220,7 +220,12 @@ func (d *DigestConsumer) sendPayloadTrackerMessage(event *utils.PayloadTrackerEv
 	logger.Debugf("sending Payload Tracker message with status %s", event.Status)
 	if err := event.SendKafkaMessage(d.PayloadTracker); err != nil {
 		logger.Errorf("failed to send Payload Tracker message: %s", err.Error())
+		payloadTrackerError.Inc()
+		return
 	}
+
+	payloadTrackerMessageSent.Inc()
+	logger.Debugf("successfully sent Payload Tracker message req=%v, status=%s", event.RequestID, event.Status)
 }
 
 func extractDigestsFromMessage(workload Workload) (digests []string) {

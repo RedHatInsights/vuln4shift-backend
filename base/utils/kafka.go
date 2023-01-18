@@ -307,7 +307,7 @@ type Writer interface {
 
 // Producer interface for publishing Kafka messages
 type Producer interface {
-	SendMessage(key, value sarama.Encoder)
+	SendMessage(key, value sarama.Encoder) error
 	Close()
 }
 
@@ -409,7 +409,7 @@ func (producer *KafkaProducer) write(msg *sarama.ProducerMessage) error {
 }
 
 // SendMessage composes Sarama message and sends it to the topic waiting for returning success or error value
-func (producer *KafkaProducer) SendMessage(key, value sarama.Encoder) {
+func (producer *KafkaProducer) SendMessage(key, value sarama.Encoder) error {
 	msg := &sarama.ProducerMessage{
 		Topic:     producer.Config.Topic,
 		Key:       key,
@@ -420,7 +420,10 @@ func (producer *KafkaProducer) SendMessage(key, value sarama.Encoder) {
 	logger.Debugf("attempting to send a new message with a key=%s on the %s topic", key, producer.Config.Topic)
 	if err := producer.write(msg); err != nil {
 		logger.Errorf("failed to write kafka message: %s", err.Error())
+		return err
 	}
+
+	return nil
 }
 
 // Close closes underlying Writer which must be called to not leak memory, logging errors for potentially lost enqueued messages in the process
