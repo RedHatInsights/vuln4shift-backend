@@ -65,6 +65,7 @@ type Config struct {
 	KafkaConsumerTimeout     string
 	KafkaProducerTimeout     string
 	KafkaPayloadTrackerTopic string
+	PayloadTrackerEnabled    bool
 
 	// VMaaS sync config
 	VmaasBaseURL   string
@@ -175,6 +176,7 @@ func initConfig() {
 	Cfg.KafkaBrokerConsumerGroup = GetEnv("KAFKA_BROKER_CONSUMER_GROUP", "")
 	Cfg.KafkaConsumerTimeout = GetEnv("KAFKA_CONSUMER_TIMEOUT", "")
 	Cfg.KafkaProducerTimeout = GetEnv("KAFKA_PRODUCER_TIMEOUT", "")
+	Cfg.PayloadTrackerEnabled = GetEnv("PAYLOAD_TRACKER_ENABLED", false)
 
 	// VMaaS sync config
 	Cfg.VmaasBaseURL = GetEnv("VMAAS_BASE_URL", "http://localhost")

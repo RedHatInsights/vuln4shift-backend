@@ -333,6 +333,7 @@ const testCCXMessage = `{ "OrgID": 14, "Arch": "amd64", "AccountNumber": 14, "Cl
 func TestProcessMessage(t *testing.T) {
 	SetupLogger()
 	utils.SetupLogger()
+	usePayloadTracker = true
 
 	topic := "payload-tracker-topic"
 	testWriter := utils.CreateSaramaAsyncWriterMock()
@@ -356,26 +357,8 @@ func TestProcessMessage(t *testing.T) {
 		Topic:     "ccx.image.sha.results",
 	}
 
-	// Signal informing Kafka producer started sending messages already
-	ready := make(chan bool)
-	go func() {
-		for {
-			if testProducer.Enqueued > 0 {
-				ready <- true
-			}
-		}
-	}()
-
 	// Should trigger producing Payload Tracker message
 	assert.Nil(t, testConsumer.ProcessMessage(msg))
-
-	// Await KafkaProducer
-	select {
-	case <-ready:
-	// Proceed
-	case <-time.After(time.Millisecond * 500):
-		t.Fatal("Kafka producer could not start producing messages within time constraints")
-	}
 
 	for ts := time.Now(); ; {
 		if testProducer.Enqueued == 0 && testProducer.GetNumberOfSuccessfullyProducedMessages() == uint64(2) {

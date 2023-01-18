@@ -9,6 +9,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var (
+	usePayloadTracker bool
+)
+
 const (
 	// Keys used in structured log messages
 	// key for organization ID
@@ -105,25 +109,34 @@ func startPayloadTracker() (*utils.KafkaProducer, error) {
 // specialized in consuming from SHA extractor's result topic
 func NewConsumer(storage Storage) (*utils.KafkaConsumer, error) {
 	SetupLogger()
-
-	payloadTrackerProducer, err := startPayloadTracker()
-	if err != nil {
-		return nil, err
-	}
+	usePayloadTracker = utils.Cfg.PayloadTrackerEnabled
 
 	processor := DigestConsumer{
 		storage,
 		0,
-		payloadTrackerProducer,
+		nil,
 	}
+
+	if usePayloadTracker {
+		payloadTracker, err := startPayloadTracker()
+		if err != nil {
+			return nil, err
+		}
+		processor.PayloadTracker = payloadTracker
+	}
+
 	consumer, err := utils.NewKafkaConsumer(nil, &processor)
 	if err != nil {
-		payloadTrackerProducer.Close()
+		if usePayloadTracker {
+			processor.PayloadTracker.Close()
+		}
 		return nil, err
 	}
 
-	// Release Payload Tracker producer resources during DigestConsumer Close
-	consumer.Shutdown = payloadTrackerProducer.Close
+	if usePayloadTracker {
+		// Release Payload Tracker producer resources during DigestConsumer Close
+		consumer.Shutdown = processor.PayloadTracker.Close
+	}
 
 	return consumer, err
 }
@@ -200,6 +213,10 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 
 // sendPayloadTrackerMessage sends Kafka message to Payload Tracker and logs errors
 func (d *DigestConsumer) sendPayloadTrackerMessage(event *utils.PayloadTrackerEvent) {
+	if !usePayloadTracker {
+		return
+	}
+
 	logger.Debugf("sending Payload Tracker message with status %s", event.Status)
 	if err := event.SendKafkaMessage(d.PayloadTracker); err != nil {
 		logger.Errorf("failed to send Payload Tracker message: %s", err.Error())
