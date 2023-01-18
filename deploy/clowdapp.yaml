@@ -180,6 +180,8 @@ objects:
           value: ${KAFKA_CONSUMER_TIMEOUT}
         - name: KAFKA_PRODUCER_TIMEOUT
           value: ${KAFKA_PRODUCER_TIMEOUT}
+        - name: PAYLOAD_TRACKER_ENABLED
+          value: ${PAYLOAD_TRACKER_ENABLED}
         - name: GIN_MODE
           value: ${GIN_MODE}
         resources:
@@ -539,6 +541,9 @@ parameters:
 - name: KAFKA_PRODUCER_TIMEOUT
   description: Timeout for kafka producer
   required: false
+- name: PAYLOAD_TRACKER_ENABLED
+  description: Feature flag to enable Payload Tracker
+  value: "true"
 
 # VMAAS SYNC CONFIG
 - name: VMAAS_BASE_URL
