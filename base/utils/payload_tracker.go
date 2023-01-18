@@ -65,9 +65,7 @@ func (e *PayloadTrackerEvent) SendKafkaMessage(producer Producer) error {
 		return errors.Wrap(err, "failed to marshal Payload Tracker event")
 	}
 
-	go producer.SendMessage(sarama.StringEncoder(*e.RequestID), sarama.ByteEncoder(bs))
-
-	return nil
+	return producer.SendMessage(sarama.StringEncoder(*e.RequestID), sarama.ByteEncoder(bs))
 }
 
 func NewPayloadTrackerEvent(reqID string) PayloadTrackerEvent {
