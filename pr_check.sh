@@ -127,7 +127,7 @@ if [[ $exit_code == 0 ]]; then
             set +e
             process_requirements_labels
             set -e
-            #run_smoke_tests
+            run_smoke_tests
         fi
     fi
 fi
