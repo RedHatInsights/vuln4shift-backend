@@ -118,7 +118,7 @@ if [[ $exit_code == 0 ]]; then
         exit_code=2
     else
         echo "deploying to ephemeral"
-        #deploy_ephemeral
+        deploy_ephemeral
         if check_for_labels "skip-tests"; then
             echo "PR smoke tests skipped"
             exit_code=3
