@@ -8,7 +8,7 @@ COMPONENT_NAME="vuln4shift-backend"  # name of app-sre "resourceTemplate" in dep
 IMAGE="quay.io/cloudservices/vuln4shift-backend-app"
 CACHE_FROM_LATEST_IMAGE="true"
 
-export IQE_PLUGINS="ocp-vulnerability"
+export IQE_PLUGINS="ocp_vulnerability"
 export IQE_MARKER_EXPRESSION="smoke and api"
 export IQE_FILTER_EXPRESSION=""
 export IQE_REQUIREMENTS_PRIORITY=""
