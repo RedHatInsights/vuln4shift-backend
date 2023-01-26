@@ -58,7 +58,7 @@ var (
 				"last_seen":        "cluster.last_seen",
 				"display_name":     "cluster.display_name",
 				"type":             "cluster.type",
-				"cluster_severity": "(COALESCE(cc, 0),COALESCE(ic, 0),COALESCE(mc, 0),COALESCE(lc, 0))"},
+				"cluster_severity": "(cluster.cve_cache_critical,cluster.cve_cache_important,cluster.cve_cache_moderate,cluster.cve_cache_low)"},
 			DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 		},
 		base.SearchQuery: base.ExposedClustersSearch,
