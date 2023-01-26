@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.26.1 (2023-01-26)
+### Fix
+* **manager:** Fix references to columns in removed subquery ([`f382277`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f3822774be86d68897c7bfe949795f8f0a0ea2f9))
+
 ## v0.26.0 (2023-01-16)
 ### Feature
 * **digestwriter:** Add Payload Tracker kafka producer ([`4f039e3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4f039e3b9d009d37b9839a0a2bf43763c5131047))
