@@ -137,13 +137,13 @@ func (s *ClusterSeverity) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) erro
 	for _, severity := range s.Value {
 		switch severity {
 		case models.Critical:
-			severities = append(severities, "cc > 0")
+			severities = append(severities, "cluster.cve_cache_critical > 0")
 		case models.Important:
-			severities = append(severities, "ic > 0")
+			severities = append(severities, "cluster.cve_cache_important > 0")
 		case models.Moderate:
-			severities = append(severities, "mc > 0")
+			severities = append(severities, "cluster.cve_cache_moderate > 0")
 		case models.Low:
-			severities = append(severities, "lc > 0")
+			severities = append(severities, "cluster.cve_cache_low > 0")
 		}
 	}
 	if len(severities) > 0 {
