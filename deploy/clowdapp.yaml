@@ -54,7 +54,7 @@ objects:
       webServices:
         public:
           enabled: true
-          apiPath: vuln4shift
+          apiPath: ocp-vulnerability
           whitelistPaths:
           - /api/ocp-vulnerability/v1/openapi*
         private:
