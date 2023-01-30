@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.27.0 (2023-01-30)
+### Feature
+* **digestwriter:** Add Payload Tracker feature flag ([`053bfb6`](https://github.com/RedHatInsights/vuln4shift-backend/commit/053bfb64a842b80cde9be74cc556c5ebe563b1f1))
+
 ## v0.26.2 (2023-01-30)
 ### Fix
 * Change apiPath to ocp-vulnerability ([`a152278`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a152278bda32413c978d7934479aa8bda421e916))
