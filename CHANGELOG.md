@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.26.2 (2023-01-30)
+### Fix
+* Change apiPath to ocp-vulnerability ([`a152278`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a152278bda32413c978d7934479aa8bda421e916))
+
 ## v0.26.1 (2023-01-26)
 ### Fix
 * **manager:** Fix references to columns in removed subquery ([`f382277`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f3822774be86d68897c7bfe949795f8f0a0ea2f9))
