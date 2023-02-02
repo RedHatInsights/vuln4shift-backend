@@ -46,16 +46,6 @@ func setDbUsersPasswords(conn *sql.DB) {
 	setDbUserPassword(conn, "exploit_gatherer", utils.Cfg.ExploitGathererPass)
 }
 
-func dropInvalidCve(conn *sql.DB) {
-	if _, err := conn.Exec("DELETE FROM image_cve WHERE cve_id IN (SELECT id FROM cve WHERE name = 'VE-2017-18270')"); err != nil {
-		log.Printf("Cannot remove invalid image-cve pairs")
-		return
-	}
-	if _, err := conn.Exec("DELETE FROM cve WHERE name = 'VE-2017-18270'"); err != nil {
-		log.Printf("Cannot remove invalid cve")
-	}
-}
-
 func Start() {
 	conn, err := utils.GetStandardDbConnection(true)
 	if err != nil {
@@ -111,5 +101,4 @@ func Start() {
 	}
 
 	setDbUsersPasswords(conn)
-	dropInvalidCve(conn)
 }
