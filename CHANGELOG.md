@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.28.0 (2023-02-02)
+### Feature
+* **digestwriter:** Add Payload Tracker metrics ([`71b0f58`](https://github.com/RedHatInsights/vuln4shift-backend/commit/71b0f587dce5907fdb32f7278875fd8a3740775d))
+
 ## v0.27.0 (2023-01-30)
 ### Feature
 * **digestwriter:** Add Payload Tracker feature flag ([`053bfb6`](https://github.com/RedHatInsights/vuln4shift-backend/commit/053bfb64a842b80cde9be74cc556c5ebe563b1f1))
