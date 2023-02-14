@@ -541,7 +541,7 @@ parameters:
   description: Timeout for kafka consumer
 - name: KAFKA_PRODUCER_TIMEOUT
   description: Timeout for kafka producer
-  required: false
+  value: "5s"
 - name: PAYLOAD_TRACKER_ENABLED
   description: Feature flag to enable Payload Tracker
   value: "true"
