@@ -172,13 +172,11 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 	ptEvent.UpdateStatusReceived()
 	go d.sendPayloadTrackerMessage(&ptEvent)
 
-	// Defer sending another Payload Tracker message with status success or error set later on
-	defer d.sendPayloadTrackerMessage(&ptEvent)
-
 	if message.Workload.Images == nil || message.Workload.Namespaces == nil {
 		logger.Debugln(errNoDigests)
 		d.IncrementNumberOfMessagesWithEmptyDigests()
 		ptEvent.UpdateStatusError(errNoDigests)
+		go d.sendPayloadTrackerMessage(&ptEvent)
 		return nil
 	}
 
@@ -203,10 +201,12 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 		}).Errorln(errClusterData)
 		storedMessagesError.Inc()
 		ptEvent.UpdateStatusError(errClusterData)
+		go d.sendPayloadTrackerMessage(&ptEvent)
 		return err
 	}
 
 	ptEvent.UpdateStatusSuccess()
+	go d.sendPayloadTrackerMessage(&ptEvent)
 	storedMessagesOk.Inc()
 	return nil
 }
