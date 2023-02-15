@@ -23,6 +23,8 @@ const (
 	processingDurationKey = "processing_duration"
 	// key for new message received timestamp
 	messageTimestamp = "message_timestamp"
+	// kafka broker address
+	brokerAddress
 )
 
 var (
@@ -378,6 +380,10 @@ func NewKafkaProducer(saramaConfig *sarama.Config, address, topic string) (*Kafk
 		Writer:                               writer,
 		Enqueued:                             0,
 	}
+
+	logger.WithFields(logrus.Fields{
+		brokerAddress: producer.Config.Address,
+	}).Debugln("Successfully created kafka producer")
 
 	return producer, nil
 }
