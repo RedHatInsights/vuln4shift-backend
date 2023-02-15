@@ -339,6 +339,7 @@ func NewKafkaProducer(saramaConfig *sarama.Config, address, topic string) (*Kafk
 	if saramaConfig == nil {
 		saramaConfig = sarama.NewConfig()
 		saramaConfig.Version = sarama.V0_10_2_0
+		saramaConfig.Producer.Return.Successes = true
 
 		timeout, err := time.ParseDuration(Cfg.KafkaProducerTimeout)
 		if err == nil && timeout != 0 {
