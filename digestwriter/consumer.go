@@ -170,13 +170,13 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 
 	// Send Payload Tracker message with status received
 	ptEvent.UpdateStatusReceived()
-	go d.sendPayloadTrackerMessage(&ptEvent)
+	go d.sendPayloadTrackerMessage(ptEvent)
 
 	if message.Workload.Images == nil || message.Workload.Namespaces == nil {
 		logger.Debugln(errNoDigests)
 		d.IncrementNumberOfMessagesWithEmptyDigests()
 		ptEvent.UpdateStatusError(errNoDigests)
-		go d.sendPayloadTrackerMessage(&ptEvent)
+		go d.sendPayloadTrackerMessage(ptEvent)
 		return nil
 	}
 
@@ -201,18 +201,18 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 		}).Errorln(errClusterData)
 		storedMessagesError.Inc()
 		ptEvent.UpdateStatusError(errClusterData)
-		go d.sendPayloadTrackerMessage(&ptEvent)
+		go d.sendPayloadTrackerMessage(ptEvent)
 		return err
 	}
 
 	ptEvent.UpdateStatusSuccess()
-	go d.sendPayloadTrackerMessage(&ptEvent)
+	go d.sendPayloadTrackerMessage(ptEvent)
 	storedMessagesOk.Inc()
 	return nil
 }
 
 // sendPayloadTrackerMessage sends Kafka message to Payload Tracker and logs errors
-func (d *DigestConsumer) sendPayloadTrackerMessage(event *utils.PayloadTrackerEvent) {
+func (d *DigestConsumer) sendPayloadTrackerMessage(event utils.PayloadTrackerEvent) {
 	if !usePayloadTracker {
 		return
 	}
@@ -225,7 +225,7 @@ func (d *DigestConsumer) sendPayloadTrackerMessage(event *utils.PayloadTrackerEv
 	}
 
 	payloadTrackerMessageSent.Inc()
-	logger.Debugf("successfully sent Payload Tracker message req=%v, status=%s", event.RequestID, event.Status)
+	logger.Debugf("successfully sent Payload Tracker message req=%v, ts=%s, status=%s", *event.RequestID, *event.Date, event.Status)
 }
 
 func extractDigestsFromMessage(workload Workload) (digests []string) {
