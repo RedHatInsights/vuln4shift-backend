@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.28.2 (2023-02-16)
+### Fix
+* **digestwriter:** Pass pt message by value ([`85406bb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/85406bb6dcbbfddfb571d10655393999c7517b03))
+
 ## v0.28.1 (2023-02-16)
 ### Fix
 * **base:** Turn on sarama success return values ([`a82743e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a82743eba53ae0a4a15a2af78fc03940ec970b05))
