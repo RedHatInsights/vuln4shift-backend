@@ -54,7 +54,7 @@ func (e *PayloadTrackerEvent) UpdateStatusError(msg string) {
 }
 
 func (e *PayloadTrackerEvent) updateTimestamp() {
-	ts := time.Now().Format(time.RFC3339)
+	ts := time.Now().Format(time.RFC3339Nano)
 	e.Date = &ts
 }
 
