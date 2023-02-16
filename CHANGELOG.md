@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v0.28.1 (2023-02-16)
+### Fix
+* **base:** Turn on sarama success return values ([`a82743e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a82743eba53ae0a4a15a2af78fc03940ec970b05))
+* **digestwriter:** Send all payload messages in goroutine ([`1ea978a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1ea978a042a3bd032a751f0029b9a3bc19111844))
+
 ## v0.28.0 (2023-02-02)
 ### Feature
 * **digestwriter:** Add Payload Tracker metrics ([`71b0f58`](https://github.com/RedHatInsights/vuln4shift-backend/commit/71b0f587dce5907fdb32f7278875fd8a3740775d))
