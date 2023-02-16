@@ -60,6 +60,10 @@ func (e *PayloadTrackerEvent) updateTimestamp() {
 
 // SendKafkaMessage delegates sending Kafka message to Producer in non-blocking manner
 func (e *PayloadTrackerEvent) SendKafkaMessage(producer Producer) error {
+	if e.RequestID == nil {
+		return errors.New("request ID is missing")
+	}
+
 	bs, err := json.Marshal(e)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal Payload Tracker event")
