@@ -22,7 +22,7 @@ def is_valid_uuid(uuid_to_test, version=4):
 
 def query(query):
     data = {"query": query}
-    r = requests.get(GABI_URL, headers=HEADERS, json=data)
+    r = requests.post(GABI_URL, headers=HEADERS, json=data)
     if r.status_code == 200:
         return r.json()["result"]
     else:
