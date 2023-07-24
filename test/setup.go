@@ -92,7 +92,7 @@ func PopulateClusterCveCache(DB *gorm.DB) error {
 			Find(&clusterDigests); res.Error != nil {
 			return res.Error
 		}
-		if err := storage.UpdateClusterCache(DB, cluster.ID, clusterDigests); err != nil {
+		if err := storage.UpdateClusterCache(DB, cluster.ID); err != nil {
 			return err
 		}
 	}
