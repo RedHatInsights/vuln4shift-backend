@@ -85,20 +85,16 @@ func prepareClusterImageLists(clusterID int64, currentImageIDs map[int64]struct{
 }
 
 // updateClusterCache updates the cache section of cluster row in db
-func (storage *DBStorage) UpdateClusterCache(tx *gorm.DB, clusterID int64, existingDigests []models.Image) error {
-	digestIDs := make([]int64, 0, len(existingDigests))
-	for _, digest := range existingDigests {
-		digestIDs = append(digestIDs, digest.ID)
-	}
-
-	subquery := tx.Table("image_cve").
+func (storage *DBStorage) UpdateClusterCache(tx *gorm.DB, clusterID int64) error {
+	subquery := tx.Table("cve").
 		Select(`COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS c,
 				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS i,
 				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS m,
 				COALESCE(COUNT(DISTINCT CASE WHEN cve.severity = ? THEN cve.id ELSE NULL END), 0) AS l`,
 			models.Critical, models.Important, models.Moderate, models.Low).
-		Joins("JOIN cve ON cve.id = image_cve.cve_id").
-		Where("image_cve.image_id IN ?", digestIDs)
+		Joins("JOIN image_cve ON image_cve.cve_id = cve.id").
+		Joins("JOIN cluster_image ON cluster_image.image_id = image_cve.image_id").
+		Where("cluster_image.cluster_id = ?", clusterID)
 
 	res := tx.Exec(`UPDATE cluster SET cve_cache_critical = c.c, cve_cache_important = c.i, cve_cache_moderate = c.m, cve_cache_low = c.l FROM (?) AS c WHERE cluster.id = ?`, subquery, clusterID)
 	if res.Error != nil {
@@ -178,7 +174,7 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterStr string, c
 	}
 
 	if len(toInsert) > 0 || len(toDelete) > 0 {
-		err := storage.UpdateClusterCache(tx, clusterID, existingDigests)
+		err := storage.UpdateClusterCache(tx, clusterID)
 		if err != nil {
 			logger.WithFields(logrus.Fields{
 				errorKey:     err.Error(),
