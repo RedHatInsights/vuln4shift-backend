@@ -86,10 +86,7 @@ func prepareMaps() error {
 	if err := prepareDbImages(); err != nil {
 		return err
 	}
-	if err := prepareDbCves(); err != nil {
-		return err
-	}
-	return nil
+	return prepareDbCves()
 }
 
 func emptyPendingCache() {

@@ -205,7 +205,7 @@ type testConsumer struct {
 	logInterceptor  *interceptor
 }
 
-func (c *testConsumer) Consume(ctx context.Context, topics []string, handler sarama.ConsumerGroupHandler) error {
+func (c *testConsumer) Consume(_ context.Context, _ []string, handler sarama.ConsumerGroupHandler) error {
 	if c.cancelCtx {
 		handler.(*KafkaConsumer).Cancel()
 	} else {
@@ -223,9 +223,9 @@ func (c testConsumer) Close() error {
 	return c.closeResponse
 }
 
-func (c testConsumer) Pause(partitions map[string][]int32) {}
+func (c testConsumer) Pause(_ map[string][]int32) {}
 
-func (c testConsumer) Resume(partitions map[string][]int32) {}
+func (c testConsumer) Resume(_ map[string][]int32) {}
 
 func (c testConsumer) PauseAll() {}
 

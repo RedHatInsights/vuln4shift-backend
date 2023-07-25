@@ -175,7 +175,7 @@ type AffectingClusters struct {
 }
 
 // ApplyQuery filters rows by count of affected clusters
-func (a *AffectingClusters) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
+func (a *AffectingClusters) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 	if a.None == a.OneOrMore {
 		return nil
 	}
@@ -288,7 +288,7 @@ type DataFormat struct {
 }
 
 // ApplyQuery format does not do anything to the DB query
-func (d *DataFormat) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+func (d *DataFormat) ApplyQuery(_ *gorm.DB, _ map[string]interface{}) error {
 	return nil
 }
 

@@ -234,8 +234,8 @@ func TestWriteClusterInfoWithExistingAccountForClusterName(t *testing.T) {
 
 // TestWriteClusterInfoNoAccountForClusterName tests that
 // Storage.WriteClusterInfo creates a new record in account table if
-//  no account can be retrieved for given clusterName and updates
-//  the cluster_image table properly
+// no account can be retrieved for given clusterName and updates
+// the cluster_image table properly
 func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 	storedAccountID := 10
 	storedClusterID := 2
@@ -309,7 +309,7 @@ func TestWriteClusterInfoNoAccountForClusterName(t *testing.T) {
 // TestWriteClusterInfoErrorWritingAccount tests that
 // Storage.WriteClusterInfo aborts and DB is rolled back to
 // previous state if an error happens while getting or creating
-//  the account info
+// the account info
 func TestWriteClusterInfoErrorWritingAccount(t *testing.T) {
 	storage, mock := NewMockStorage(t)
 	mock.ExpectBegin()
