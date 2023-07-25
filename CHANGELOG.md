@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.28.3 (2023-07-25)
+
+### Fix
+
+* Use older semantic-release ver ([`604931f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/604931f4db7de14273dcc31bf4577bb8b8cd9a2f))
+
 ## v0.28.2 (2023-02-16)
 ### Fix
 * **digestwriter:** Pass pt message by value ([`85406bb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/85406bb6dcbbfddfb571d10655393999c7517b03))
