@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.28.4 (2023-07-25)
+
+### Fix
+
+* **digestwriter:** Build cve cluster cache based on select from table ([`8093cf1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8093cf1ffd7086e0f7066f8096ddb233cc3bf011))
+
 ## v0.28.3 (2023-07-25)
 
 ### Fix
