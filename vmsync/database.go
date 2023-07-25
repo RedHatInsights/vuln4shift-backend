@@ -27,13 +27,10 @@ func prepareDbCvesMap() error {
 func insertUpdateCves(toSyncCves []models.Cve, tx *gorm.DB) error {
 	logger.Debugf("CVEs to insert/update: %d", len(toSyncCves))
 
-	if err := tx.Clauses(clause.OnConflict{
+	return tx.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "name"}},
 		UpdateAll: true,
-	}).CreateInBatches(toSyncCves, BatchSize).Error; err != nil {
-		return err
-	}
-	return nil
+	}).CreateInBatches(toSyncCves, BatchSize).Error
 }
 
 // deleteNotAffectingCves deletes CVEs not affecting any cluster.

@@ -29,10 +29,9 @@ func (t logger) Verbose() bool {
 func setDbUserPassword(conn *sql.DB, user, password string) {
 	if password == "" {
 		log.Fatalf("Unable to get password for user: %s.\n", user)
-	} else {
-		if _, err := conn.Exec(fmt.Sprintf("ALTER USER %s WITH PASSWORD '%s'", user, password)); err != nil {
-			log.Printf("Setting password failed: %s", err) // Log but do not fail if user doesn't exist
-		}
+	}
+	if _, err := conn.Exec(fmt.Sprintf("ALTER USER %s WITH PASSWORD '%s'", user, password)); err != nil {
+		log.Printf("Setting password failed: %s", err) // Log but do not fail if user doesn't exist
 	}
 }
 
