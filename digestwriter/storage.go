@@ -6,6 +6,7 @@ package digestwriter
 import (
 	"app/base/models"
 	"app/base/utils"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -21,7 +22,7 @@ const (
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
-	WriteClusterInfo(cluster ClusterName, orgID OrgID, workload Workload, digests []string) error
+	WriteClusterInfo(cluster ClusterName, orgID json.Number, workload Workload, digests []string) error
 }
 
 // DBStorage is an implementation of Storage
@@ -189,7 +190,7 @@ func (storage *DBStorage) linkDigestsToCluster(tx *gorm.DB, clusterStr string, c
 }
 
 // WriteClusterInfo updates the 'cluster' table with the provided info
-func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID OrgID, workload Workload, digests []string) error {
+func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID json.Number, workload Workload, digests []string) error {
 	// prepare data
 	clusterStr := string(cluster)
 	clusterUUID, err := uuid.Parse(clusterStr)

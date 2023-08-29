@@ -38,12 +38,6 @@ const (
 	errClusterData = "error updating cluster data"
 )
 
-// OrgID data type represents organization ID.
-type OrgID uint32
-
-// AccountNumber data type represents account number for a given report.
-type AccountNumber uint32
-
 // ClusterName represents the external cluster UUID contained in the consumed message
 type ClusterName string
 
@@ -77,13 +71,13 @@ type Namespace struct {
 // IncomingMessage data structure is representation of message consumed from
 // the configured topic
 type IncomingMessage struct {
-	Organization  OrgID         `json:"OrgID"`
-	AccountNumber AccountNumber `json:"AccountNumber"`
-	ClusterName   ClusterName   `json:"ClusterName"`
-	Workload      *Workload     `json:"Images"`
-	LastChecked   string        `json:"-"`
-	Version       uint8         `json:"Version"`
-	RequestID     RequestID     `json:"RequestID"`
+	Organization  json.Number `json:"OrgID"`
+	AccountNumber json.Number `json:"AccountNumber"`
+	ClusterName   ClusterName `json:"ClusterName"`
+	Workload      *Workload   `json:"Images"`
+	LastChecked   string      `json:"-"`
+	Version       uint8       `json:"Version"`
+	RequestID     RequestID   `json:"RequestID"`
 }
 
 // DigestConsumer Struct that must fulfill the Processor interface defined in utils/kafka.go
@@ -166,7 +160,7 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 
 	// Set up payload tracker event
 	ptEvent := utils.NewPayloadTrackerEvent(string(message.RequestID))
-	ptEvent.SetOrgIDFromUint(uint32(message.Organization))
+	ptEvent.SetOrgIDFromUint(message.Organization)
 
 	// Send Payload Tracker message with status received
 	ptEvent.UpdateStatusReceived()
@@ -263,6 +257,9 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 
 	if deserialized.Workload == nil {
 		return deserialized, errors.New("missing required attribute 'Images'")
+	}
+	if deserialized.Organization.String() == "" {
+		return deserialized, errors.New("OrgID cannot be null")
 	}
 
 	logger.WithFields(logrus.Fields{
