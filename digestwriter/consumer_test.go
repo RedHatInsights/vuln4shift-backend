@@ -464,3 +464,29 @@ func TestProcessMessageUUID(t *testing.T) {
 	assert.Equal(t, "error", ptEvent.Status)
 	assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
 }
+
+func TestDigestMessageParse(t *testing.T) {
+	SetupLogger()
+	utils.SetupLogger()
+
+	validCases := [][]byte{
+		[]byte(`{"OrgID":12341446,"AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"OrgID":"12341446","AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"OrgID":12341446,"AccountNumber":"6341839","ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"OrgID":12341446,"AccountNumber":null,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+	}
+	invalidCases := [][]byte{
+		[]byte(`{"OrgID":null,"AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+	}
+
+	for _, msg := range validCases {
+		_, err := parseMessage(msg)
+		assert.Nil(t, err)
+	}
+
+	for _, msg := range invalidCases {
+		_, err := parseMessage(msg)
+		assert.Equal(t, "OrgID cannot be null", err.Error())
+	}
+}

@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"strconv"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -28,8 +27,8 @@ type PayloadTrackerEvent struct {
 	Date        *string `json:"date"` // RFC3339
 }
 
-func (e *PayloadTrackerEvent) SetOrgIDFromUint(id uint32) {
-	orgID := strconv.FormatUint(uint64(id), 10)
+func (e *PayloadTrackerEvent) SetOrgIDFromUint(id json.Number) {
+	orgID := id.String()
 	e.OrgID = &orgID
 }
 
