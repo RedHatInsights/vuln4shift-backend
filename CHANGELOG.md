@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.28.5 (2023-09-04)
+
+### Fix
+
+* **digestwriter:** Accept different account number types ([`e5ae135`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e5ae135db36f9e818640dcf94d078d4afab47196))
+
 ## v0.28.4 (2023-07-25)
 
 ### Fix
