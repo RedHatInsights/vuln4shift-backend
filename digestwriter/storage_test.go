@@ -7,7 +7,6 @@ import (
 	"app/base/models"
 	"app/digestwriter"
 	"database/sql"
-	"encoding/json"
 	"regexp"
 	"testing"
 	"time"
@@ -23,7 +22,7 @@ var (
 	digestModifiedAtTime = time.Now().UTC()
 	clusterName          = digestwriter.ClusterName("84f7eedc-0000-0000-9d4d-000000000000")
 	invalidClusterName   = digestwriter.ClusterName("99z7zzzz-0000-0000-9d4d-000000000000")
-	testOrgID            = json.Number("1")
+	testOrgID            = digestwriter.AccountNumber("1")
 	workload             = digestwriter.Workload{}
 
 	anyArgForMockSQLQueries = sqlmock.AnyArg()

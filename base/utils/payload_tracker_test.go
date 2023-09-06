@@ -28,7 +28,7 @@ func TestSendPayloadTrackerMessage(t *testing.T) {
 	testProducer := CreateKafkaProducerMock(topic, testWriter)
 	defer testProducer.Close()
 
-	ptEvent := NewPayloadTrackerEvent("test-key")
+	ptEvent := NewPayloadTrackerEvent("test-key", "1234567")
 
 	assert.Nil(t, ptEvent.SendKafkaMessage(testProducer))
 	awaitPayloadTrackerValidResponse(t, testProducer, time.Millisecond*500, 0)
@@ -38,7 +38,7 @@ func TestSendPayloadTrackerMessage(t *testing.T) {
 }
 
 func TestPayloadTrackerStatusUpdate(t *testing.T) {
-	ptEvent := NewPayloadTrackerEvent("key")
+	ptEvent := NewPayloadTrackerEvent("key", "1234567")
 
 	ptEvent.UpdateStatusReceived()
 	assert.Equal(t, PayloadTrackerStatusReceived, ptEvent.Status)

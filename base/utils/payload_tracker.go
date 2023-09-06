@@ -27,11 +27,6 @@ type PayloadTrackerEvent struct {
 	Date        *string `json:"date"` // RFC3339
 }
 
-func (e *PayloadTrackerEvent) SetOrgIDFromUint(id json.Number) {
-	orgID := id.String()
-	e.OrgID = &orgID
-}
-
 func (e *PayloadTrackerEvent) SetRequestID(id string) {
 	e.RequestID = &id
 }
@@ -71,10 +66,10 @@ func (e *PayloadTrackerEvent) SendKafkaMessage(producer Producer) error {
 	return producer.SendMessage(sarama.StringEncoder(*e.RequestID), sarama.ByteEncoder(bs))
 }
 
-func NewPayloadTrackerEvent(reqID string) PayloadTrackerEvent {
+func NewPayloadTrackerEvent(reqID, orgID string) PayloadTrackerEvent {
 	return PayloadTrackerEvent{
 		Service:     service,
-		OrgID:       nil,
+		OrgID:       &orgID,
 		RequestID:   &reqID,
 		InventoryID: "",
 		Status:      "",
