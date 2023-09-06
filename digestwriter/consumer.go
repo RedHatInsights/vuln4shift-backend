@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/Shopify/sarama"
@@ -46,6 +47,30 @@ const (
 	errClusterData = "error updating cluster data"
 )
 
+// AccountNumber or OrgID.
+type AccountNumber string
+
+// UnmarshalJSON handles multiple data types including some broken inputs.
+func (o *AccountNumber) UnmarshalJSON(bs []byte) error {
+	var raw json.RawMessage
+	if err := json.Unmarshal(bs, &raw); err != nil {
+		return err
+	}
+
+	var err error
+	if string(raw) == "null" || string(raw) == `"null"` {
+		*o = ""
+	} else if raw[0] == '"' && raw[len(raw)-1] == '"' {
+		*o = AccountNumber(raw[1 : len(raw)-1])
+	} else if raw[0] != '"' && raw[len(raw)-1] != '"' {
+		*o = AccountNumber(raw)
+	} else {
+		err = fmt.Errorf("unsupported data type for OrgID/AccountNumber with value: %s", raw)
+	}
+
+	return err
+}
+
 // ClusterName represents the external cluster UUID contained in the consumed message
 type ClusterName string
 
@@ -79,13 +104,13 @@ type Namespace struct {
 // IncomingMessage data structure is representation of message consumed from
 // the configured topic
 type IncomingMessage struct {
-	Organization  json.Number `json:"OrgID"`
-	AccountNumber json.Number `json:"AccountNumber"`
-	ClusterName   ClusterName `json:"ClusterName"`
-	Workload      *Workload   `json:"Images"`
-	LastChecked   string      `json:"-"`
-	Version       uint8       `json:"Version"`
-	RequestID     RequestID   `json:"RequestID"`
+	Organization  AccountNumber `json:"OrgID"`
+	AccountNumber AccountNumber `json:"AccountNumber"`
+	ClusterName   ClusterName   `json:"ClusterName"`
+	Workload      *Workload     `json:"Images"`
+	LastChecked   string        `json:"-"`
+	Version       uint8         `json:"Version"`
+	RequestID     RequestID     `json:"RequestID"`
 }
 
 // DigestConsumer Struct that must fulfill the Processor interface defined in utils/kafka.go
@@ -167,8 +192,7 @@ func (d *DigestConsumer) ProcessMessage(msg *sarama.ConsumerMessage) error {
 	parsedIncomingMessage.Inc()
 
 	// Set up payload tracker event
-	ptEvent := utils.NewPayloadTrackerEvent(string(message.RequestID))
-	ptEvent.SetOrgIDFromUint(message.Organization)
+	ptEvent := utils.NewPayloadTrackerEvent(string(message.RequestID), string(message.Organization))
 
 	// Send Payload Tracker message with status received
 	ptEvent.UpdateStatusReceived()
@@ -305,11 +329,11 @@ func parseMessage(messageValue []byte) (IncomingMessage, error) {
 
 	logger.Debugf("deserialized message: %v", deserialized)
 
+	if deserialized.Organization == "" {
+		return deserialized, errors.New("OrgID cannot be null or empty")
+	}
 	if deserialized.Workload == nil {
 		return deserialized, errors.New("missing required attribute 'Images'")
-	}
-	if deserialized.Organization.String() == "" {
-		return deserialized, errors.New("OrgID cannot be null")
 	}
 
 	logger.WithFields(logrus.Fields{

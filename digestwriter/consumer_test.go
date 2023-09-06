@@ -549,6 +549,7 @@ func TestProcessMessageUUID(t *testing.T) {
 	assert.Equal(t, "error", ptEvent.Status)
 	assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
 }
+
 func TestProcessMessageUUIDCompressed(t *testing.T) {
 	testWriter, testProducer := setupTestPayloadTracker(t)
 	defer testProducer.Close()
@@ -573,6 +574,29 @@ func TestProcessMessageUUIDCompressed(t *testing.T) {
 	assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
 }
 
+func TestAccountNumberUnmarshall(t *testing.T) {
+	SetupLogger()
+	utils.SetupLogger()
+
+	type S struct {
+		OrgID AccountNumber `json:"OrgID"`
+	}
+
+	cases := map[string]string{
+		`{"OrgID": 12345}`:   "12345",
+		`{"OrgID": "12345"}`: "12345",
+		`{"OrgID": ""}`:      "",
+		`{"OrgID": "null"}`:  "",
+		`{"OrgID": null}`:    "",
+	}
+
+	var s S
+	for actual, expected := range cases {
+		assert.Nil(t, json.Unmarshal([]byte(actual), &s))
+		assert.Equal(t, AccountNumber(expected), s.OrgID)
+	}
+}
+
 func TestDigestMessageParse(t *testing.T) {
 	SetupLogger()
 	utils.SetupLogger()
@@ -595,7 +619,7 @@ func TestDigestMessageParse(t *testing.T) {
 
 	for _, msg := range invalidCases {
 		_, err := parseMessage(msg)
-		assert.Equal(t, "OrgID cannot be null", err.Error())
+		assert.Equal(t, "OrgID cannot be null or empty", err.Error())
 	}
 }
 
@@ -622,6 +646,6 @@ func TestDigestCompressedMessageParse(t *testing.T) {
 
 	for _, msg := range invalidCases {
 		_, err := parseMessage(msg)
-		assert.Equal(t, "OrgID cannot be null", err.Error())
+		assert.Equal(t, "OrgID cannot be null or empty", err.Error())
 	}
 }
