@@ -8,15 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func GetAllClusters(t *testing.T) (clusters []models.Cluster) {
-	result := DB.Model(models.Cluster{}).Order("id").Scan(&clusters)
+func GetAllClusters(t *testing.T) (clusters []models.ClusterLight) {
+	result := DB.Model(models.ClusterLight{}).Order("id").Scan(&clusters)
 	assert.Nil(t, result.Error)
 	assert.True(t, len(clusters) > 0)
 	return clusters
 }
 
-func GetAccountClusters(t *testing.T, id int64) (clusters []models.Cluster) {
-	result := DB.Model(models.Cluster{}).
+func GetAccountClusters(t *testing.T, id int64) (clusters []models.ClusterLight) {
+	result := DB.Model(models.ClusterLight{}).
 		Order("id").
 		Where("account_id = ?", id).
 		Scan(&clusters)
@@ -25,8 +25,8 @@ func GetAccountClusters(t *testing.T, id int64) (clusters []models.Cluster) {
 	return clusters
 }
 
-func GetCluster(t *testing.T, id int64) (cluster models.Cluster) {
-	result := DB.Model(models.Cluster{}).Where("id = ?", id).Scan(&cluster)
+func GetCluster(t *testing.T, id int64) (cluster models.ClusterLight) {
+	result := DB.Model(models.ClusterLight{}).Where("id = ?", id).Scan(&cluster)
 	assert.Nil(t, result.Error)
 	return cluster
 }

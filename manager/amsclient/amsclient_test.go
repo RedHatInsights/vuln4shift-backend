@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func prepareTestClusterDetails(t *testing.T, accountID int64) ([]models.Cluster, map[string]bool, map[string]bool, map[string]bool, map[string]ams.ClusterInfo) {
+func prepareTestClusterDetails(t *testing.T, accountID int64) ([]models.ClusterLight, map[string]bool, map[string]bool, map[string]bool, map[string]ams.ClusterInfo) {
 	expectedClusters := test.GetAccountClusters(t, accountID)
 
 	expectedProviders := make(map[string]bool)

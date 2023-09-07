@@ -39,8 +39,8 @@ func NewClusterCleaner(clusterRetentionDays uint) (*ClusterCleaner, error) {
 }
 
 // fetchExpiredClusters fetches expired clusters by deadline
-func (c *ClusterCleaner) fetchExpiredClusters(deadline time.Time) []models.Cluster {
-	clusters := make([]models.Cluster, 0)
+func (c *ClusterCleaner) fetchExpiredClusters(deadline time.Time) []models.ClusterLight {
+	clusters := make([]models.ClusterLight, 0)
 	c.conn.Where("last_seen < ?", deadline).Find(&clusters)
 	return clusters
 }
@@ -59,7 +59,7 @@ func (c *ClusterCleaner) deleteClusterImage(tx *gorm.DB, clusterIDs []int64) err
 
 // deleteClusters deleted clusters table
 func (c *ClusterCleaner) deleteClusters(tx *gorm.DB, clusterIDs []int64) error {
-	tx.Where("ID IN ?", clusterIDs).Delete(&models.Cluster{})
+	tx.Where("ID IN ?", clusterIDs).Delete(&models.ClusterLight{})
 	return c.conn.Error
 }
 
