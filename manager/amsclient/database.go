@@ -3,7 +3,6 @@ package amsclient
 import (
 	"fmt"
 
-	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 
 	"app/base/models"
@@ -27,7 +26,7 @@ func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID 
 	clusterProviders := map[string]struct{}{}
 
 	// Query all clusters in DB for given account
-	clusterRows := []models.Cluster{}
+	clusterRows := []models.ClusterLight{}
 	query := conn.Where("cluster.account_id = ?", accountID).Order("cluster.id")
 	if cveName != nil {
 		query = query.
@@ -63,10 +62,6 @@ func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID 
 					clusterRow.Type = EmptyToNA(clusterInfo.Type)
 					clusterRow.Version = EmptyToNA(clusterInfo.Version)
 					clusterRow.Provider = providerStr
-					// workaround to not encode undefined value
-					if clusterRow.Workload.Status == pgtype.Undefined {
-						clusterRow.Workload.Status = pgtype.Null
-					}
 					if err := conn.Save(&clusterRow).Error; err != nil {
 						return nil, nil, nil, nil, err
 					}

@@ -49,6 +49,27 @@ func (Cluster) TableName() string {
 	return "cluster"
 }
 
+// ClusterLight table (Cluster without Workload JSONB)
+type ClusterLight struct {
+	ID                int64     `gorm:"type:bigint;primaryKey;autoIncrement"`
+	UUID              uuid.UUID `gorm:"type:uuid;unique"`
+	DisplayName       string    `gorm:"type:text"`
+	Status            string    `gorm:"type:text"`
+	Type              string    `gorm:"type:text"`
+	Version           string    `gorm:"type:text"`
+	Provider          string    `gorm:"type:text"`
+	AccountID         int64     `gorm:"type:bigint;not null"`
+	CveCacheCritical  int32     `gorm:"type:int;not null;default:0"`
+	CveCacheImportant int32     `gorm:"type:int;not null;default:0"`
+	CveCacheModerate  int32     `gorm:"type:int;not null;default:0"`
+	CveCacheLow       int32     `gorm:"type:int;not null;default:0"`
+	LastSeen          time.Time `gorm:"type:timestamp with time zone not null"`
+}
+
+func (ClusterLight) TableName() string {
+	return "cluster"
+}
+
 // Repository table
 type Repository struct {
 	ID           int64     `gorm:"type:bigint;primaryKey;autoIncrement"`

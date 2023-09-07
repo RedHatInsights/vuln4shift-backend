@@ -138,8 +138,8 @@ func GetClustersExposedLimitClusters(t *testing.T, accountID, cveID int64, clust
 	return clustersExposed
 }
 
-func GetExposedClusters(t *testing.T, accountID, cveID int64) (clusters []models.Cluster) {
-	assert.Nil(t, DB.Model(models.Cluster{}).
+func GetExposedClusters(t *testing.T, accountID, cveID int64) (clusters []models.ClusterLight) {
+	assert.Nil(t, DB.Model(models.ClusterLight{}).
 		Joins("JOIN cluster_image on cluster.id = cluster_image.cluster_id").
 		Joins("JOIN image_cve on cluster_image.image_id = image_cve.image_id").
 		Joins("JOIN cve on image_cve.cve_id = cve.id").
