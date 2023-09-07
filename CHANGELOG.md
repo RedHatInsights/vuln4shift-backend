@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.28.6 (2023-09-07)
+
+### Fix
+
+* Don't fetch Workload JSONB to optimize memory consumption ([`123ce24`](https://github.com/RedHatInsights/vuln4shift-backend/commit/123ce24ffa299f882ee233a57938f9cd475877ab))
+
 ## v0.28.5 (2023-09-04)
 
 ### Fix
