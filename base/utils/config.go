@@ -150,7 +150,7 @@ func initConfig() {
 	// Manager config
 	Cfg.AmsEnabled = GetEnv("AMS_ENABLED", false)
 	Cfg.AmsAPIURL = GetEnv("AMS_API_URL", "http://ams_api_url")
-	Cfg.AmsAPIPagesize = GetEnv("AMS_API_PAGESIZE", 6000)
+	Cfg.AmsAPIPagesize = GetEnv("AMS_API_PAGESIZE", -1)
 	Cfg.AmsClientID = GetEnv("AMS_CLIENT_ID", "")
 	Cfg.AmsClientSecret = GetEnv("AMS_CLIENT_SECRET", "")
 

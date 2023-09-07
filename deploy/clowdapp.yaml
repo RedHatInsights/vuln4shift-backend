@@ -522,7 +522,7 @@ parameters:
 - name: AMS_API_URL
   value: "https://api.openshift.com"
 - name: AMS_API_PAGESIZE
-  value: "6000"
+  value: "-1"
 
 # DIGEST WRITER CONFIG
 - name: DIGEST_WRITER_CONSUMER_GROUP
