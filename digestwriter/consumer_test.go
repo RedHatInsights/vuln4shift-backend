@@ -385,20 +385,26 @@ func awaitProcessingMessage(t *testing.T, testProducer *utils.KafkaProducer, tes
 func CompressConsumerMessage(msg *sarama.ConsumerMessage) {
 	compresed := new(bytes.Buffer)
 	gzipWritter := gzip.NewWriter(compresed)
-	gzipWritter.Write(msg.Value)
+	_, err := gzipWritter.Write(msg.Value)
+	if err != nil {
+		panic(err)
+	}
 	gzipWritter.Flush()
 	gzipWritter.Close()
 	msg.Value = compresed.Bytes()
 
 }
 
-func CompressMessage(msg []byte) {
+func CompressMessage(msg []byte) []byte {
 	compresed := new(bytes.Buffer)
 	gzipWritter := gzip.NewWriter(compresed)
-	gzipWritter.Write(msg)
+	_, err := gzipWritter.Write(msg)
+	if err != nil {
+		panic(err)
+	}
 	gzipWritter.Flush()
 	gzipWritter.Close()
-	msg = compresed.Bytes()
+	return compresed.Bytes()
 }
 func TestProcessCompressedMessage(t *testing.T) {
 	testWriter, testProducer := setupTestPayloadTracker(t)
