@@ -263,9 +263,9 @@ func isMessageInGzipFormat(messageValue []byte) bool {
 	// Checking for first 2 bytes in gzip instance witch are 31 and 139
 	if messageValue[0] == gzip1 && messageValue[1] == gzip2 {
 		return true
-	} else {
-		return false
 	}
+	return false
+
 }
 
 // decompressMessage will try to decompress the message if the message is compressed
