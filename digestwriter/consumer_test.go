@@ -2,6 +2,8 @@ package digestwriter
 
 import (
 	"app/base/utils"
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"testing"
 	"time"
@@ -380,6 +382,60 @@ func awaitProcessingMessage(t *testing.T, testProducer *utils.KafkaProducer, tes
 
 	return err
 }
+func CompressConsumerMessage(msg *sarama.ConsumerMessage) {
+	compresed := new(bytes.Buffer)
+	gzipWritter := gzip.NewWriter(compresed)
+	gzipWritter.Write(msg.Value)
+	gzipWritter.Flush()
+	gzipWritter.Close()
+	msg.Value = compresed.Bytes()
+
+}
+
+func CompressMessage(msg []byte) {
+	compresed := new(bytes.Buffer)
+	gzipWritter := gzip.NewWriter(compresed)
+	gzipWritter.Write(msg)
+	gzipWritter.Flush()
+	gzipWritter.Close()
+	msg = compresed.Bytes()
+}
+func TestProcessCompressedMessage(t *testing.T) {
+	testWriter, testProducer := setupTestPayloadTracker(t)
+	defer testProducer.Close()
+
+	testConsumer := setupTestDigestConsumer(t, testProducer)
+
+	msg := &sarama.ConsumerMessage{
+		Timestamp: time.Now(),
+		Value:     []byte(testCCXMessage),
+		Topic:     "ccx.image.sha.results",
+	}
+	CompressConsumerMessage(msg)
+	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
+
+	// Should send received and success message only
+	assert.Equal(t, uint64(2), testProducer.GetNumberOfSuccessfullyProducedMessages())
+	assert.Equal(t, uint64(0), testProducer.GetNumberOfErrorsProducingMessages())
+	assert.Equal(t, 0, testProducer.Enqueued)
+
+	assert.Equal(t, 2, len(testWriter.ProcessedMessages))
+
+	expectedMessages := make([]utils.PayloadTrackerEvent, 0, 2)
+	for _, msg := range testWriter.ProcessedMessages {
+		bs, err := msg.Value.Encode()
+		assert.Nil(t, err)
+
+		var ptEvent utils.PayloadTrackerEvent
+		assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+
+		expectedMessages = append(expectedMessages, ptEvent)
+	}
+
+	assert.Equal(t, 2, len(expectedMessages))
+	assert.Equal(t, utils.PayloadTrackerStatusReceived, expectedMessages[0].Status)
+	assert.Equal(t, utils.PayloadTrackerStatusSuccess, expectedMessages[1].Status)
+}
 
 func TestProcessMessage(t *testing.T) {
 	testWriter, testProducer := setupTestPayloadTracker(t)
@@ -441,6 +497,29 @@ func TestProcessMessageNoImages(t *testing.T) {
 	assert.Equal(t, "no digests were retrieved from incoming message", ptEvent.StatusMsg)
 }
 
+func TestProcessCompressedMessageNoImages(t *testing.T) {
+	testWriter, testProducer := setupTestPayloadTracker(t)
+	defer testProducer.Close()
+
+	testConsumer := setupTestDigestConsumer(t, testProducer)
+
+	msg := &sarama.ConsumerMessage{
+		Timestamp: time.Now(),
+		Value:     []byte(testCCXMessageNoImages),
+		Topic:     "ccx.image.sha.results",
+	}
+	CompressConsumerMessage(msg)
+	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
+
+	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
+	assert.Nil(t, err)
+	var ptEvent utils.PayloadTrackerEvent
+	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+
+	assert.Equal(t, "error", ptEvent.Status)
+	assert.Equal(t, "no digests were retrieved from incoming message", ptEvent.StatusMsg)
+}
+
 func TestProcessMessageUUID(t *testing.T) {
 	testWriter, testProducer := setupTestPayloadTracker(t)
 	defer testProducer.Close()
@@ -453,6 +532,30 @@ func TestProcessMessageUUID(t *testing.T) {
 		Topic:     "ccx.image.sha.results",
 	}
 
+	err := awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0)
+	assert.Equal(t, "invalid UUID length: 28", err.Error())
+
+	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
+	assert.Nil(t, err)
+	var ptEvent utils.PayloadTrackerEvent
+	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+
+	assert.Equal(t, "error", ptEvent.Status)
+	assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
+}
+
+func TestProcessMessageUUIDCompressed(t *testing.T) {
+	testWriter, testProducer := setupTestPayloadTracker(t)
+	defer testProducer.Close()
+
+	testConsumer := setupTestDigestConsumer(t, testProducer)
+
+	msg := &sarama.ConsumerMessage{
+		Timestamp: time.Now(),
+		Value:     []byte(testCCXMessageInvalidUUID),
+		Topic:     "ccx.image.sha.results",
+	}
+	CompressConsumerMessage(msg)
 	err := awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0)
 	assert.Equal(t, "invalid UUID length: 28", err.Error())
 
@@ -481,6 +584,33 @@ func TestDigestMessageParse(t *testing.T) {
 	}
 
 	for _, msg := range validCases {
+		_, err := parseMessage(msg)
+		assert.Nil(t, err)
+	}
+
+	for _, msg := range invalidCases {
+		_, err := parseMessage(msg)
+		assert.Equal(t, "OrgID cannot be null", err.Error())
+	}
+}
+
+func TestDigestCompressedMessageParse(t *testing.T) {
+	SetupLogger()
+	utils.SetupLogger()
+
+	validCases := [][]byte{
+		[]byte(`{"OrgID":12341446,"AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"OrgID":"12341446","AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"OrgID":12341446,"AccountNumber":"6341839","ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"OrgID":12341446,"AccountNumber":null,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+	}
+	invalidCases := [][]byte{
+		[]byte(`{"OrgID":null,"AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+		[]byte(`{"AccountNumber":6341839,"ClusterName":"04a816ea-cd0b-47c3-b754-a9008b127d84","Images":{"imageCount":2,"images":{},"namespaces":{}},"Version":2,"RequestID":"cbcbfeb72f074dffad1528dd209b130e"}`),
+	}
+
+	for _, msg := range validCases {
+		CompressMessage(msg)
 		_, err := parseMessage(msg)
 		assert.Nil(t, err)
 	}

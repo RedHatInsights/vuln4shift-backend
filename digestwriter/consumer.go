@@ -2,8 +2,11 @@ package digestwriter
 
 import (
 	"app/base/utils"
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 
 	"github.com/Shopify/sarama"
 	"github.com/sirupsen/logrus"
@@ -31,6 +34,11 @@ const (
 	errorKey = "error"
 	// key for created row's ID in database table
 	rowIDKey = "row_id"
+
+	// first byte of gzip compression
+	gzip1 = 31
+	// second byte of gzip compression
+	gzip2 = 139
 )
 
 const (
@@ -244,8 +252,44 @@ func extractDigestsFromMessage(workload Workload) (digests []string) {
 	return
 }
 
+// isMessageInGzipFormat will check if the format of the message is gzip if it is it will return true if not it will return false
+func isMessageInGzipFormat(messageValue []byte) bool {
+	if messageValue == nil {
+		return false
+	}
+	if len(messageValue) < 2 {
+		return false
+	}
+	// Checking for first 2 bytes in gzip instance witch are 31 and 139
+	if messageValue[0] == gzip1 && messageValue[1] == gzip2 {
+		return true
+	} else {
+		return false
+	}
+}
+
+// decompressMessage will try to decompress the message if the message is compressed
+func decompressMessage(messageValue []byte) []byte {
+	if isMessageInGzipFormat(messageValue) {
+		reader := bytes.NewReader(messageValue)
+		gzipReader, err := gzip.NewReader(reader)
+		if err != nil {
+			logger.Errorf("failed to read the compressed message: %s", err.Error())
+		}
+		defer gzipReader.Close()
+		decompresed, err := ioutil.ReadAll(gzipReader)
+		if err != nil {
+			logger.Errorf("failed to decompress the message: %s", err.Error())
+		}
+		gzipReader.Close()
+		return decompresed
+	}
+	return messageValue
+}
+
 // parseMessage tries to parse incoming message and verify all required attributes
 func parseMessage(messageValue []byte) (IncomingMessage, error) {
+	messageValue = decompressMessage(messageValue)
 	var deserialized IncomingMessage
 	err := json.Unmarshal(messageValue, &deserialized)
 
