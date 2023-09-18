@@ -5,10 +5,10 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
-	"errors"
-	"io/ioutil"
+	"io"
 
 	"github.com/Shopify/sarama"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -276,8 +276,12 @@ func decompressMessage(messageValue []byte) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer gzipReader.Close()
-		decompresed, err := ioutil.ReadAll(gzipReader)
+		defer func(r *gzip.Reader) {
+			if err := r.Close(); err != nil {
+				logger.Errorf("failed to close gzip reader: %s", err.Error())
+			}
+		}(gzipReader)
+		decompresed, err := io.ReadAll(gzipReader)
 		if err != nil {
 			return nil, err
 		}
@@ -288,12 +292,12 @@ func decompressMessage(messageValue []byte) ([]byte, error) {
 
 // parseMessage tries to parse incoming message and verify all required attributes
 func parseMessage(messageValue []byte) (IncomingMessage, error) {
-	messageValue, er := decompressMessage(messageValue)
-	if er != nil {
-		logger.Errorf("failed to decompress the message: %s", er.Error())
-	}
 	var deserialized IncomingMessage
-	err := json.Unmarshal(messageValue, &deserialized)
+	messageValue, err := decompressMessage(messageValue)
+	if err != nil {
+		return deserialized, errors.Wrap(err, "failed to decompress incoming message")
+	}
+	err = json.Unmarshal(messageValue, &deserialized)
 
 	if err != nil {
 		return deserialized, err

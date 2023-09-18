@@ -395,7 +395,7 @@ func CompressConsumerMessage(msg *sarama.ConsumerMessage) {
 
 }
 
-func CompressMessage(msg []byte) []byte {
+func compressMessage(msg []byte) []byte {
 	compresed := new(bytes.Buffer)
 	gzipWritter := gzip.NewWriter(compresed)
 	_, err := gzipWritter.Write(msg)
@@ -615,7 +615,7 @@ func TestDigestCompressedMessageParse(t *testing.T) {
 	}
 
 	for _, msg := range validCases {
-		CompressMessage(msg)
+		compressMessage(msg)
 		_, err := parseMessage(msg)
 		assert.Nil(t, err)
 	}
