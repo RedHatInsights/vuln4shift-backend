@@ -382,7 +382,7 @@ func awaitProcessingMessage(t *testing.T, testProducer *utils.KafkaProducer, tes
 
 	return err
 }
-func CompressConsumerMessage(msg *sarama.ConsumerMessage) {
+func compressConsumerMessage(msg *sarama.ConsumerMessage) {
 	compresed := new(bytes.Buffer)
 	gzipWritter := gzip.NewWriter(compresed)
 	_, err := gzipWritter.Write(msg.Value)
@@ -417,7 +417,7 @@ func TestProcessCompressedMessage(t *testing.T) {
 		Value:     []byte(testCCXMessage),
 		Topic:     "ccx.image.sha.results",
 	}
-	CompressConsumerMessage(msg)
+	compressConsumerMessage(msg)
 	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
 
 	// Should send received and success message only
@@ -514,7 +514,7 @@ func TestProcessCompressedMessageNoImages(t *testing.T) {
 		Value:     []byte(testCCXMessageNoImages),
 		Topic:     "ccx.image.sha.results",
 	}
-	CompressConsumerMessage(msg)
+	compressConsumerMessage(msg)
 	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
 
 	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
@@ -560,7 +560,7 @@ func TestProcessMessageUUIDCompressed(t *testing.T) {
 		Value:     []byte(testCCXMessageInvalidUUID),
 		Topic:     "ccx.image.sha.results",
 	}
-	CompressConsumerMessage(msg)
+	compressConsumerMessage(msg)
 	err := awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0)
 	assert.Equal(t, "invalid UUID length: 28", err.Error())
 
