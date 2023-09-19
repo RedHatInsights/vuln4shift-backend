@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.29.0 (2023-09-19)
+
+### Feature
+
+* Ccx-sha-extractor decompression for messages ([#182](https://github.com/RedHatInsights/vuln4shift-backend/issues/182)) ([`188e9e4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/188e9e4ab9b52af703add863f63c8f7a66a23c9f))
+
 ## v0.28.6 (2023-09-07)
 
 ### Fix
