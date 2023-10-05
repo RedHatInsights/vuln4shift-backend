@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.29.1 (2023-10-05)
+
+### Fix
+
+* **digestwriter:** Accept multiple account number types including empty strings ([`84734fc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/84734fcec7b113cba9a9a0c80e37d22c34cf0e70))
+
 ## v0.29.0 (2023-09-19)
 
 ### Feature
