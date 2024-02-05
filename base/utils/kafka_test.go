@@ -129,9 +129,9 @@ func TestSetupLoggerFail(t *testing.T) {
 	SetupLogger()
 }
 
-func initKafkaBroker(sasl, address, consumerGroup, incomingTopic, payloadTrackerTopic string) {
+func initKafkaBroker(sasl, servers, consumerGroup, incomingTopic, payloadTrackerTopic string) {
 	Cfg.KafkaBroker = createTestBroker(sasl)
-	Cfg.KafkaBrokerAddress = address
+	Cfg.KafkaServers = []string{servers}
 	Cfg.KafkaBrokerConsumerGroup = consumerGroup
 	Cfg.KafkaBrokerIncomingTopic = incomingTopic
 	Cfg.KafkaPayloadTrackerTopic = payloadTrackerTopic
@@ -144,15 +144,6 @@ func TestNewKafkaConsumer(t *testing.T) {
 	cfg.Metadata.Full = false
 	_, err := NewKafkaConsumer(cfg, nil)
 	assert.Nil(t, err)
-}
-
-func TestNewKafkaConsumerInvalidAddress(t *testing.T) {
-	initKafkaBroker(sarama.SASLTypePlaintext, "", "", "", "test-pt-topic")
-
-	cfg := sarama.NewConfig()
-	cfg.Metadata.Full = false
-	_, err := NewKafkaConsumer(cfg, nil)
-	assert.Equal(t, "unable to get env var: KAFKA_BROKER_ADDRESS", err.Error())
 }
 
 func TestNewKafkaConsumerInvalidConsumerGroup(t *testing.T) {

@@ -53,8 +53,8 @@ type Consumer interface {
 
 // KafkaConsumerConfig configuration for connecting with Kafka broker
 type KafkaConsumerConfig struct {
-	// Address broker's address in <host>:<port> format
-	Address string
+	// The list of broker addresses used to connect to the kafka cluster.
+	Brokers []string
 	// IncomingTopic name of Kafka topic to consume from
 	IncomingTopic string
 	// Group name of the Kafka consumer group, if any
@@ -87,8 +87,8 @@ type KafkaConsumer struct {
 // the default sarama config if none is provided
 func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaConsumer, error) {
 	SetupLogger()
-	if Cfg.KafkaBrokerAddress == "" {
-		return nil, errors.New("unable to get env var: KAFKA_BROKER_ADDRESS")
+	if len(Cfg.KafkaServers) == 0 {
+		return nil, errors.New("unable to get env var: KAFKA_SERVERS")
 	}
 	if Cfg.KafkaBrokerConsumerGroup == "" {
 		return nil, errors.New("unable to get env var: KAFKA_BROKER_CONSUMER_GROUP")
@@ -125,14 +125,14 @@ func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaC
 		}
 	}
 
-	consumerGroup, err := sarama.NewConsumerGroup([]string{Cfg.KafkaBrokerAddress}, Cfg.KafkaBrokerConsumerGroup, saramaConfig)
+	consumerGroup, err := sarama.NewConsumerGroup(Cfg.KafkaServers, Cfg.KafkaBrokerConsumerGroup, saramaConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	consumer := &KafkaConsumer{
 		Config: &KafkaConsumerConfig{
-			Address:       Cfg.KafkaBrokerAddress,
+			Brokers:       Cfg.KafkaServers,
 			IncomingTopic: Cfg.KafkaBrokerIncomingTopic,
 			Group:         Cfg.KafkaBrokerConsumerGroup,
 		},
@@ -316,7 +316,7 @@ type Producer interface {
 // KafkaProducerConfig configuration for connecting with Kafka broker
 type KafkaProducerConfig struct {
 	// Address broker's address in <host>:<port> format
-	Address string
+	Brokers []string
 	// Topic name of Kafka topic to consume from
 	Topic string
 }
@@ -329,11 +329,11 @@ type KafkaProducer struct {
 	Enqueued                             int
 }
 
-func NewKafkaProducer(saramaConfig *sarama.Config, address, topic string) (*KafkaProducer, error) {
+func NewKafkaProducer(saramaConfig *sarama.Config, kafkaServers []string, topic string) (*KafkaProducer, error) {
 	SetupLogger()
 
-	if address == "" {
-		return nil, errors.New("empty broker address")
+	if len(kafkaServers) == 0 {
+		return nil, errors.New("no broker address provided")
 	}
 	if topic == "" {
 		return nil, errors.New("empty producer topic")
@@ -365,14 +365,14 @@ func NewKafkaProducer(saramaConfig *sarama.Config, address, topic string) (*Kafk
 		}
 	}
 
-	writer, err := sarama.NewAsyncProducer([]string{address}, saramaConfig)
+	writer, err := sarama.NewAsyncProducer(kafkaServers, saramaConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create new Sarama async producer")
 	}
 
 	producer := &KafkaProducer{
 		Config: &KafkaProducerConfig{
-			Address: address,
+			Brokers: kafkaServers,
 			Topic:   topic,
 		},
 		numberOfSuccessfullyProducedMessages: 0,
@@ -382,7 +382,7 @@ func NewKafkaProducer(saramaConfig *sarama.Config, address, topic string) (*Kafk
 	}
 
 	logger.WithFields(logrus.Fields{
-		brokerAddress: producer.Config.Address,
+		brokerAddress: producer.Config.Brokers,
 	}).Debugln("Successfully created kafka producer")
 
 	return producer, nil
