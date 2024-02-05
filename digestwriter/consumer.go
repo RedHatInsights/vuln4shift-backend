@@ -124,7 +124,7 @@ type DigestConsumer struct {
 
 // startPayloadTracker starts Payload Tracker Kafka producer.
 func startPayloadTracker() (*utils.KafkaProducer, error) {
-	ptWriter, err := utils.NewKafkaProducer(nil, utils.Cfg.KafkaBrokerAddress, utils.Cfg.KafkaPayloadTrackerTopic)
+	ptWriter, err := utils.NewKafkaProducer(nil, utils.Cfg.KafkaServers, utils.Cfg.KafkaPayloadTrackerTopic)
 	if err != nil {
 		return nil, err
 	}

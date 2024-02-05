@@ -58,8 +58,8 @@ type Config struct {
 	AmsClientSecret string
 
 	// Digest writer config
+	KafkaServers             []string
 	KafkaBroker              clowder.BrokerConfig
-	KafkaBrokerAddress       string
 	KafkaBrokerConsumerGroup string
 	KafkaBrokerIncomingTopic string
 	KafkaConsumerTimeout     string
@@ -159,8 +159,8 @@ func initConfig() {
 	requestedKafkaPayloadTrackerTopic := GetEnv("KAFKA_PAYLOAD_TRACKER_TOPIC", "")
 	if clowder.IsClowderEnabled() {
 		if len(clowder.LoadedConfig.Kafka.Brokers) > 0 {
+			Cfg.KafkaServers = clowder.KafkaServers
 			Cfg.KafkaBroker = clowder.LoadedConfig.Kafka.Brokers[0]
-			Cfg.KafkaBrokerAddress = fmt.Sprintf("%s:%d", Cfg.KafkaBroker.Hostname, *Cfg.KafkaBroker.Port)
 		}
 		if _, ok := clowder.KafkaTopics[requestedKafkaBrokerTopic]; ok {
 			Cfg.KafkaBrokerIncomingTopic = clowder.KafkaTopics[requestedKafkaBrokerTopic].Name
@@ -169,7 +169,7 @@ func initConfig() {
 			Cfg.KafkaPayloadTrackerTopic = clowder.KafkaTopics[requestedKafkaPayloadTrackerTopic].Name
 		}
 	} else {
-		Cfg.KafkaBrokerAddress = GetEnv("KAFKA_BROKER_ADDRESS", "")
+		Cfg.KafkaServers = strings.Split(GetEnv("KAFKA_SERVERS", ""), ",")
 		Cfg.KafkaBrokerIncomingTopic = requestedKafkaBrokerTopic
 		Cfg.KafkaPayloadTrackerTopic = requestedKafkaPayloadTrackerTopic
 	}

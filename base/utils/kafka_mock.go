@@ -77,7 +77,7 @@ func CreateSaramaAsyncWriterMock() *SaramaAsyncWriterMock {
 func CreateKafkaProducerMock(topic string, writer *SaramaAsyncWriterMock) *KafkaProducer {
 	return &KafkaProducer{
 		Config: &KafkaProducerConfig{
-			Address: Cfg.KafkaBrokerAddress,
+			Brokers: Cfg.KafkaServers,
 			Topic:   topic,
 		},
 		numberOfSuccessfullyProducedMessages: 0,
