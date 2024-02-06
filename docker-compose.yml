@@ -108,7 +108,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: buildimg
-    image: vuln4shift/app:latest
+    image: vuln4shift/app:buildimg
     env_file:
       - ./conf/common.env
       - ./conf/db.env
