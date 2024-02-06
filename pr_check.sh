@@ -14,8 +14,8 @@ export IQE_FILTER_EXPRESSION=""
 export IQE_REQUIREMENTS_PRIORITY=""
 export IQE_TEST_IMPORTANCE=""
 export IQE_CJI_TIMEOUT="60m"
+export IQE_ENV_VARS="DYNACONF_USER_PROVIDER__rbac_enabled=false, DYNACONF_USER_PROVIDER__keycloak_crud=false"
 export DEPLOY_TIMEOUT=900
-
 
 # Heavily inspired by project-koku pr_check
 # https://github.com/project-koku/koku/blob/main/pr_check.sh
