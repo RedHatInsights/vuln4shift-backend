@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.29.2 (2024-02-26)
+
+### Fix
+
+* **database:** Sorting of cve names ([`f77c286`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f77c2864533e8a7e4a5555bb5ef6edeff70a59c6))
+
 ## v0.29.1 (2023-10-05)
 
 ### Fix
