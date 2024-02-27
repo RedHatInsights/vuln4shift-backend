@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.31.0 (2024-02-27)
+
+### Feature
+
+* Add images_exposed to /cves ([`14b59b1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/14b59b19a7574e8dff2add05e0c03d11ef681c9f))
+
 ## v0.30.0 (2024-02-27)
 
 ### Feature
