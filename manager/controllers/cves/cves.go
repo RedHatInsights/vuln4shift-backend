@@ -25,6 +25,7 @@ var getCvesFilterArgs = map[string]interface{}{
 			"publish_date":     "cve.public_date",
 			"synopsis":         "cve.name",
 			"clusters_exposed": "clusters_exposed",
+			"images_exposed":   "images_exposed",
 		},
 		DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 	},
@@ -42,7 +43,7 @@ type GetCvesSelect struct {
 	PublicDate      *time.Time          `json:"publish_date" csv:"publish_date"`
 	Name            *string             `json:"synopsis" csv:"synopsis"`
 	ClustersExposed *int64              `json:"clusters_exposed" csv:"clusters_exposed"`
-	ImagesExposed   *int64              `json:"-" csv:"-"`
+	ImagesExposed   *int64              `json:"images_exposed" csv:"images_exposed"`
 	Exploits        utils.ByteArrayBool `json:"exploits" csv:"exploits" gorm:"column:exploit_data"`
 }
 
