@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.30.0 (2024-02-27)
+
+### Feature
+
+* Use multiple kafka brokers ([`bacbad0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/bacbad01c5ec37d5ad5d10890d9d540b78b72ac2))
+
 ## v0.29.2 (2024-02-26)
 
 ### Fix
