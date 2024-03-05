@@ -35,9 +35,14 @@ type APIReposResponse struct {
 	Total    int       `json:"total"`
 }
 
+type APIImageRepoTag struct {
+	Name string `json:"name"`
+}
+
 type APIImageRepoDetail struct {
-	ManifestListDigest    string `json:"manifest_list_digest"`
-	ManifestSchema2Digest string `json:"manifest_schema2_digest"`
+	ManifestListDigest    string            `json:"manifest_list_digest"`
+	ManifestSchema2Digest string            `json:"manifest_schema2_digest"`
+	Tags                  []APIImageRepoTag `json:"tags"`
 }
 
 type APIImage struct {

@@ -69,7 +69,12 @@ const PyxisAPIRepoImagesResp = `{
 		  "repositories": [
 			{
 				"manifest_list_digest": "test_manifest_list_digest",
-				"manifest_schema2_digest": "test_manifest_schema2_digest"
+				"manifest_schema2_digest": "test_manifest_schema2_digest",
+				"tags": [
+					{
+						"name": "latest"
+					}
+				]
 			}
 		  ]
 		}
@@ -89,7 +94,12 @@ const PyxisAPIRepoImagesNewResp = `{
 		  "repositories": [
 			{
 				"manifest_list_digest": "test_manifest_list_digest",
-				"manifest_schema2_digest": "test_manifest_schema2_digest"
+				"manifest_schema2_digest": "test_manifest_schema2_digest",
+				"tags": [
+					{
+						"name": "latest"
+					}
+				]
 			}
 		  ]
 		}
@@ -98,6 +108,31 @@ const PyxisAPIRepoImagesNewResp = `{
 	  "page_size": 1,
 	  "total": 6
 	}`
+
+const PyxisAPIRepoImagesChangedTags = `{
+		"data": [
+		  {
+			"_id": "57ea8d0d9c624c488f96f45e",
+			"architecture": "amd64",
+			"docker_image_digest": "temp:sha256:3817ddfacc32be3501dce396efcbf864ec68c3d9794a38d0c959377fca65e881",
+			"last_update_date": "2022-10-07T01:51:21.689000+00:00",
+			"repositories": [
+			  {
+				  "manifest_list_digest": "test_manifest_list_digest",
+				  "manifest_schema2_digest": "test_manifest_schema2_digest",
+				  "tags": [
+					  {
+						  "name": "latest-new"
+					  }
+				  ]
+			  }
+			]
+		  }
+		],
+		"page": 0,
+		"page_size": 1,
+		"total": 6
+	  }`
 
 const PyxisAPIRepoImagesRespNoDigest = `{
 	  "data": [

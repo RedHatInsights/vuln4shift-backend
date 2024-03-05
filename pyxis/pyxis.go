@@ -1,10 +1,13 @@
 package pyxis
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 
+	"github.com/jackc/pgtype"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -155,6 +158,64 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 	return nil
 }
 
+func extractTags(img APIImage) (pgtype.JSONB, error) {
+	resSlice := []string{}
+	resSet := make(map[string]bool)
+	// Get tags without duplicates
+	for _, repo := range img.Repositories {
+		for _, tag := range repo.Tags {
+			resSet[tag.Name] = true
+		}
+	}
+	for tag := range resSet {
+		resSlice = append(resSlice, tag)
+	}
+	sort.Strings(resSlice)
+	resJSON, _ := json.Marshal(resSlice)
+	return pgtype.JSONB{Bytes: resJSON, Status: pgtype.Present}, nil
+}
+
+func newRepoImage(repoID int64, imgID int64, tags pgtype.JSONB) models.RepositoryImage {
+	return models.RepositoryImage{
+		RepositoryID: repoID,
+		ImageID:      imgID,
+		Tags:         tags,
+	}
+}
+
+func compareSlices(slice1, slice2 []string) bool {
+	if len(slice1) != len(slice2) {
+		return false
+	}
+	for i := range slice1 {
+		if slice1[i] != slice2[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func checkTags(repImg models.RepositoryImage, tagsAPI pgtype.JSONB) bool {
+	// Decides if tags need to be updated
+	// Tags from API must be present && Tags from DB must be different from Tags from API
+	if tagsAPI.Status != pgtype.Present {
+		// We can't update tags
+		return false
+	}
+
+	tagsA := []string{}
+	tagsB := []string{}
+	if err := json.Unmarshal(repImg.Tags.Bytes, &tagsA); err != nil {
+		// try to update tags if we can't unmarshal the old tags
+		return true
+	}
+	if err := json.Unmarshal(tagsAPI.Bytes, &tagsB); err != nil {
+		return false
+	}
+
+	return !compareSlices(tagsA, tagsB)
+}
+
 func syncRepo(repo models.Repository) error {
 	// Repository is our database unit, commit once per every repo
 	tx := DB.Begin()
@@ -253,6 +314,7 @@ func syncRepo(repo models.Repository) error {
 
 	toInsertRepositoryImages := []models.RepositoryImage{}
 	toDeleteRepositoryImages := []models.RepositoryImage{}
+	toUpdateRepositoryImages := []models.RepositoryImage{}
 
 	var image models.Image
 	for pyxisID := range apiRepoImages {
@@ -264,15 +326,20 @@ func syncRepo(repo models.Repository) error {
 				return err
 			}
 		}
+		tags, _ := extractTags(apiRepoImages[pyxisID])
 		if _, found := dbRepositoryImageMap[image.ID]; !found {
 			// repository_image pair not found
 			toInsertRepositoryImages = append(
 				toInsertRepositoryImages,
-				models.RepositoryImage{
-					RepositoryID: repo.ID,
-					ImageID:      image.ID,
-				},
+				newRepoImage(repo.ID, image.ID, tags),
 			)
+		} else if repImg, _ := dbRepositoryImageMap[image.ID]; checkTags(repImg, tags) {
+			// repository_image pair found but tags are not present
+			toUpdateRepositoryImages = append(
+				toUpdateRepositoryImages,
+				newRepoImage(repo.ID, image.ID, tags),
+			)
+			delete(dbRepositoryImageMap, image.ID)
 		} else {
 			delete(dbRepositoryImageMap, image.ID)
 		}
@@ -285,9 +352,11 @@ func syncRepo(repo models.Repository) error {
 
 	toInsertRepositoryImagesCnt := len(toInsertRepositoryImages)
 	toDeleteRepositoryImagesCnt := len(toDeleteRepositoryImages)
+	toUpdateRepositoryImagesCnt := len(toUpdateRepositoryImages)
 
 	logger.Debugf("Repository-Image pairs to insert: %d", toInsertRepositoryImagesCnt)
 	logger.Debugf("Repository-Image pairs to delete: %d", toDeleteRepositoryImagesCnt)
+	logger.Debugf("Repository-Image pairs to update: %d", toUpdateRepositoryImagesCnt)
 
 	if toInsertRepositoryImagesCnt > 0 {
 		if err := tx.Create(&toInsertRepositoryImages).Error; err != nil {
@@ -307,6 +376,16 @@ func syncRepo(repo models.Repository) error {
 			return err
 		}
 		deletedImages.WithLabelValues(repo.Repository).Add(float64(toDeleteRepositoryImagesCnt))
+	}
+
+	if toUpdateRepositoryImagesCnt > 0 {
+		for _, repo := range toUpdateRepositoryImages {
+			if err := tx.Model(models.RepositoryImage{}).Where("repository_id = ? AND image_id = ?", repo.RepositoryID, repo.ImageID).Update("tags", repo.Tags).Error; err != nil {
+				syncError.WithLabelValues(dbUpdate).Inc()
+				return err
+			}
+		}
+		updatedImages.WithLabelValues(repo.Repository).Add(float64(toUpdateRepositoryImagesCnt))
 	}
 
 	return tx.Commit().Error
