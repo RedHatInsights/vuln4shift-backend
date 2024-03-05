@@ -11,8 +11,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgtype"
 	"github.com/stretchr/testify/assert"
 )
+
+const registry = "registry.access.redhat.com"
+const repoRhel = "rhel7.1"
+const repoJBoss = "jboss-fuse-6"
+const imageID = "57ea8d0d9c624c035f96f45e"
+const newPyxisID = "57ea8d0d9c624c488f96f45e"
 
 func TestGetAPIRepositories(t *testing.T) {
 	httpClient = test.NewAPIMock("OK", 200, []byte(test.PyxisAPIReposResp), nil)
@@ -36,10 +43,7 @@ func TestGetAPIRepositories(t *testing.T) {
 func TestGetAPIRepoImages(t *testing.T) {
 	httpClient = test.NewAPIMock("OK", 200, []byte(test.PyxisAPIRepoImagesResp), nil)
 
-	registry := "registry.access.redhat.com"
-	repo := "rhel7.1"
-
-	resp, err := getAPIRepoImages(registry, repo)
+	resp, err := getAPIRepoImages(registry, repoRhel)
 	assert.Nil(t, err)
 
 	expectedID := "57ea8d0d9c624c035f96f45e"
@@ -58,10 +62,7 @@ func TestGetAPIRepoImages(t *testing.T) {
 func TestGetAPIRepoImagesBadRequest(t *testing.T) {
 	httpClient = test.NewAPIMock("Bad Request", 400, nil, errors.New("bad request"))
 
-	registry := "registry.access.redhat.com"
-	repo := "rhel7.1"
-
-	_, err := getAPIRepoImages(registry, repo)
+	_, err := getAPIRepoImages(registry, repoRhel)
 	assert.Equal(t, "bad request", err.Error())
 }
 
@@ -74,11 +75,7 @@ func TestGetAPIRepoImagesNoRepos(t *testing.T) {
 	assert.Nil(t, err)
 
 	httpClient = test.NewAPIMock("OK", 200, repoImagesBytes, nil)
-
-	registry := "registry.access.redhat.com"
-	repo := "rhel7.1"
-
-	_, err = getAPIRepoImages(registry, repo)
+	_, err = getAPIRepoImages(registry, repoRhel)
 	assert.Equal(t, fmt.Sprintf("Empty repositories field for Image Pyxis ID: %s", repoImages.Data[0].PyxisID), err.Error())
 }
 
@@ -92,17 +89,13 @@ func TestGetAPIRepoImagesNoDigest(t *testing.T) {
 
 	httpClient = test.NewAPIMock("OK", 200, repoImagesBytes, nil)
 
-	registry := "registry.access.redhat.com"
-	repo := "rhel7.1"
-
-	_, err = getAPIRepoImages(registry, repo)
+	_, err = getAPIRepoImages(registry, repoRhel)
 	assert.Equal(t, fmt.Sprintf("Empty manifest_list_digest, manifest_schema2_digest and docker_image_digest fields for Image Pyxis ID: %s", repoImages.Data[0].PyxisID), err.Error())
 }
 
 func TestGetAPIImageCves(t *testing.T) {
 	httpClient = test.NewAPIMock("OK", 200, []byte(test.PyxisAPIImageCvesResp), nil)
 
-	imageID := "57ea8d0d9c624c035f96f45e"
 	expectedCves := []string{"CVE-2016-2180"}
 
 	resp, err := getAPIImageCves(imageID)
@@ -114,9 +107,6 @@ func TestGetAPIImageCves(t *testing.T) {
 
 func TestGetAPIImageCvesBadRequest(t *testing.T) {
 	httpClient = test.NewAPIMock("Bad Request", 400, nil, errors.New("bad request"))
-
-	imageID := "57ea8d0d9c624c035f96f45e"
-
 	_, err := getAPIImageCves(imageID)
 	assert.Equal(t, "bad request", err.Error())
 }
@@ -196,7 +186,6 @@ func TestSyncRepo(t *testing.T) {
 	assert.Nil(t, prepareDbCves())
 	assert.Nil(t, prepareMaps())
 
-	registry := "registry.access.redhat.com"
 	repository := "jboss-fuse-6"
 	pyxisID := "57ea8d0d9c624c488f96f45e"
 
@@ -263,7 +252,6 @@ func TestSyncRepoNewImage(t *testing.T) {
 	assert.Nil(t, prepareDbCves())
 	assert.Nil(t, prepareMaps())
 
-	registry := "registry.access.redhat.com"
 	repository := "jboss-fuse-6"
 	newPyxisID := "57ea8d0d9c624c488f96f45e"
 
@@ -317,9 +305,9 @@ func TestSyncReposDelete(t *testing.T) {
 	assert.Nil(t, prepareDbCves())
 	assert.Nil(t, prepareMaps())
 
-	registry := "registry.access.redhat.com"
 	repository := "jboss-fuse-6"
-	newPyxisID := "57ea8d0d9c624c488f96f45e"
+	tags, _ := json.Marshal([]string{"latest"})
+	tagsJSON := pgtype.JSONB{Bytes: tags, Status: pgtype.Present}
 
 	repoToSync := models.Repository{
 		ID:           7357,
@@ -341,6 +329,7 @@ func TestSyncReposDelete(t *testing.T) {
 	test.CreateRepoImage(t, models.RepositoryImage{
 		RepositoryID: repoToSync.ID,
 		ImageID:      imageToRemove.ID,
+		Tags:         tagsJSON,
 	})
 
 	mockResponses := map[string][]byte{
@@ -361,6 +350,59 @@ func TestSyncReposDelete(t *testing.T) {
 	test.DeleteImageCves(t, newImageID)
 	test.DeleteImage(t, newPyxisID)
 	test.DeleteRepo(t, registry, repository)
+}
+
+func TestSyncReposUpdate(t *testing.T) {
+	assert.Nil(t, prepareDbCves())
+	assert.Nil(t, prepareMaps())
+
+	tags, _ := json.Marshal([]string{"latest"})
+	tagsJSON := pgtype.JSONB{Bytes: tags, Status: pgtype.Present}
+
+	newTags, _ := json.Marshal([]string{"latest-new"})
+	newTagsJSON := pgtype.JSONB{Bytes: newTags, Status: pgtype.Present}
+
+	repo := models.Repository{
+		ID:           7357,
+		PyxisID:      newPyxisID,
+		ModifiedDate: time.Time{},
+		Registry:     registry,
+		Repository:   repoJBoss,
+	}
+
+	image := models.Image{
+		ID:           7357,
+		PyxisID:      "dummy-pyxis-id",
+		ModifiedDate: time.Now(),
+		ArchID:       1,
+	}
+
+	test.CreateRepo(t, repo)
+	// test.CreateImage(t, image)
+	test.CreateRepoImage(t, models.RepositoryImage{
+		RepositoryID: repo.ID,
+		ImageID:      image.ID,
+		Tags:         tagsJSON,
+	})
+
+	mockResponses := map[string][]byte{
+		fmt.Sprintf("/repositories/registry/%s/repository/%s/images", registry, repoJBoss): []byte(test.PyxisAPIRepoImagesChangedTags),
+		fmt.Sprintf("/images/id/%s/vulnerabilities", newPyxisID):                           []byte(test.PyxisAPIImageCvesResp),
+	}
+	httpClient = test.NewAPIMockMultiEndpoint("OK", 200, mockResponses, nil)
+
+	assert.Nil(t, syncRepo(repo))
+
+	actualRepoImages := test.GetRepoImages(t, repo.ID)
+	for _, repoImage := range actualRepoImages {
+		assert.Equal(t, newTagsJSON, repoImage.Tags)
+	}
+
+	newImageID := test.GetImageByPyxisID(t, newPyxisID).ID
+	test.DeleteRepoImageByImageID(t, newImageID)
+	test.DeleteImageCves(t, newImageID)
+	test.DeleteImage(t, newPyxisID)
+	test.DeleteRepo(t, registry, repoJBoss)
 }
 
 func TestSyncRepos(t *testing.T) {

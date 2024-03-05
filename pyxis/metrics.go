@@ -52,6 +52,13 @@ var (
 		Name:      "delete_images",
 	}, []string{"repo"})
 
+	updatedImages = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Help:      "How many images were updated",
+		Namespace: "vuln4shift",
+		Subsystem: "pyxis",
+		Name:      "update_images",
+	}, []string{"repo"})
+
 	missingCvesRegistered = prometheus.NewCounter(prometheus.CounterOpts{
 		Help:      "How many missing cves were registered",
 		Namespace: "vuln4shift",
@@ -81,6 +88,7 @@ func getMetricsPusher() *push.Pusher {
 		pyxisRequestError,
 		syncedImages,
 		deletedImages,
+		updatedImages,
 		missingCvesRegistered,
 		imageCvesDeleted,
 		imageCvesInserted)
