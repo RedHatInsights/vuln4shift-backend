@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Build unit test image
         run: docker-compose build vuln4shift_unit_tests
@@ -22,7 +22,7 @@ jobs:
         run: docker-compose run vuln4shift_unit_tests
 
       - name: Codecov
-        uses: codecov/codecov-action@v3.1.0
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage.txt
           flags: unittests
