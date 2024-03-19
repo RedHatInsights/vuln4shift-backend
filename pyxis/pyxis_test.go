@@ -329,7 +329,7 @@ func TestSyncReposDelete(t *testing.T) {
 	test.CreateRepoImage(t, models.RepositoryImage{
 		RepositoryID: repoToSync.ID,
 		ImageID:      imageToRemove.ID,
-		Tags:         tagsJSON,
+		Tags:         &tagsJSON,
 	})
 
 	mockResponses := map[string][]byte{
@@ -382,7 +382,7 @@ func TestSyncReposUpdate(t *testing.T) {
 	test.CreateRepoImage(t, models.RepositoryImage{
 		RepositoryID: repo.ID,
 		ImageID:      image.ID,
-		Tags:         tagsJSON,
+		Tags:         &tagsJSON,
 	})
 
 	mockResponses := map[string][]byte{
@@ -395,7 +395,7 @@ func TestSyncReposUpdate(t *testing.T) {
 
 	actualRepoImages := test.GetRepoImages(t, repo.ID)
 	for _, repoImage := range actualRepoImages {
-		assert.Equal(t, newTagsJSON, repoImage.Tags)
+		assert.Equal(t, newTagsJSON, *repoImage.Tags)
 	}
 
 	newImageID := test.GetImageByPyxisID(t, newPyxisID).ID

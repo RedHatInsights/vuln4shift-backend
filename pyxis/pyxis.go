@@ -179,7 +179,7 @@ func newRepoImage(repoID int64, imgID int64, tags pgtype.JSONB) models.Repositor
 	return models.RepositoryImage{
 		RepositoryID: repoID,
 		ImageID:      imgID,
-		Tags:         tags,
+		Tags:         &tags,
 	}
 }
 
