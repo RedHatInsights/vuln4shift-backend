@@ -37,6 +37,7 @@ const (
 const (
 	CveSearch             = "CveSearch"
 	ExposedClustersSearch = "ExposedClustersSearch"
+	ImagesSearch          = "ImagesSearch"
 )
 
 const (
@@ -93,6 +94,9 @@ func (c *Search) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 		return nil
 	case ExposedClustersSearch:
 		tx.Where("cluster.display_name ILIKE ? OR cluster.uuid::varchar ILIKE ?", regex, regex)
+		return nil
+	case ImagesSearch:
+		tx.Where("CONCAT(repository.registry, '/', repository.repository) ILIKE ?", regex)
 		return nil
 	}
 	return nil

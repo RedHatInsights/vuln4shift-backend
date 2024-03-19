@@ -78,6 +78,7 @@ func createClustersGroup(router *gin.RouterGroup, db *gorm.DB, amsClient amsclie
 
 	clustersGroup.GET("", clustersController.GetClusters)
 	clustersGroup.GET("/:cluster_id/cves", clustersController.GetClusterCves)
+	clustersGroup.GET("/:cluster_id/exposed_images", clustersController.GetClusterImages)
 	clustersGroup.GET("/:cluster_id", clustersController.GetClusterDetails)
 	return clustersGroup
 }

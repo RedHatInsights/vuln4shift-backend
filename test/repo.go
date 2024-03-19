@@ -24,6 +24,13 @@ func GetRepo(t *testing.T, registry, repository string) (repo models.Repository)
 	return repo
 }
 
+func GetRepoByID(t *testing.T, id int64) (repo models.Repository) {
+	result := DB.Model(models.Repository{}).Where("id = ?", id).Find(&repo)
+	assert.Nil(t, result.Error)
+	assert.True(t, result.RowsAffected > 0)
+	return repo
+}
+
 func GetAllRepos(t *testing.T) (repos []models.Repository) {
 	assert.Nil(t, DB.Model(models.Repository{}).Find(&repos).Error)
 	return repos

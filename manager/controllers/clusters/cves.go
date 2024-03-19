@@ -125,15 +125,6 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-// ClusterExists, checks if cluster exists in db with given accid and clusterid
-func (c *Controller) ClusterExists(accountID int64, clusterID uuid.UUID) (bool, error) {
-	res := c.Conn.Table("cluster").Where("account_id = ? AND uuid = ?", accountID, clusterID).Limit(1).Find(&struct{}{})
-	if res.Error != nil {
-		return false, res.Error
-	}
-	return res.RowsAffected > 0, nil
-}
-
 func (c *Controller) BuildClusterCvesQuery(accountID int64, clusterID uuid.UUID) *gorm.DB {
 	return c.Conn.Table("cve").
 		Select(`cve.cvss2_score, cve.cvss3_score, cve.description, cve.severity,
