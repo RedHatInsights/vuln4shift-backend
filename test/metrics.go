@@ -12,7 +12,7 @@ import (
 func GetMetricsServer(t *testing.T, method, job string) *httptest.Server {
 	testURI := fmt.Sprintf("/metrics/job/%s", job)
 
-	checkPush := func(rw http.ResponseWriter, r *http.Request) {
+	checkPush := func(_ http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, method, r.Method)
 		assert.Equal(t, testURI, r.RequestURI)
 	}
