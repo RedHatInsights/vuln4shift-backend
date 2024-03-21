@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.32.0 (2024-03-21)
+
+### Feature
+
+* Add tags to repository_image table ([`13cd3fb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/13cd3fb9aed6d00d24c33526438f8b500e00ddbe))
+
 ## v0.31.0 (2024-02-27)
 
 ### Feature
