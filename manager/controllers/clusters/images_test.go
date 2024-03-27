@@ -65,8 +65,7 @@ func TestGetClusterImages(t *testing.T) {
 				if eri.Tags == nil {
 					expectedImageVersion = utils.Unknown
 				} else {
-					tags := string(eri.Tags.Bytes)
-					_ = expectedImageVersion.Scan(tags)
+					_ = expectedImageVersion.Scan(eri.Tags.Bytes)
 				}
 				ac := resp.Data[i]
 				assert.Equal(t, er.Repository, *ac.Repository)
