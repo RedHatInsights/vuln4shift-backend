@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.33.0 (2024-03-27)
+
+### Feature
+
+* **manager:** Add /clusters/[id]/exposed_images endpoint ([`c8e40c6`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c8e40c608878c9a6ea50ab1fc837482e9e9fd688))
+
 ## v0.32.0 (2024-03-21)
 
 ### Feature
