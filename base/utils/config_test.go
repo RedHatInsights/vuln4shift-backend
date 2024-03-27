@@ -3,7 +3,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 	"github.com/stretchr/testify/assert"

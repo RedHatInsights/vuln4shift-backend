@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/writer"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -177,7 +177,7 @@ func TestNewKafkaConsumerOutOfBrokers(t *testing.T) {
 	initKafkaBroker(sarama.SASLTypePlaintext, "test-broker-addr", "test-consumer-group", "test-broker-inc-topic", "test-pt-topic")
 
 	_, err := NewKafkaConsumer(sarama.NewConfig(), nil)
-	assert.Equal(t, "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)", err.Error())
+	assert.Equal(t, "kafka: client has run out of available brokers to talk to: dial tcp: address test-broker-addr: missing port in address", err.Error())
 }
 
 func TestNewKafkaConsumerNilConfig(t *testing.T) {
@@ -185,7 +185,7 @@ func TestNewKafkaConsumerNilConfig(t *testing.T) {
 
 	_, err := NewKafkaConsumer(nil, nil)
 	// Expected to fail on NewClient call with config.Metadata.Full of sarama set to true.
-	assert.Equal(t, "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)", err.Error())
+	assert.Equal(t, "kafka: client has run out of available brokers to talk to: dial tcp: address test-broker-addr: missing port in address", err.Error())
 }
 
 type testConsumer struct {

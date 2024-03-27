@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 )
 

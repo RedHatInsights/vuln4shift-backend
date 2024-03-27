@@ -61,7 +61,7 @@ func SortTags(tags *[]string) {
 }
 
 func (s *ImageVersion) Scan(value interface{}) error {
-	res := []byte(value.(string))
+	res := value.([]byte)
 	if len(res) > 0 {
 		var tags []string
 		err := json.Unmarshal(res, &tags)
