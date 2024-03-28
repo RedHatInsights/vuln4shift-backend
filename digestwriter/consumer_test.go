@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -25,7 +25,7 @@ import (
 //	"time"
 //
 //	"github.com/DATA-DOG/go-sqlmock"
-//	"github.com/Shopify/sarama"
+//	"github.com/IBM/sarama"
 //	"github.com/stretchr/testify/assert"
 //)
 //

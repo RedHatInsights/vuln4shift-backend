@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/sirupsen/logrus"
 )
 
