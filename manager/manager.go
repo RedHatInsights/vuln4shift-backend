@@ -59,6 +59,7 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB, amsClient amsclient.AM
 	cveGroup.GET("", cveController.GetCves)
 	cveGroup.GET("/:cve_name/exposed_clusters", cveController.GetExposedClusters)
 	cveGroup.GET("/:cve_name/exposed_clusters_count", cveController.GetExposedClustersCount)
+	cveGroup.GET("/:cve_name/exposed_images", cveController.GetCveImages)
 	cveGroup.GET("/:cve_name", cveController.GetCveDetails)
 	return cveGroup
 }
