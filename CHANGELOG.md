@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.0 (2024-04-18)
+
+### Feature
+
+* Add /cves/[id]/exposed_images endpoint ([`586bb66`](https://github.com/RedHatInsights/vuln4shift-backend/commit/586bb6677ffe9fa22dad517f31e601e7e8d13486))
+
 ## v0.33.0 (2024-03-27)
 
 ### Feature
