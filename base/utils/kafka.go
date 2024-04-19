@@ -101,7 +101,7 @@ func NewKafkaConsumer(saramaConfig *sarama.Config, processor Processor) (*KafkaC
 	}
 	if saramaConfig == nil {
 		saramaConfig = sarama.NewConfig()
-		saramaConfig.Version = sarama.V0_10_2_0
+		saramaConfig.Version = sarama.V3_1_0_0
 
 		timeout, err := time.ParseDuration(Cfg.KafkaConsumerTimeout)
 		if err == nil && timeout != 0 {
@@ -340,7 +340,7 @@ func NewKafkaProducer(saramaConfig *sarama.Config, kafkaServers []string, topic 
 	}
 	if saramaConfig == nil {
 		saramaConfig = sarama.NewConfig()
-		saramaConfig.Version = sarama.V0_10_2_0
+		saramaConfig.Version = sarama.V3_1_0_0
 		saramaConfig.Producer.Return.Successes = true
 
 		timeout, err := time.ParseDuration(Cfg.KafkaProducerTimeout)
