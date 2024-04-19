@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.1 (2024-04-19)
+
+### Fix
+
+* **digestwriter:** Bump minimal assumed version, 0.10 doesn't seem to work anymore ([`b34cd43`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b34cd43dc4ec659a6508c7ad9627cc6b5fd24852))
+
 ## v0.34.0 (2024-04-18)
 
 ### Feature
