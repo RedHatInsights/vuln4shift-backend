@@ -523,6 +523,8 @@ parameters:
   value: "https://api.openshift.com"
 - name: AMS_API_PAGESIZE
   value: "-1"
+- name: IMAGES_ENDPOINTS_ENABLED
+  value: "true"
 
 # DIGEST WRITER CONFIG
 - name: DIGEST_WRITER_CONSUMER_GROUP

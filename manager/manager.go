@@ -59,7 +59,9 @@ func createCveGroup(router *gin.RouterGroup, db *gorm.DB, amsClient amsclient.AM
 	cveGroup.GET("", cveController.GetCves)
 	cveGroup.GET("/:cve_name/exposed_clusters", cveController.GetExposedClusters)
 	cveGroup.GET("/:cve_name/exposed_clusters_count", cveController.GetExposedClustersCount)
-	cveGroup.GET("/:cve_name/exposed_images", cveController.GetCveImages)
+	if utils.Cfg.ImagesEndpointsEnabled {
+		cveGroup.GET("/:cve_name/exposed_images", cveController.GetCveImages)
+	}
 	cveGroup.GET("/:cve_name", cveController.GetCveDetails)
 	return cveGroup
 }
@@ -79,7 +81,9 @@ func createClustersGroup(router *gin.RouterGroup, db *gorm.DB, amsClient amsclie
 
 	clustersGroup.GET("", clustersController.GetClusters)
 	clustersGroup.GET("/:cluster_id/cves", clustersController.GetClusterCves)
-	clustersGroup.GET("/:cluster_id/exposed_images", clustersController.GetClusterImages)
+	if utils.Cfg.ImagesEndpointsEnabled {
+		clustersGroup.GET("/:cluster_id/exposed_images", clustersController.GetClusterImages)
+	}
 	clustersGroup.GET("/:cluster_id", clustersController.GetClusterDetails)
 	return clustersGroup
 }

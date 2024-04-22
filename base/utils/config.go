@@ -51,11 +51,12 @@ type Config struct {
 	SchemaMigration     int
 
 	// Manager config
-	AmsEnabled      bool
-	AmsAPIURL       string
-	AmsAPIPagesize  int
-	AmsClientID     string
-	AmsClientSecret string
+	AmsEnabled             bool
+	AmsAPIURL              string
+	AmsAPIPagesize         int
+	AmsClientID            string
+	AmsClientSecret        string
+	ImagesEndpointsEnabled bool
 
 	// Digest writer config
 	KafkaServers             []string
@@ -153,6 +154,7 @@ func initConfig() {
 	Cfg.AmsAPIPagesize = GetEnv("AMS_API_PAGESIZE", -1)
 	Cfg.AmsClientID = GetEnv("AMS_CLIENT_ID", "")
 	Cfg.AmsClientSecret = GetEnv("AMS_CLIENT_SECRET", "")
+	Cfg.ImagesEndpointsEnabled = GetEnv("IMAGES_ENDPOINTS_ENABLED", true)
 
 	// Digest writer config
 	requestedKafkaBrokerTopic := GetEnv("KAFKA_BROKER_INCOMING_TOPIC", "")
