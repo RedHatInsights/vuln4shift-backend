@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.2 (2024-04-23)
+
+### Fix
+
+* **/cves/[id]/exposed_images:** Fix query ([`64d7566`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64d75661f8841f7f23189e2753808686f9c75bf2))
+
 ## v0.34.1 (2024-04-19)
 
 ### Fix
