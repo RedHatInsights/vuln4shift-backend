@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.3 (2024-04-24)
+
+### Fix
+
+* **manager:** Unique values of cluster images ([`76b0d15`](https://github.com/RedHatInsights/vuln4shift-backend/commit/76b0d1576a07f7ca6e2907a074e4876b6ad4b788))
+
 ## v0.34.2 (2024-04-23)
 
 ### Fix
