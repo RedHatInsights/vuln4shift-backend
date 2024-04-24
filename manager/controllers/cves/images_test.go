@@ -46,7 +46,7 @@ func TestGetCveImagesWrongCve(t *testing.T) {
 func TestGetCveImages(t *testing.T) {
 	accID1 := 13
 	cveName1 := "CVE-2022-0001"
-	exposedClusters := int32(1)
+	clustersExposed := int32(1)
 	repository := "rhel7.1"
 	registry := "registry.access.redhat.com"
 	version := utils.ImageVersion("Unknown")
@@ -58,5 +58,5 @@ func TestGetCveImages(t *testing.T) {
 	assert.Equal(t, registry, *resp1.Data[0].Registry)
 	assert.Equal(t, repository, *resp1.Data[0].Repository)
 	assert.Equal(t, version, *resp1.Data[0].Version)
-	assert.Equal(t, exposedClusters, *resp1.Data[0].ExposedClusters)
+	assert.Equal(t, clustersExposed, *resp1.Data[0].ClustersExposed)
 }

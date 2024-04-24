@@ -31,10 +31,10 @@ var getCveImagesFilterArgs = map[string]interface{}{
 // @Description Exposed images in cve data
 // @Description presents in response
 type GetCveImagesSelect struct {
-	ExposedClusters *int32              `json:"clusters_exposed" csv:"clusters_exposed" gorm:"column:clusters_exposed"`
 	Repository      *string             `json:"name" csv:"name" gorm:"column:repository"`
 	Registry        *string             `json:"registry" csv:"registry" gorm:"column:registry"`
 	Version         *utils.ImageVersion `json:"version" csv:"version" gorm:"column:tags"`
+	ClustersExposed *int32              `json:"clusters_exposed" csv:"clusters_exposed" gorm:"column:clusters_exposed"`
 }
 
 type GetCveImagesResponse struct {
@@ -112,23 +112,16 @@ func (c *Controller) GetCveImages(ctx *gin.Context) {
 }
 
 func (c *Controller) BuildCveImagesQuery(accountID int64, cveName string) *gorm.DB {
-	cntSubquery := c.Conn.Table("cluster").
-		Select(`COUNT(DISTINCT cluster_image.cluster_id) AS ce, image_cve.image_id as image_id`).
-		Joins("JOIN cluster_image ON cluster_image.cluster_id = cluster.id").
-		Joins("JOIN repository_image ON repository_image.image_id = cluster_image.image_id").
-		Joins("JOIN repository ON repository.id=repository_image.repository_id").
-		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
-		Joins("JOIN cve ON cve.id=image_cve.cve_id").
+	cntSubquery := c.Conn.Table("image_cve").
+		Select(`DISTINCT image_cve.image_id, COUNT(DISTINCT cluster_image.cluster_id) AS ce`).
+		Joins("JOIN cluster_image ON image_cve.image_id=cluster_image.image_id").
+		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Joins("JOIN cve ON image_cve.cve_id=cve.id").
 		Group("image_cve.image_id").
 		Where("cluster.account_id = ? AND cve.name = ?", accountID, cveName)
 
 	return c.Conn.Table("repository").
-		Select(`DISTINCT COALESCE(ce, 0) AS clusters_exposed, repository.repository, repository.registry, COALESCE(repository_image.tags, '[]') AS tags, repository.id AS repository_id`).
+		Select(`repository.repository, repository.registry, COALESCE(repository_image.tags, '[]') AS tags, COALESCE(ce, 0) AS clusters_exposed`).
 		Joins("JOIN repository_image ON repository.id = repository_image.repository_id").
-		Joins("JOIN cluster_image ON cluster_image.image_id=repository_image.image_id").
-		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
-		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
-		Joins("JOIN cve ON cve.id=image_cve.cve_id").
-		Joins("INNER JOIN (?) as cnt_subquery ON image_cve.image_id=cnt_subquery.image_id", cntSubquery).
-		Where("cluster.account_id = ? AND cve.name = ?", accountID, cveName)
+		Joins("JOIN (?) as cnt_subquery ON repository_image.image_id=cnt_subquery.image_id", cntSubquery)
 }
