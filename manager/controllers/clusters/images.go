@@ -115,11 +115,14 @@ func (c *Controller) GetClusterImages(ctx *gin.Context) {
 }
 
 func (c *Controller) BuildClusterImagesQuery(accountID int64, clusterID uuid.UUID) *gorm.DB {
+	clusterImageSubquery := c.Conn.Table("cluster_image").
+		Select(`DISTINCT cluster_image.image_id`).
+		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
+		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Where("cluster.account_id = ? AND cluster.uuid = ?", accountID, clusterID)
+
 	return c.Conn.Table("repository").
 		Select(`repository.repository, repository.registry, COALESCE(repository_image.tags, '[]') AS tags`).
 		Joins("JOIN repository_image ON repository.id = repository_image.repository_id").
-		Joins("JOIN cluster_image ON repository_image.image_id = cluster_image.image_id").
-		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id"). // Do not show images without vulnerabilities
-		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
-		Where("cluster.account_id = ? AND cluster.uuid = ?", accountID, clusterID)
+		Joins("JOIN (?) as ci_subquery ON repository_image.image_id=ci_subquery.image_id", clusterImageSubquery)
 }
