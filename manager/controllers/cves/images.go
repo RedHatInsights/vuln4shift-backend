@@ -2,6 +2,7 @@ package cves
 
 import (
 	"app/base/utils"
+	"app/manager/amsclient"
 	"app/manager/base"
 	"net/http"
 
@@ -65,7 +66,9 @@ type GetCveImagesResponse struct {
 // @failure 500 {object} base.Error
 func (c *Controller) GetCveImages(ctx *gin.Context) {
 	accountID := ctx.GetInt64("account_id")
+	orgID := ctx.GetString("org_id")
 	cveName := ctx.Param("cve_name")
+	filters := base.GetRequestedFilters(ctx)
 
 	exists, err := c.CveExists(cveName)
 	if err != nil {
@@ -83,8 +86,17 @@ func (c *Controller) GetCveImages(ctx *gin.Context) {
 		return
 	}
 
-	filters := base.GetRequestedFilters(ctx)
-	query := c.BuildCveImagesQuery(accountID, cveName)
+	clusterIDs, _, _, _, err := amsclient.DBFetchClusterDetails(c.Conn, c.AMSClient, accountID, orgID, utils.Cfg.AmsEnabled, &cveName)
+	if err != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+		)
+		c.Logger.Errorf("Error fetching AMS data: %s", err.Error())
+		return
+	}
+
+	query := c.BuildCveImagesQuery(accountID, cveName, clusterIDs)
 
 	dataRes := []GetCveImagesSelect{}
 	usedFilters, totalItems, inputErr, dbErr := base.ListQuery(query, getCveImagesAllowedFilters, filters, getCveImagesFilterArgs, &dataRes)
@@ -111,7 +123,7 @@ func (c *Controller) GetCveImages(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-func (c *Controller) BuildCveImagesQuery(accountID int64, cveName string) *gorm.DB {
+func (c *Controller) BuildCveImagesQuery(accountID int64, cveName string, clusterIDs []string) *gorm.DB {
 	cntSubquery := c.Conn.Table("image_cve").
 		Select(`DISTINCT image_cve.image_id, COUNT(DISTINCT cluster_image.cluster_id) AS ce`).
 		Joins("JOIN cluster_image ON image_cve.image_id=cluster_image.image_id").
@@ -119,6 +131,10 @@ func (c *Controller) BuildCveImagesQuery(accountID int64, cveName string) *gorm.
 		Joins("JOIN cve ON image_cve.cve_id=cve.id").
 		Group("image_cve.image_id").
 		Where("cluster.account_id = ? AND cve.name = ?", accountID, cveName)
+
+	if utils.Cfg.AmsEnabled {
+		cntSubquery = cntSubquery.Where("cluster.uuid IN ?", clusterIDs)
+	}
 
 	return c.Conn.Table("repository").
 		Select(`repository.repository, repository.registry, COALESCE(repository_image.tags, '[]') AS tags, COALESCE(ce, 0) AS clusters_exposed`).
