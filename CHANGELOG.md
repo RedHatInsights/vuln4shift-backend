@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.4 (2024-04-24)
+
+### Fix
+
+* **manager:** Fix and simplify cve images query ([`e604aa5`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e604aa56fc7c73b75e3abfed931905534546947b))
+
 ## v0.34.3 (2024-04-24)
 
 ### Fix
