@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.5 (2024-04-24)
+
+### Fix
+
+* **manager:** Count only clusters returned from amsclient ([`3ce03a2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3ce03a2cd9e431ee34c45ef71a5fa15f0add376f))
+
 ## v0.34.4 (2024-04-24)
 
 ### Fix
