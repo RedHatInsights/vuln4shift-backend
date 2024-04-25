@@ -102,12 +102,27 @@ func GetAccountCvesForClusters(t *testing.T, id int64, clusterIDs []int64) (cves
 func GetImagesExposed(t *testing.T, accountID, cveID int64) int64 {
 	var imagesExposed int64
 	assert.Nil(t, DB.Model(models.Cve{}).
-		Select("COUNT(DISTINCT cluster_image.image_id)").
+		Select("COUNT(repository_image.repository_id)").
 		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
 		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
 		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Joins("JOIN repository_image ON cluster_image.image_id = repository_image.image_id").
 		Group("cve.id").
 		Where("cluster.account_id = ? AND cve.id = ?", accountID, cveID).
+		Scan(&imagesExposed).Error)
+	return imagesExposed
+}
+
+func GetImagesExposedLimitClusters(t *testing.T, accountID, cveID int64, clusterIDs []int64) int64 {
+	var imagesExposed int64
+	assert.Nil(t, DB.Model(models.Cve{}).
+		Select("COUNT(repository_image.repository_id)").
+		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
+		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
+		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
+		Joins("JOIN repository_image ON cluster_image.image_id = repository_image.image_id").
+		Group("cve.id").
+		Where("cluster.account_id = ? AND cve.id = ? AND cluster.id = (?)", accountID, cveID, clusterIDs).
 		Scan(&imagesExposed).Error)
 	return imagesExposed
 }

@@ -118,9 +118,10 @@ func (c *Controller) BuildCvesQuery(accountID int64, clusterIDs []string) *gorm.
 	cntSubquery := c.Conn.Table("cluster").
 		Select(`image_cve.cve_id,
 				COUNT(DISTINCT cluster_image.cluster_id) AS ce,
-				COUNT(DISTINCT cluster_image.image_id) AS ie`).
+				COUNT(cluster_image.image_id) AS ie`).
 		Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
 		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
+		Joins("JOIN repository_image ON cluster_image.image_id = repository_image.image_id").
 		Where("cluster.account_id = ?", accountID).
 		Group("image_cve.cve_id")
 

@@ -127,7 +127,7 @@ func TestGetCvesAffectingAMS(t *testing.T) {
 			assert.Equal(t, ec.Severity, *ac.Severity)
 			assert.Equal(t, ec.Cvss2Score, test.GetFloat32PtrValue(ac.Cvss2Score))
 			assert.Equal(t, ec.Description, test.GetStringPtrValue(ac.Description))
-			assert.Equal(t, test.GetImagesExposed(t, account.ID, ec.ID), *ac.ImagesExposed)
+			assert.Equal(t, test.GetImagesExposedLimitClusters(t, account.ID, ec.ID, clusterIDs), *ac.ImagesExposed)
 			assert.Equal(t, test.GetClustersExposedLimitClusters(t, account.ID, ec.ID, clusterIDs), *ac.ClustersExposed)
 			assert.Equal(t, len(ec.ExploitData) != 0, bool(ac.Exploits))
 		}
