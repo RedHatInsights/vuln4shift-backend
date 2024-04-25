@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.6 (2024-04-25)
+
+### Fix
+
+* **manager:** Count different aliases of an image ([`4fb30a8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4fb30a83c2a83c902d273340002328164634f844))
+
 ## v0.34.5 (2024-04-24)
 
 ### Fix
