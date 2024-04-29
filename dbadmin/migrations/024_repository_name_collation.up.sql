@@ -1,0 +1,1 @@
+ALTER TABLE repository ALTER COLUMN repository SET DATA TYPE TEXT COLLATE "numeric";
