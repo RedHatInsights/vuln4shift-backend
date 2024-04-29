@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.7 (2024-04-29)
+
+### Fix
+
+* Add indexes to improve perf when selecting from CVE and image side ([`5455869`](https://github.com/RedHatInsights/vuln4shift-backend/commit/5455869ad1b3fc2ddfb577ffe00938f1c32758e3))
+
 ## v0.34.6 (2024-04-25)
 
 ### Fix
