@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.8 (2024-04-29)
+
+### Fix
+
+* Apply the numeric collation to repository/image names ([`2cddcbc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2cddcbc06b28a93964d9005c279c7af33100d33d))
+
 ## v0.34.7 (2024-04-29)
 
 ### Fix
