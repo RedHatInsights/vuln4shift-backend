@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.10 (2024-05-03)
+
+### Fix
+
+* **manager:** Use version column + support sorting and filtering ([`f7bca47`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f7bca474effaa4eaa6792056989bf4dfaf5622a1))
+
 ## v0.34.9 (2024-05-03)
 
 ### Fix
