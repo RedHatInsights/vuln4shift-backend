@@ -306,7 +306,8 @@ func TestSyncReposDelete(t *testing.T) {
 	assert.Nil(t, prepareMaps())
 
 	repository := "jboss-fuse-6"
-	tags, _ := json.Marshal([]string{"latest"})
+	tagsSlice := []string{"latest"}
+	tags, _ := json.Marshal(tagsSlice)
 	tagsJSON := pgtype.JSONB{Bytes: tags, Status: pgtype.Present}
 
 	repoToSync := models.Repository{
@@ -330,6 +331,7 @@ func TestSyncReposDelete(t *testing.T) {
 		RepositoryID: repoToSync.ID,
 		ImageID:      imageToRemove.ID,
 		Tags:         &tagsJSON,
+		Version:      &tagsSlice[0],
 	})
 
 	mockResponses := map[string][]byte{
@@ -356,10 +358,12 @@ func TestSyncReposUpdate(t *testing.T) {
 	assert.Nil(t, prepareDbCves())
 	assert.Nil(t, prepareMaps())
 
-	tags, _ := json.Marshal([]string{"latest"})
+	tagsSlice := []string{"latest"}
+	tags, _ := json.Marshal(tagsSlice)
 	tagsJSON := pgtype.JSONB{Bytes: tags, Status: pgtype.Present}
 
-	newTags, _ := json.Marshal([]string{"latest-new"})
+	newTagsSlice := []string{"latest-new"}
+	newTags, _ := json.Marshal(newTagsSlice)
 	newTagsJSON := pgtype.JSONB{Bytes: newTags, Status: pgtype.Present}
 
 	repo := models.Repository{
@@ -383,6 +387,7 @@ func TestSyncReposUpdate(t *testing.T) {
 		RepositoryID: repo.ID,
 		ImageID:      image.ID,
 		Tags:         &tagsJSON,
+		Version:      &tagsSlice[0],
 	})
 
 	mockResponses := map[string][]byte{
@@ -396,6 +401,7 @@ func TestSyncReposUpdate(t *testing.T) {
 	actualRepoImages := test.GetRepoImages(t, repo.ID)
 	for _, repoImage := range actualRepoImages {
 		assert.Equal(t, newTagsJSON, *repoImage.Tags)
+		assert.Equal(t, newTagsSlice[0], *repoImage.Version)
 	}
 
 	newImageID := test.GetImageByPyxisID(t, newPyxisID).ID
