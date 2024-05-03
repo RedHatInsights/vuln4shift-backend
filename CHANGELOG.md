@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.0 (2024-05-03)
+
+### Feature
+
+* **manager:** Registry filtering ([`eaeab77`](https://github.com/RedHatInsights/vuln4shift-backend/commit/eaeab774d150f2e2df664486df96433c48791e76))
+
 ## v0.34.11 (2024-05-03)
 
 ### Fix
