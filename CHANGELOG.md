@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.9 (2024-05-03)
+
+### Fix
+
+* **pyxis:** Store the displayed version separately, this will make filtering and sorting a lot easier ([`1280bc8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1280bc86498137ba770ca23141148a28b8219685))
+
 ## v0.34.8 (2024-04-29)
 
 ### Fix
