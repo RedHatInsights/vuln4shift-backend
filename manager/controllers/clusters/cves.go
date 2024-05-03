@@ -118,7 +118,7 @@ func (c *Controller) GetClusterCves(ctx *gin.Context) {
 		return
 	}
 
-	resp, err := base.BuildDataMetaResponse(dataRes, base.BuildMeta(usedFilters, &totalItems, nil, nil, nil), usedFilters)
+	resp, err := base.BuildDataMetaResponse(dataRes, base.BuildMeta(usedFilters, &totalItems, nil, nil, nil, nil), usedFilters)
 	if err != nil {
 		c.Logger.Errorf("Internal server error: %s", err.Error())
 	}

@@ -120,7 +120,7 @@ func (c *Controller) GetClusters(ctx *gin.Context) {
 		return
 	}
 
-	resp, err := base.BuildDataMetaResponse(clustersData, base.BuildMeta(usedFilters, &totalItems, &clusterStatuses, &clusterVersions, &clusterProviders), usedFilters)
+	resp, err := base.BuildDataMetaResponse(clustersData, base.BuildMeta(usedFilters, &totalItems, &clusterStatuses, &clusterVersions, &clusterProviders, nil), usedFilters)
 	if err != nil {
 		c.Logger.Errorf("Internal server error: %s", err.Error())
 	}

@@ -13,6 +13,7 @@ import (
 var getCveImagesAllowedFilters = []string{
 	base.SearchQuery,
 	base.DataFormatQuery,
+	base.RegistryQuery,
 }
 
 var getCveImagesFilterArgs = map[string]interface{}{
@@ -27,6 +28,12 @@ var getCveImagesFilterArgs = map[string]interface{}{
 		DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 	},
 	base.SearchQuery: base.ImagesSearch,
+}
+
+// List of distinct columns to select before applying limits and offsets.
+// Result will be returned in meta section.
+var getCveImagesDistinctValues = map[string]map[string]struct{}{
+	"repository.registry": {},
 }
 
 // GetCveImagesSelect
@@ -98,6 +105,18 @@ func (c *Controller) GetCveImages(ctx *gin.Context) {
 	}
 
 	query := c.BuildCveImagesQuery(accountID, cveName, clusterIDs)
+	dbErr := base.DistinctValuesQuery(query, getCveImagesDistinctValues)
+	if dbErr != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			base.BuildErrorResponse(http.StatusInternalServerError, "Internal server error"),
+		)
+		c.Logger.Errorf("Database error: %s", dbErr.Error())
+		return
+	}
+	imageRegistries := getCveImagesDistinctValues["repository.registry"]
+
+	query = c.BuildCveImagesQuery(accountID, cveName, clusterIDs)
 
 	dataRes := []GetCveImagesSelect{}
 	usedFilters, totalItems, inputErr, dbErr := base.ListQuery(query, getCveImagesAllowedFilters, filters, getCveImagesFilterArgs, &dataRes)
@@ -117,7 +136,7 @@ func (c *Controller) GetCveImages(ctx *gin.Context) {
 		return
 	}
 
-	resp, err := base.BuildDataMetaResponse(dataRes, base.BuildMeta(usedFilters, &totalItems, nil, nil, nil), usedFilters)
+	resp, err := base.BuildDataMetaResponse(dataRes, base.BuildMeta(usedFilters, &totalItems, nil, nil, nil, &imageRegistries), usedFilters)
 	if err != nil {
 		c.Logger.Errorf("Internal server error: %s", err.Error())
 	}
