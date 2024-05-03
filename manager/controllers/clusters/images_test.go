@@ -1,7 +1,6 @@
 package clusters
 
 import (
-	"app/base/utils"
 	"app/test"
 	"encoding/json"
 	"net/http"
@@ -61,11 +60,9 @@ func TestGetClusterImages(t *testing.T) {
 
 			for i, eri := range expectedRepoImages {
 				er := test.GetRepoByID(t, eri.RepositoryID)
-				var expectedImageVersion utils.ImageVersion
-				if eri.Tags == nil {
-					expectedImageVersion = utils.Unknown
-				} else {
-					_ = expectedImageVersion.Scan(eri.Tags.Bytes)
+				expectedImageVersion := "Unknown"
+				if eri.Version != nil {
+					expectedImageVersion = *eri.Version
 				}
 				ac := resp.Data[i]
 				assert.Equal(t, er.Repository, *ac.Repository)

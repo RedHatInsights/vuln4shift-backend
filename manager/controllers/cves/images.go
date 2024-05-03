@@ -21,6 +21,7 @@ var getCveImagesFilterArgs = map[string]interface{}{
 			"id":               "repository_id",
 			"name":             "repository.repository",
 			"registry":         "repository.registry",
+			"version":          "repository_image.version",
 			"clusters_exposed": "clusters_exposed",
 		},
 		DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
@@ -32,10 +33,10 @@ var getCveImagesFilterArgs = map[string]interface{}{
 // @Description Exposed images in cve data
 // @Description presents in response
 type GetCveImagesSelect struct {
-	Repository      *string             `json:"name" csv:"name" gorm:"column:repository"`
-	Registry        *string             `json:"registry" csv:"registry" gorm:"column:registry"`
-	Version         *utils.ImageVersion `json:"version" csv:"version" gorm:"column:tags"`
-	ClustersExposed *int32              `json:"clusters_exposed" csv:"clusters_exposed" gorm:"column:clusters_exposed"`
+	Repository      *string `json:"name" csv:"name" gorm:"column:repository"`
+	Registry        *string `json:"registry" csv:"registry" gorm:"column:registry"`
+	Version         *string `json:"version" csv:"version"`
+	ClustersExposed *int32  `json:"clusters_exposed" csv:"clusters_exposed" gorm:"column:clusters_exposed"`
 }
 
 type GetCveImagesResponse struct {
@@ -137,7 +138,7 @@ func (c *Controller) BuildCveImagesQuery(accountID int64, cveName string, cluste
 	}
 
 	return c.Conn.Table("repository").
-		Select(`repository.repository, repository.registry, COALESCE(repository_image.tags, '[]') AS tags, COALESCE(ce, 0) AS clusters_exposed`).
+		Select(`repository.repository, repository.registry, COALESCE(repository_image.version, 'Unknown') AS version, COALESCE(ce, 0) AS clusters_exposed`).
 		Joins("JOIN repository_image ON repository.id = repository_image.repository_id").
 		Joins("JOIN (?) as cnt_subquery ON repository_image.image_id=cnt_subquery.image_id", cntSubquery)
 }
