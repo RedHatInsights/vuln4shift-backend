@@ -290,6 +290,8 @@ func ParseFilter(rawName string, rawValues []string) (Filter, error) {
 			return &Exploits{}, err
 		}
 		return &Exploits{RawFilter{raw, parsedValues}, exploits[0]}, nil
+	case RegistryQuery:
+		return &Registry{RawFilter{raw, parsedValues}, parsedValues}, nil
 	default:
 		return &Search{}, ErrInvalidFilterArgument
 	}

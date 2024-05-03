@@ -28,6 +28,7 @@ const (
 	StatusQuery           = "status"
 	VersionQuery          = "version"
 	ExploitsQuery         = "exploits"
+	RegistryQuery         = "registry"
 )
 
 const (
@@ -370,6 +371,21 @@ func (e *Exploits) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
 		tx.Where("cve.exploit_data IS NOT NULL")
 	} else {
 		tx.Where("cve.exploit_data IS NULL")
+	}
+	return nil
+}
+
+// Registry filter represents registry of an image
+// ex. registry=registry.access.redhat.com,quay.io
+type Registry struct {
+	RawFilter
+	Values []string
+}
+
+// ApplyQuery searches for registry in array
+func (v *Registry) ApplyQuery(tx *gorm.DB, _ map[string]interface{}) error {
+	if len(v.Values) > 0 {
+		tx.Where("repository.registry IN ?", v.Values)
 	}
 	return nil
 }

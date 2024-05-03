@@ -1,6 +1,7 @@
 package base
 
 import (
+	"app/base/models"
 	"app/base/utils"
 
 	"gorm.io/gorm"
@@ -38,6 +39,22 @@ func ListQuery(tx *gorm.DB, allowedFilters []string, filters map[string]Filter,
 	if res.Error != nil {
 		dbError = res.Error
 		return
+	}
+	return
+}
+
+// This selects distinct values of specified columns, without any filters, offsets and limits
+func DistinctValuesQuery(tx *gorm.DB, distinctValues map[string]map[string]struct{}) (dbError error) {
+	for column, values := range distinctValues {
+		results := []models.Repository{}
+		res := tx.Distinct(column).Find(&results)
+		if res.Error != nil {
+			dbError = res.Error
+			return
+		}
+		for _, repository := range results {
+			values[repository.Registry] = struct{}{}
+		}
 	}
 	return
 }

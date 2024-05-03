@@ -48,7 +48,7 @@ func BuildDataMetaResponse(data interface{}, meta interface{}, filters map[strin
 
 // BuildMeta creates Meta section in response from requested filters
 // result is map with query args and their raw values
-func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterStatuses, clusterVersions, clusterProviders *map[string]struct{}) map[string]interface{} {
+func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterStatuses, clusterVersions, clusterProviders, imageRegistries *map[string]struct{}) map[string]interface{} {
 	meta := make(map[string]interface{})
 	for _, filter := range requestedFilters {
 		meta[filter.RawQueryName()] = filter.RawQueryVal()
@@ -80,6 +80,14 @@ func BuildMeta(requestedFilters map[string]Filter, totalItems *int64, clusterSta
 		}
 		sort.Strings(providers)
 		meta["cluster_providers_all"] = providers
+	}
+	if imageRegistries != nil {
+		var registries []string
+		for registry := range *imageRegistries {
+			registries = append(registries, registry)
+		}
+		sort.Strings(registries)
+		meta["image_registries_all"] = registries
 	}
 	return meta
 }
