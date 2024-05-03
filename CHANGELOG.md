@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.34.11 (2024-05-03)
+
+### Fix
+
+* **manager:** Should be a column reference ([`a8de3af`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a8de3af87fc187bfe7ab6481c4c99d16de47ad3c))
+
 ## v0.34.10 (2024-05-03)
 
 ### Fix
