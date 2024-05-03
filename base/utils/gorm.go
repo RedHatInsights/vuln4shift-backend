@@ -2,15 +2,11 @@ package utils
 
 import (
 	"database/sql/driver"
-	"encoding/json"
 	"sort"
 )
 
-const Unknown = "Unknown"
-
 // ByteArrayBool sets to true if the array is not null or empty during the GORM scan, else false.
 type ByteArrayBool bool
-type ImageVersion string
 
 var lowPrioTags = map[string]bool{
 	"latest": true,
@@ -58,19 +54,4 @@ func SortTags(tags *[]string) {
 			return (*tags)[i] < (*tags)[j]
 		})
 	}
-}
-
-func (s *ImageVersion) Scan(value interface{}) error {
-	res := value.([]byte)
-	if len(res) > 0 {
-		var tags []string
-		err := json.Unmarshal(res, &tags)
-		if err == nil && len(tags) > 0 {
-			SortTags(&tags)
-			*s = ImageVersion(tags[0]) // Pick the longest tag
-			return nil
-		}
-	}
-	*s = Unknown
-	return nil
 }

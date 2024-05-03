@@ -22,7 +22,7 @@ func DeleteRepoImageByImageID(t *testing.T, imageID int64) {
 
 func GetClusterRepoImages(t *testing.T, id int64) (images []models.RepositoryImage) {
 	assert.Nil(t, DB.Model(models.RepositoryImage{}).
-		Distinct("repository_image.repository_id", "repository_image.image_id", "repository_image.tags").
+		Distinct("repository_image.repository_id", "repository_image.image_id", "repository_image.version").
 		Joins("JOIN cluster_image ON repository_image.image_id = cluster_image.image_id").
 		Joins("JOIN image_cve ON cluster_image.image_id = image_cve.image_id").
 		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").

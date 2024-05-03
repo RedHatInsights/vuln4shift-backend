@@ -1,7 +1,6 @@
 package cves
 
 import (
-	"app/base/utils"
 	"app/test"
 	"encoding/json"
 	"net/http"
@@ -49,7 +48,7 @@ func TestGetCveImages(t *testing.T) {
 	clustersExposed := int32(1)
 	repository := "rhel7.1"
 	registry := "registry.access.redhat.com"
-	version := utils.ImageVersion("Unknown")
+	version := "Unknown"
 
 	var resp1 GetCveImagesResponse
 	w := callGetCveImages(t, int64(accID1), cveName1, http.StatusOK, nil)

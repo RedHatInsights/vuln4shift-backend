@@ -1,7 +1,6 @@
 package clusters
 
 import (
-	"app/base/utils"
 	"app/manager/base"
 	"net/http"
 
@@ -21,6 +20,7 @@ var getClusterImagesFilterArgs = map[string]interface{}{
 			"id":       "repository.id",
 			"name":     "repository.repository",
 			"registry": "repository.registry",
+			"version":  "repository_image.version",
 		},
 		DefaultSortable: []base.SortItem{{Column: "id", Desc: false}},
 	},
@@ -31,9 +31,9 @@ var getClusterImagesFilterArgs = map[string]interface{}{
 // @Description Exposed images in cluster data
 // @Description presents in response
 type GetClusterImagesSelect struct {
-	Repository *string             `json:"name" csv:"name"`
-	Registry   *string             `json:"registry" csv:"registry"`
-	Version    *utils.ImageVersion `json:"version" csv:"version" gorm:"column:tags"`
+	Repository *string `json:"name" csv:"name"`
+	Registry   *string `json:"registry" csv:"registry"`
+	Version    *string `json:"version" csv:"version"`
 }
 
 type GetClusterImagesResponse struct {
@@ -122,7 +122,7 @@ func (c *Controller) BuildClusterImagesQuery(accountID int64, clusterID uuid.UUI
 		Where("cluster.account_id = ? AND cluster.uuid = ?", accountID, clusterID)
 
 	return c.Conn.Table("repository").
-		Select(`repository.repository, repository.registry, COALESCE(repository_image.tags, '[]') AS tags`).
+		Select(`repository.repository, repository.registry, COALESCE(repository_image.version, 'Unknown') AS version`).
 		Joins("JOIN repository_image ON repository.id = repository_image.repository_id").
 		Joins("JOIN (?) as ci_subquery ON repository_image.image_id=ci_subquery.image_id", clusterImageSubquery)
 }
