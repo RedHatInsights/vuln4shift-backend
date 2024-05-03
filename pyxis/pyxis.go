@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"sort"
 	"time"
 
 	"github.com/jackc/pgtype"
@@ -158,9 +157,10 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 	return nil
 }
 
-func extractTags(img APIImage) (pgtype.JSONB, error) {
+func extractTags(img APIImage) (pgtype.JSONB, *string) {
 	resSlice := []string{}
 	resSet := make(map[string]bool)
+	var displayedVersion *string
 	// Get tags without duplicates
 	for _, repo := range img.Repositories {
 		for _, tag := range repo.Tags {
@@ -170,16 +170,20 @@ func extractTags(img APIImage) (pgtype.JSONB, error) {
 	for tag := range resSet {
 		resSlice = append(resSlice, tag)
 	}
-	sort.Strings(resSlice)
+	utils.SortTags(&resSlice)
+	if len(resSlice) > 0 {
+		displayedVersion = &resSlice[0]
+	}
 	resJSON, _ := json.Marshal(resSlice)
-	return pgtype.JSONB{Bytes: resJSON, Status: pgtype.Present}, nil
+	return pgtype.JSONB{Bytes: resJSON, Status: pgtype.Present}, displayedVersion
 }
 
-func newRepoImage(repoID int64, imgID int64, tags pgtype.JSONB) models.RepositoryImage {
+func newRepoImage(repoID int64, imgID int64, tags pgtype.JSONB, displayedVersion *string) models.RepositoryImage {
 	return models.RepositoryImage{
 		RepositoryID: repoID,
 		ImageID:      imgID,
 		Tags:         &tags,
+		Version:      displayedVersion,
 	}
 }
 
@@ -205,6 +209,9 @@ func checkTags(repImg models.RepositoryImage, tagsAPI pgtype.JSONB) bool {
 
 	tagsA := []string{}
 	tagsB := []string{}
+	if repImg.Tags == nil {
+		return true
+	}
 	if err := json.Unmarshal(repImg.Tags.Bytes, &tagsA); err != nil {
 		// try to update tags if we can't unmarshal the old tags
 		return true
@@ -214,6 +221,11 @@ func checkTags(repImg models.RepositoryImage, tagsAPI pgtype.JSONB) bool {
 	}
 
 	return !compareSlices(tagsA, tagsB)
+}
+
+func checkVersion(repImg models.RepositoryImage, displayedVersion *string) bool {
+	// Decides if version need to be updated
+	return repImg.Version == nil || displayedVersion == nil || *repImg.Version != *displayedVersion
 }
 
 func syncRepo(repo models.Repository) error {
@@ -326,18 +338,18 @@ func syncRepo(repo models.Repository) error {
 				return err
 			}
 		}
-		tags, _ := extractTags(apiRepoImages[pyxisID])
+		tags, displayedVersion := extractTags(apiRepoImages[pyxisID])
 		if _, found := dbRepositoryImageMap[image.ID]; !found {
 			// repository_image pair not found
 			toInsertRepositoryImages = append(
 				toInsertRepositoryImages,
-				newRepoImage(repo.ID, image.ID, tags),
+				newRepoImage(repo.ID, image.ID, tags, displayedVersion),
 			)
-		} else if repImg, _ := dbRepositoryImageMap[image.ID]; checkTags(repImg, tags) {
+		} else if repImg := dbRepositoryImageMap[image.ID]; checkTags(repImg, tags) || checkVersion(repImg, displayedVersion) {
 			// repository_image pair found but tags are not present
 			toUpdateRepositoryImages = append(
 				toUpdateRepositoryImages,
-				newRepoImage(repo.ID, image.ID, tags),
+				newRepoImage(repo.ID, image.ID, tags, displayedVersion),
 			)
 			delete(dbRepositoryImageMap, image.ID)
 		} else {
@@ -380,7 +392,7 @@ func syncRepo(repo models.Repository) error {
 
 	if toUpdateRepositoryImagesCnt > 0 {
 		for _, repo := range toUpdateRepositoryImages {
-			if err := tx.Model(models.RepositoryImage{}).Where("repository_id = ? AND image_id = ?", repo.RepositoryID, repo.ImageID).Update("tags", repo.Tags).Error; err != nil {
+			if err := tx.Model(models.RepositoryImage{}).Where("repository_id = ? AND image_id = ?", repo.RepositoryID, repo.ImageID).Updates(models.RepositoryImage{Tags: repo.Tags, Version: repo.Version}).Error; err != nil {
 				syncError.WithLabelValues(dbUpdate).Inc()
 				return err
 			}
