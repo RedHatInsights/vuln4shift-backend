@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.1 (2024-05-15)
+
+### Fix
+
+* **digestwriter:** Refresh cluster CVE cache on each check-in ([#206](https://github.com/RedHatInsights/vuln4shift-backend/issues/206)) ([`3c74033`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3c74033960b7b6270840e09e4805b4b8a421471f))
+
 ## v0.35.0 (2024-05-03)
 
 ### Feature
