@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.2 (2024-05-21)
+
+### Fix
+
+* **manager:** Base image count on correct distinct of columns ([`3227143`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3227143887adc2cb50f1ad3aa8f72795dce19369))
+
 ## v0.35.1 (2024-05-15)
 
 ### Fix
