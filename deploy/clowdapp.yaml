@@ -428,7 +428,7 @@ parameters:
 - name: MEMORY_LIMIT_PYXIS_GATHERER
   description: Maximum memory limit for pod
   required: true
-  value: "512Mi"
+  value: "1024Mi"
 - name: CPU_REQUEST_CLEANER
   description: Requested CPU for pod
   required: true
