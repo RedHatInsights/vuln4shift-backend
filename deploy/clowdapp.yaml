@@ -45,7 +45,8 @@ objects:
     - replicas: 3
       partitions: 2
       topicName: ${KAFKA_PAYLOAD_TRACKER_TOPIC}
-    dependencies: []
+    dependencies:
+    - sha-extractor
     testing:
       iqePlugin: ocp-vulnerability
     deployments:
