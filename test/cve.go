@@ -102,7 +102,7 @@ func GetAccountCvesForClusters(t *testing.T, id int64, clusterIDs []int64) (cves
 func GetImagesExposed(t *testing.T, accountID, cveID int64) int64 {
 	var imagesExposed int64
 	assert.Nil(t, DB.Model(models.Cve{}).
-		Select("COUNT(repository_image.repository_id)").
+		Select("COUNT(DISTINCT(repository_image.repository_id, repository_image.image_id))").
 		Joins("JOIN image_cve ON cve.id = image_cve.cve_id").
 		Joins("JOIN cluster_image ON image_cve.image_id = cluster_image.image_id").
 		Joins("JOIN cluster ON cluster_image.cluster_id = cluster.id").
