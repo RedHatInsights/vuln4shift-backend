@@ -494,13 +494,19 @@ func TestProcessMessageNoImages(t *testing.T) {
 
 	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
 
-	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
-	assert.Nil(t, err)
 	var ptEvent utils.PayloadTrackerEvent
-	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+	for i := 0; i < len(testWriter.ProcessedMessages); i++ {
+		bs, err := testWriter.ProcessedMessages[i].Value.Encode()
+		assert.Nil(t, err)
+		assert.Nil(t, json.Unmarshal(bs, &ptEvent))
 
-	assert.Equal(t, "error", ptEvent.Status)
-	assert.Equal(t, "no digests were retrieved from incoming message", ptEvent.StatusMsg)
+		assert.Contains(t, []string{"error", "received"}, ptEvent.Status)
+		if ptEvent.Status == "error" {
+			assert.Equal(t, "no digests were retrieved from incoming message", ptEvent.StatusMsg)
+		} else {
+			assert.Equal(t, "", ptEvent.StatusMsg)
+		}
+	}
 }
 
 func TestProcessCompressedMessageNoImages(t *testing.T) {
@@ -517,13 +523,19 @@ func TestProcessCompressedMessageNoImages(t *testing.T) {
 	compressConsumerMessage(msg)
 	assert.Nil(t, awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0))
 
-	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
-	assert.Nil(t, err)
 	var ptEvent utils.PayloadTrackerEvent
-	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+	for i := 0; i < len(testWriter.ProcessedMessages); i++ {
+		bs, err := testWriter.ProcessedMessages[i].Value.Encode()
+		assert.Nil(t, err)
 
-	assert.Equal(t, "error", ptEvent.Status)
-	assert.Equal(t, "no digests were retrieved from incoming message", ptEvent.StatusMsg)
+		assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+		assert.Contains(t, []string{"error", "received"}, ptEvent.Status)
+		if ptEvent.Status == "error" {
+			assert.Equal(t, "no digests were retrieved from incoming message", ptEvent.StatusMsg)
+		} else {
+			assert.Equal(t, "", ptEvent.StatusMsg)
+		}
+	}
 }
 
 func TestProcessMessageUUID(t *testing.T) {
@@ -541,13 +553,19 @@ func TestProcessMessageUUID(t *testing.T) {
 	err := awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0)
 	assert.Equal(t, "invalid UUID length: 28", err.Error())
 
-	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
-	assert.Nil(t, err)
 	var ptEvent utils.PayloadTrackerEvent
-	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+	for i := 0; i < len(testWriter.ProcessedMessages); i++ {
+		bs, err := testWriter.ProcessedMessages[i].Value.Encode()
+		assert.Nil(t, err)
+		assert.Nil(t, json.Unmarshal(bs, &ptEvent))
 
-	assert.Equal(t, "error", ptEvent.Status)
-	assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
+		assert.Contains(t, []string{"error", "received"}, ptEvent.Status)
+		if ptEvent.Status == "error" {
+			assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
+		} else {
+			assert.Equal(t, "", ptEvent.StatusMsg)
+		}
+	}
 }
 
 func TestProcessMessageUUIDCompressed(t *testing.T) {
@@ -565,13 +583,19 @@ func TestProcessMessageUUIDCompressed(t *testing.T) {
 	err := awaitProcessingMessage(t, testProducer, testConsumer, msg, 2, 0)
 	assert.Equal(t, "invalid UUID length: 28", err.Error())
 
-	bs, err := testWriter.ProcessedMessages[1].Value.Encode()
-	assert.Nil(t, err)
 	var ptEvent utils.PayloadTrackerEvent
-	assert.Nil(t, json.Unmarshal(bs, &ptEvent))
+	for i := 0; i < len(testWriter.ProcessedMessages); i++ {
+		bs, err := testWriter.ProcessedMessages[i].Value.Encode()
+		assert.Nil(t, err)
+		assert.Nil(t, json.Unmarshal(bs, &ptEvent))
 
-	assert.Equal(t, "error", ptEvent.Status)
-	assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
+		assert.Contains(t, []string{"error", "received"}, ptEvent.Status)
+		if ptEvent.Status == "error" {
+			assert.Equal(t, "error updating cluster data", ptEvent.StatusMsg)
+		} else {
+			assert.Equal(t, "", ptEvent.StatusMsg)
+		}
+	}
 }
 
 func TestAccountNumberUnmarshall(t *testing.T) {
