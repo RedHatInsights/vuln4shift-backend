@@ -3,7 +3,6 @@ package expsync
 import (
 	"app/base/models"
 	"encoding/json"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -17,25 +16,20 @@ func updateExploitsMetadata(tx *gorm.DB, exploits map[CVE][]ExploitMetadata) (in
 		return 0, nil
 	}
 
-	var argList string
+	var totalRowsAffected int64
 	for cve, metadata := range exploits {
 		exploitBytes, err := json.Marshal(metadata)
 		if err != nil {
 			return 0, err
 		}
-		argList = fmt.Sprintf("%s ('%s', '%s'::jsonb),", argList, string(cve), exploitBytes)
+		res := tx.Exec("UPDATE cve SET exploit_data = ? WHERE name = ?", exploitBytes, cve)
+		if e := res.Error; e != nil {
+			return 0, e
+		}
+		totalRowsAffected = totalRowsAffected + res.RowsAffected
 	}
 
-	// Trim preceding whitespace and trailing comma.
-	argList = argList[1 : len(argList)-1]
-
-	statement := fmt.Sprintf("UPDATE cve SET exploit_data = exploits.data FROM (VALUES %s) AS exploits(cve, data) WHERE cve.name = exploits.cve", argList)
-	res := tx.Exec(statement)
-	if e := res.Error; e != nil {
-		return 0, e
-	}
-
-	return res.RowsAffected, nil
+	return totalRowsAffected, nil
 }
 
 func getCvesWithExploitMetadata(tx *gorm.DB) (cves []models.Cve, err error) {
