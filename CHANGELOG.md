@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.3 (2024-06-06)
+
+### Fix
+
+* **expsync:** Possible SQL injection ([`52cad1e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/52cad1e62a128e32185d4b3cbddf7b491ae309ee))
+
 ## v0.35.2 (2024-05-21)
 
 ### Fix
