@@ -36,7 +36,7 @@ func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID 
 			Where("cve.name = ?", *cveName).
 			Distinct()
 	}
-	if err := query.Find(&clusterRows).Error; err != nil {
+	if err := query.Model(&models.Cluster{}).Find(&clusterRows).Error; err != nil {
 		return nil, nil, nil, nil, err
 	}
 
