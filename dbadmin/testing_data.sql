@@ -43,20 +43,20 @@ INSERT INTO repository (id, pyxis_id, modified_date, registry, repository) VALUE
 (4, '57ea8cd99c624c035f96f334', '2022-02-02 02:33:44.343305+00', 'registry.access.redhat.com', 'rhel6'),
 (5, '57ea8cd99c624c035f96f335', '2022-02-02 02:33:44.343305+00', 'registry.access.redhat.com', 'rhel6.10.novulns');
 
-INSERT INTO repository_image(repository_id, image_id, tags, version) VALUES
-(1, 1, NULL, NULL),
-(1, 2, '["1.0"]', '1.0'),
-(1, 3, '["1.1", "1.1-3", "latest"]', '1.1-3'),
-(2, 4, '["2.0", "2.0.3"]', '2.0.3'),
-(2, 5, '["2.0", "2.0.4"]', '2.0.4'),
-(2, 6, '["latest", "2.0", "2.0.5"]', '2.0.5'),
-(3, 7, '["3.5"]', '3.5'),
-(3, 8, NULL, NULL),
-(3, 9, '["latest"]', 'latest'),
-(4, 10, '["4.1"]', '4.1'),
-(4, 11, '["4.2"]', '4.2'),
-(4, 12, '["4.3", "latest"]', '4.3'),
-(5, 13, '["5.5"]', '5.5');
+INSERT INTO repository_image(repository_id, image_id, tags, version, registry_repository_version) VALUES
+(1, 1, NULL, NULL, 'registry.access.redhat.com/rhel7.1:'),
+(1, 2, '["1.0"]', '1.0', 'registry.access.redhat.com/rhel7:1.0'),
+(1, 3, '["1.1", "1.1-3", "latest"]', '1.1-3', 'registry.access.redhat.com/rhel7:1.1-3'),
+(2, 4, '["2.0", "2.0.3"]', '2.0.3', 'registry.access.redhat.com/rhel6.5:2.0.3'),
+(2, 5, '["2.0", "2.0.4"]', '2.0.4', 'registry.access.redhat.com/rhel6.5:2.0.4'),
+(2, 6, '["latest", "2.0", "2.0.5"]', '2.0.5', 'registry.access.redhat.com/rhel6.5:2.0.5'),
+(3, 7, '["3.5"]', '3.5', 'registry.access.redhat.com/rhel7/sadc:3.5'),
+(3, 8, NULL, NULL, 'registry.access.redhat.com/rhel7/sadc:'),
+(3, 9, '["latest"]', 'latest', 'registry.access.redhat.com/rhel7/sadc:latest'),
+(4, 10, '["4.1"]', '4.1', 'registry.access.redhat.com/rhel6:4.1'),
+(4, 11, '["4.2"]', '4.2', 'registry.access.redhat.com/rhel6:4.2'),
+(4, 12, '["4.3", "latest"]', '4.3', 'registry.access.redhat.com/rhel6:4.3'),
+(5, 13, '["5.5"]', '5.5', 'registry.access.redhat.com/rhel6.10.novulns:5.5');
 
 INSERT INTO cluster_image (cluster_id, image_id) VALUES
 (15, 1),

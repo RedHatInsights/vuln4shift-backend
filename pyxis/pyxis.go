@@ -178,12 +178,17 @@ func extractTags(img APIImage) (pgtype.JSONB, *string) {
 	return pgtype.JSONB{Bytes: resJSON, Status: pgtype.Present}, displayedVersion
 }
 
-func newRepoImage(repoID int64, imgID int64, tags pgtype.JSONB, displayedVersion *string) models.RepositoryImage {
+func newRepoImage(repoID int64, registry, repository string, imgID int64, tags pgtype.JSONB, displayedVersion *string) models.RepositoryImage {
+	registryRepoVersion := fmt.Sprintf("%s/%s:", registry, repository) // trailing ':' for consistency with SQL CONCAT
+	if displayedVersion != nil {
+		registryRepoVersion += *displayedVersion
+	}
 	return models.RepositoryImage{
-		RepositoryID: repoID,
-		ImageID:      imgID,
-		Tags:         &tags,
-		Version:      displayedVersion,
+		RepositoryID:              repoID,
+		ImageID:                   imgID,
+		Tags:                      &tags,
+		Version:                   displayedVersion,
+		RegistryRepositoryVersion: registryRepoVersion,
 	}
 }
 
@@ -343,13 +348,13 @@ func syncRepo(repo models.Repository) error {
 			// repository_image pair not found
 			toInsertRepositoryImages = append(
 				toInsertRepositoryImages,
-				newRepoImage(repo.ID, image.ID, tags, displayedVersion),
+				newRepoImage(repo.ID, repo.Registry, repo.Repository, image.ID, tags, displayedVersion),
 			)
 		} else if repImg := dbRepositoryImageMap[image.ID]; checkTags(repImg, tags) || checkVersion(repImg, displayedVersion) {
 			// repository_image pair found but tags are not present
 			toUpdateRepositoryImages = append(
 				toUpdateRepositoryImages,
-				newRepoImage(repo.ID, image.ID, tags, displayedVersion),
+				newRepoImage(repo.ID, repo.Registry, repo.Repository, image.ID, tags, displayedVersion),
 			)
 			delete(dbRepositoryImageMap, image.ID)
 		} else {
@@ -392,7 +397,7 @@ func syncRepo(repo models.Repository) error {
 
 	if toUpdateRepositoryImagesCnt > 0 {
 		for _, repo := range toUpdateRepositoryImages {
-			if err := tx.Model(models.RepositoryImage{}).Where("repository_id = ? AND image_id = ?", repo.RepositoryID, repo.ImageID).Updates(models.RepositoryImage{Tags: repo.Tags, Version: repo.Version}).Error; err != nil {
+			if err := tx.Model(models.RepositoryImage{}).Where("repository_id = ? AND image_id = ?", repo.RepositoryID, repo.ImageID).Updates(models.RepositoryImage{Tags: repo.Tags, Version: repo.Version, RegistryRepositoryVersion: repo.RegistryRepositoryVersion}).Error; err != nil {
 				syncError.WithLabelValues(dbUpdate).Inc()
 				return err
 			}

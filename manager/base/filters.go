@@ -97,7 +97,7 @@ func (c *Search) ApplyQuery(tx *gorm.DB, args map[string]interface{}) error {
 		tx.Where("cluster.display_name ILIKE ? OR cluster.uuid::varchar ILIKE ?", regex, regex)
 		return nil
 	case ImagesSearch:
-		tx.Where("CONCAT(repository.registry, '/', repository.repository, ':', repository_image.version) ILIKE ?", regex)
+		tx.Where("repository_image.registry_repository_version ILIKE ?", regex)
 		return nil
 	}
 	return nil
