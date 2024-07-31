@@ -100,10 +100,11 @@ func (i Image) TableName() string {
 
 // RepositoryImage table
 type RepositoryImage struct {
-	RepositoryID int64         `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
-	ImageID      int64         `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
-	Tags         *pgtype.JSONB `gorm:"type:jsonb"`
-	Version      *string       `gorm:"type:text"`
+	RepositoryID              int64         `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
+	ImageID                   int64         `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
+	Tags                      *pgtype.JSONB `gorm:"type:jsonb"`
+	Version                   *string       `gorm:"type:text"`
+	RegistryRepositoryVersion string        `gorm:"type:text"`
 }
 
 func (ic RepositoryImage) TableName() string {
