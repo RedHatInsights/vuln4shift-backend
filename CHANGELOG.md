@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.4 (2024-07-31)
+
+### Fix
+
+* **gorm:** Force gorm to select specific fields ([`c619a4e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c619a4edbf16fae008fc644b3daa581794d85138))
+
 ## v0.35.3 (2024-06-06)
 
 ### Fix
