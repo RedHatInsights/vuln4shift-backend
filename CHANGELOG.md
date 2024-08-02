@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.5 (2024-08-02)
+
+### Fix
+
+* **db:** Store registry_repository_version with index for searching ([`21f8b99`](https://github.com/RedHatInsights/vuln4shift-backend/commit/21f8b990511cb06dfc3fe21f3dc9e0a6d18e29f1))
+
 ## v0.35.4 (2024-07-31)
 
 ### Fix
