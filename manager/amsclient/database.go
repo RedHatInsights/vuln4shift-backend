@@ -27,7 +27,7 @@ func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID 
 
 	// Query all clusters in DB for given account
 	clusterRows := []models.ClusterLight{}
-	query := conn.Where("cluster.account_id = ?", accountID).Order("cluster.id")
+	query := conn.Session(&gorm.Session{QueryFields: true}).Where("cluster.account_id = ?", accountID).Order("cluster.id")
 	if cveName != nil {
 		query = query.
 			Joins("JOIN cluster_image ON cluster.id = cluster_image.cluster_id").
@@ -36,7 +36,7 @@ func DBFetchClusterDetails(conn *gorm.DB, ams AMSClient, accountID int64, orgID 
 			Where("cve.name = ?", *cveName).
 			Distinct()
 	}
-	if err := query.Model(&models.Cluster{}).Find(&clusterRows).Error; err != nil {
+	if err := query.Find(&clusterRows).Error; err != nil {
 		return nil, nil, nil, nil, err
 	}
 
