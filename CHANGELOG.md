@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.6 (2024-08-07)
+
+### Fix
+
+* **gorm:** Select fields with QueryFields ([`da71518`](https://github.com/RedHatInsights/vuln4shift-backend/commit/da7151865fe5ab5878d4f7cf2543925cae21a954))
+
 ## v0.35.5 (2024-08-02)
 
 ### Fix
