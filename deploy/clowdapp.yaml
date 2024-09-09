@@ -141,11 +141,11 @@ objects:
               key: amsclient_secret
         resources:
           limits:
-            cpu: ${{CPU_LIMIT_MANAGER}}
-            memory: ${{MEMORY_LIMIT_MANAGER}}
+            cpu: ${CPU_LIMIT_MANAGER}
+            memory: ${MEMORY_LIMIT_MANAGER}
           requests:
-            cpu: ${{CPU_REQUEST_MANAGER}}
-            memory: ${{MEMORY_REQUEST_MANAGER}}
+            cpu: ${CPU_REQUEST_MANAGER}
+            memory: ${MEMORY_REQUEST_MANAGER}
 
     - name: digest-writer
       minReplicas: ${{MIN_REPLICAS_DIGEST_WRITER}}
@@ -188,11 +188,11 @@ objects:
           value: ${GIN_MODE}
         resources:
           limits:
-            cpu: ${{CPU_LIMIT_DIGEST_WRITER}}
-            memory: ${{MEMORY_LIMIT_DIGEST_WRITER}}
+            cpu: ${CPU_LIMIT_DIGEST_WRITER}
+            memory: ${MEMORY_LIMIT_DIGEST_WRITER}
           requests:
-            cpu: ${{CPU_REQUEST_DIGEST_WRITER}}
-            memory: ${{MEMORY_REQUEST_DIGEST_WRITER}}
+            cpu: ${CPU_REQUEST_DIGEST_WRITER}
+            memory: ${MEMORY_REQUEST_DIGEST_WRITER}
 
     jobs:
     - name: vmaas-sync
@@ -226,11 +226,11 @@ objects:
           value: ${VMAAS_PAGE_SIZE}
         resources:
           limits:
-            cpu: ${{CPU_LIMIT_VMAAS_SYNC}}
-            memory: ${{MEMORY_LIMIT_VMAAS_SYNC}}
+            cpu: ${CPU_LIMIT_VMAAS_SYNC}
+            memory: ${MEMORY_LIMIT_VMAAS_SYNC}
           requests:
-            cpu: ${{CPU_REQUEST_VMAAS_SYNC}}
-            memory: ${{MEMORY_REQUEST_VMAAS_SYNC}}
+            cpu: ${CPU_REQUEST_VMAAS_SYNC}
+            memory: ${MEMORY_REQUEST_VMAAS_SYNC}
 
     - name: pyxis-gatherer
       schedule: ${SCHEDULE_PYXIS_GATHERER}
@@ -265,11 +265,11 @@ objects:
           value: ${SKIP_IMAGE_CVE_SYNC}
         resources:
           limits:
-            cpu: ${{CPU_LIMIT_PYXIS_GATHERER}}
-            memory: ${{MEMORY_LIMIT_PYXIS_GATHERER}}
+            cpu: ${CPU_LIMIT_PYXIS_GATHERER}
+            memory: ${MEMORY_LIMIT_PYXIS_GATHERER}
           requests:
-            cpu: ${{CPU_REQUEST_PYXIS_GATHERER}}
-            memory: ${{MEMORY_REQUEST_PYXIS_GATHERER}}
+            cpu: ${CPU_REQUEST_PYXIS_GATHERER}
+            memory: ${MEMORY_REQUEST_PYXIS_GATHERER}
 
     - name: cleaner
       schedule: ${SCHEDULE_CLEANER}
@@ -294,11 +294,11 @@ objects:
           value: ${CLUSTER_RETENTION_DAYS}
         resources:
           limits:
-            cpu: ${{CPU_LIMIT_CLEANER}}
-            memory: ${{MEMORY_LIMIT_CLEANER}}
+            cpu: ${CPU_LIMIT_CLEANER}
+            memory: ${MEMORY_LIMIT_CLEANER}
           requests:
-            cpu: ${{CPU_REQUEST_CLEANER}}
-            memory: ${{MEMORY_REQUEST_CLEANER}}
+            cpu: ${CPU_REQUEST_CLEANER}
+            memory: ${MEMORY_REQUEST_CLEANER}
 
     - name: exploit-sync
       schedule: ${SCHEDULE_EXPLOIT_SYNC}
@@ -332,11 +332,11 @@ objects:
                 name: github-vulnerability-bot
         resources:
           limits:
-            cpu: ${{CPU_LIMIT_EXPLOIT_SYNC}}
-            memory: ${{MEMORY_LIMIT_EXPLOIT_SYNC}}
+            cpu: ${CPU_LIMIT_EXPLOIT_SYNC}
+            memory: ${MEMORY_LIMIT_EXPLOIT_SYNC}
           requests:
-            cpu: ${{CPU_REQUEST_EXPLOIT_SYNC}}
-            memory: ${{MEMORY_REQUEST_EXPLOIT_SYNC}}
+            cpu: ${CPU_REQUEST_EXPLOIT_SYNC}
+            memory: ${MEMORY_REQUEST_EXPLOIT_SYNC}
 
 parameters:
 # IMAGE AND CLOWDER
