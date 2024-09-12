@@ -34,21 +34,40 @@ type APICveResponse struct {
 }
 
 type APICve struct {
-	RedhatURL         string     `json:"redhat_url"`
-	SecondaryURL      string     `json:"secondary_url"`
-	Synopsis          string     `json:"synopsis"`
-	Impact            string     `json:"impact"`
-	PublicDate        *time.Time `json:"public_date"`
-	ModifiedDate      *time.Time `json:"modified_date"`
-	CweList           []string   `json:"cwe_list"`
-	Cvss3Score        string     `json:"cvss3_score"`
-	Cvss3Metrics      string     `json:"cvss3_metrics"`
-	Cvss2Score        string     `json:"cvss2_score"`
-	Cvss2Metrics      string     `json:"cvss2_metrics"`
-	Description       string     `json:"description"`
-	PackageList       []string   `json:"package_list"`
-	SourcePackageList []string   `json:"source_package_list"`
-	ErrataList        []string   `json:"errata_list"`
+	RedhatURL         string    `json:"redhat_url"`
+	SecondaryURL      string    `json:"secondary_url"`
+	Synopsis          string    `json:"synopsis"`
+	Impact            string    `json:"impact"`
+	PublicDate        vmaasTime `json:"public_date"`
+	ModifiedDate      vmaasTime `json:"modified_date"`
+	CweList           []string  `json:"cwe_list"`
+	Cvss3Score        string    `json:"cvss3_score"`
+	Cvss3Metrics      string    `json:"cvss3_metrics"`
+	Cvss2Score        string    `json:"cvss2_score"`
+	Cvss2Metrics      string    `json:"cvss2_metrics"`
+	Description       string    `json:"description"`
+	PackageList       []string  `json:"package_list"`
+	SourcePackageList []string  `json:"source_package_list"`
+	ErrataList        []string  `json:"errata_list"`
+}
+
+// vmaasTime to handle empty string for time.Time fields
+type vmaasTime struct {
+	*time.Time
+}
+
+func (t *vmaasTime) UnmarshalJSON(b []byte) error {
+	if string(b) == `""` {
+		*t = vmaasTime{Time: &time.Time{}}
+		return nil
+	}
+
+	str := string(b)
+	str = str[1 : len(str)-1] // Trims the surrounding double quotes
+
+	time, err := time.Parse(time.RFC3339, str)
+	t.Time = &time
+	return err
 }
 
 // getAPICves request CVE list from VMaaS
