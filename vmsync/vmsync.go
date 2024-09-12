@@ -61,8 +61,8 @@ func syncCveMetadata() {
 			Cvss2Score:   float32(cvss2Score),
 			Cvss3Metrics: apiCve.Cvss3Metrics,
 			Cvss3Score:   float32(cvss3Score),
-			PublicDate:   apiCve.PublicDate,
-			ModifiedDate: apiCve.ModifiedDate,
+			PublicDate:   apiCve.PublicDate.Time,
+			ModifiedDate: apiCve.ModifiedDate.Time,
 			RedhatURL:    apiCve.RedhatURL,
 			SecondaryURL: apiCve.SecondaryURL,
 		})

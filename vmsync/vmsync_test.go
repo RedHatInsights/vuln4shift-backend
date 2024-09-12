@@ -22,7 +22,7 @@ const VmaasRespMock = `{
             "synopsis": "CVE-2015-5320",
             "impact": "Important",
             "public_date": "2015-11-11T00:00:00+00:00",
-            "modified_date": "2022-09-20T08:12:58+00:00",
+            "modified_date": "",
             "cwe_list": [],
             "cvss3_score": "",
             "cvss3_metrics": "",
