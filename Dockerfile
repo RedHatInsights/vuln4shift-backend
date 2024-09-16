@@ -1,5 +1,5 @@
-ARG BUILDIMG=registry.access.redhat.com/ubi8-minimal
-ARG RUNIMG=registry.access.redhat.com/ubi8-minimal
+ARG BUILDIMG=registry.access.redhat.com/ubi9-minimal
+ARG RUNIMG=registry.access.redhat.com/ubi9-minimal
 # ---------------------------------------
 # build image
 FROM ${BUILDIMG} as buildimg
@@ -8,7 +8,7 @@ WORKDIR /vuln4shift
 
 USER root
 
-RUN microdnf install golang git-core
+RUN microdnf install -y golang git-core
 
 ADD go.mod                      /vuln4shift/
 ADD go.sum                      /vuln4shift/
