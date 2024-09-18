@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.35.7 (2024-09-18)
+
+### Fix
+
+* **vmsync:** Handle empty time returned from VMaaS ([`8ec6ba1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8ec6ba1b382b5480d97d99341afca8b2ca10a228))
+
 ## v0.35.6 (2024-08-07)
 
 ### Fix
