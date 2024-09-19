@@ -6,6 +6,7 @@ Vulnerabilities detection for OpenShift images.
 
 ## Development environment
 
+
     docker-compose build         # Build images
     docker-compose up --build    # Build images and run in foreground
     docker-compose up --build -d # Build images and run in background
