@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.36.0 (2024-10-04)
+
+### Feature
+
+* **clowder:** Consume container image from Konflux ([`c666146`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c666146e1872137131da941d7a6d90ad81b9c002))
+
 ## v0.35.7 (2024-09-18)
 
 ### Fix
