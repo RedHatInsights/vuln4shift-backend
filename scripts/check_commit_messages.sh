@@ -9,7 +9,7 @@ if echo "$commitTitle" | grep -qE "^Merge branch \'"; then
 fi
 
 # check semantic versioning scheme
-if ! echo "$commitTitle" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|chore)\(?.*\)?:\s\w+'; then
+if ! echo "$commitTitle" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)\(?.*\)?:\s\w+'; then
 	echo "Your commit title did not follow semantic versioning: $commitTitle"
 	echo "Please see https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#commit-message-format"
 	exit 1
