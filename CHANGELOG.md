@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.36.4 (2024-10-11)
+
+### Chores
+
+* chore(deps): update konflux references to 2d6e09f
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com> ([`392d103`](https://github.com/RedHatInsights/vuln4shift-backend/commit/392d1032fcf1d4b189f6f1e312fd2b468d302234))
+
+
 ## v0.36.3 (2024-10-11)
 
 ### Chores
