@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.36.6 (2024-10-15)
+
+### Chores
+
+* chore(deps): update grafana/grafana docker tag to v11
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com> ([`6c666a8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6c666a8c3f7740ce8e6948fc85581b9a23a90385))
+
+
 ## v0.36.5 (2024-10-14)
 
 ### Chores
