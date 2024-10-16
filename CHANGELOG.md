@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## v0.36.8 (2024-10-16)
+
+### Continuous Integration
+
+* ci: only build tagged commits ([`a81f513`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a81f51386c9e62ca7af8fd663df4ff1a0bdd5cec))
+
+
 ## v0.36.7 (2024-10-15)
 
 ### Chores
