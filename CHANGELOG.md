@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.36.10 (2024-10-21)
+
+### Chores
+
+* chore(deps): update konflux references
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com> ([`2abebdd`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2abebdd8092ce939deff41d4fa0666f2c242131e))
+
+
 ## v0.36.9 (2024-10-17)
 
 ### Chores
@@ -106,6 +115,10 @@ Signed-off-by: red-hat-konflux <konflux@no-reply.konflux-ci.dev> ([`6b30490`](ht
 
 ## v0.35.7 (2024-09-18)
 
+### Bug Fixes
+
+* fix(vmsync): handle empty time returned from VMaaS ([`8ec6ba1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8ec6ba1b382b5480d97d99341afca8b2ca10a228))
+
 ### Chores
 
 * chore: update to ubi9
@@ -118,20 +131,10 @@ RHINENG-12544 ([`6b0998d`](https://github.com/RedHatInsights/vuln4shift-backend/
 
 RHINENG-12322 ([`6764733`](https://github.com/RedHatInsights/vuln4shift-backend/commit/67647331fa19e82fd177bbe34691a1d63c851374))
 
-### Fixes
-
-* fix(vmsync): handle empty time returned from VMaaS ([`8ec6ba1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8ec6ba1b382b5480d97d99341afca8b2ca10a228))
-
 
 ## v0.35.6 (2024-08-07)
 
-### Chores
-
-* chore(github-actions): docker-compose no longer supported
-
-https://github.blog/changelog/2024-04-10-github-hosted-runner-images-deprecation-notice-docker-compose-v1/ ([`21072d3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/21072d35569a8d19bf48b48d48709dc4ad3c95c5))
-
-### Fixes
+### Bug Fixes
 
 * fix(gorm): select fields with QueryFields
 
@@ -139,10 +142,16 @@ https://gorm.io/docs/advanced_query.html\#smart_select
 
 RHINENG-11447 ([`da71518`](https://github.com/RedHatInsights/vuln4shift-backend/commit/da7151865fe5ab5878d4f7cf2543925cae21a954))
 
+### Chores
+
+* chore(github-actions): docker-compose no longer supported
+
+https://github.blog/changelog/2024-04-10-github-hosted-runner-images-deprecation-notice-docker-compose-v1/ ([`21072d3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/21072d35569a8d19bf48b48d48709dc4ad3c95c5))
+
 
 ## v0.35.5 (2024-08-02)
 
-### Fixes
+### Bug Fixes
 
 * fix(db): store registry_repository_version with index for searching
 
@@ -151,7 +160,7 @@ RHINENG-11447 ([`21f8b99`](https://github.com/RedHatInsights/vuln4shift-backend/
 
 ## v0.35.4 (2024-07-31)
 
-### Fixes
+### Bug Fixes
 
 * fix(gorm): force gorm to select specific fields
 
@@ -162,17 +171,17 @@ RHINENG-11447 ([`c619a4e`](https://github.com/RedHatInsights/vuln4shift-backend/
 
 ## v0.35.3 (2024-06-06)
 
+### Bug Fixes
+
+* fix(expsync): possible SQL injection
+
+RHINENG-2580 ([`52cad1e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/52cad1e62a128e32185d4b3cbddf7b491ae309ee))
+
 ### Chores
 
 * chore: add sha-extractor as a dependency
 
 CCXDEV-12809 ([`c8fdfb6`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c8fdfb608629dee33078592a98c882bdf8d9049a))
-
-### Fixes
-
-* fix(expsync): possible SQL injection
-
-RHINENG-2580 ([`52cad1e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/52cad1e62a128e32185d4b3cbddf7b491ae309ee))
 
 ### Testing
 
@@ -183,18 +192,18 @@ RHINENG-2580 ([`52cad1e`](https://github.com/RedHatInsights/vuln4shift-backend/c
 
 ## v0.35.2 (2024-05-21)
 
+### Bug Fixes
+
+* fix(manager): base image count on correct distinct of columns ([`3227143`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3227143887adc2cb50f1ad3aa8f72795dce19369))
+
 ### Chores
 
 * chore: increase memory limit for pyxis gatherer ([`5f1cb8d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/5f1cb8d383c7e3219d4f7d275b923cd995261b91))
 
-### Fixes
-
-* fix(manager): base image count on correct distinct of columns ([`3227143`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3227143887adc2cb50f1ad3aa8f72795dce19369))
-
 
 ## v0.35.1 (2024-05-15)
 
-### Fixes
+### Bug Fixes
 
 * fix(digestwriter): refresh cluster CVE cache on each check-in (#206)
 
@@ -215,14 +224,14 @@ RHINENG-8259 ([`eaeab77`](https://github.com/RedHatInsights/vuln4shift-backend/c
 
 ## v0.34.11 (2024-05-03)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): should be a column reference ([`a8de3af`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a8de3af87fc187bfe7ab6481c4c99d16de47ad3c))
 
 
 ## v0.34.10 (2024-05-03)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): use version column + support sorting and filtering
 
@@ -231,20 +240,20 @@ RHINENG-8259 ([`f7bca47`](https://github.com/RedHatInsights/vuln4shift-backend/c
 
 ## v0.34.9 (2024-05-03)
 
-### Chores
-
-* chore: missing flag in local conf ([`c2dc49c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c2dc49cbec99695f5864c1e2cd65d2b53a3bf91b))
-
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): store the displayed version separately, this will make filtering and sorting a lot easier
 
 RHINENG-8259 ([`1280bc8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1280bc86498137ba770ca23141148a28b8219685))
 
+### Chores
+
+* chore: missing flag in local conf ([`c2dc49c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c2dc49cbec99695f5864c1e2cd65d2b53a3bf91b))
+
 
 ## v0.34.8 (2024-04-29)
 
-### Fixes
+### Bug Fixes
 
 * fix: apply the numeric collation to repository/image names
 
@@ -253,14 +262,14 @@ RHINENG-9711 ([`2cddcbc`](https://github.com/RedHatInsights/vuln4shift-backend/c
 
 ## v0.34.7 (2024-04-29)
 
-### Fixes
+### Bug Fixes
 
 * fix: add indexes to improve perf when selecting from CVE and image side ([`5455869`](https://github.com/RedHatInsights/vuln4shift-backend/commit/5455869ad1b3fc2ddfb577ffe00938f1c32758e3))
 
 
 ## v0.34.6 (2024-04-25)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): count different aliases of an image
 
@@ -269,26 +278,30 @@ we show all because we don't know what is running on the cluster ([`4fb30a8`](ht
 
 ## v0.34.5 (2024-04-24)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): count only clusters returned from amsclient ([`3ce03a2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3ce03a2cd9e431ee34c45ef71a5fa15f0add376f))
 
 
 ## v0.34.4 (2024-04-24)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): fix and simplify cve images query ([`e604aa5`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e604aa56fc7c73b75e3abfed931905534546947b))
 
 
 ## v0.34.3 (2024-04-24)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): unique values of cluster images ([`76b0d15`](https://github.com/RedHatInsights/vuln4shift-backend/commit/76b0d1576a07f7ca6e2907a074e4876b6ad4b788))
 
 
 ## v0.34.2 (2024-04-23)
+
+### Bug Fixes
+
+* fix(/cves/[id]/exposed_images): fix query ([`64d7566`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64d75661f8841f7f23189e2753808686f9c75bf2))
 
 ### Chores
 
@@ -300,14 +313,10 @@ we show all because we don't know what is running on the cluster ([`4fb30a8`](ht
 
 RHINENG-8821 ([`6350f4b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6350f4b1a799027a8b72a6b090124a1438bc468d))
 
-### Fixes
-
-* fix(/cves/[id]/exposed_images): fix query ([`64d7566`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64d75661f8841f7f23189e2753808686f9c75bf2))
-
 
 ## v0.34.1 (2024-04-19)
 
-### Fixes
+### Bug Fixes
 
 * fix(digestwriter): bump minimal assumed version, 0.10 doesn't seem to work anymore ([`b34cd43`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b34cd43dc4ec659a6508c7ad9627cc6b5fd24852))
 
@@ -369,17 +378,17 @@ RHINENG-3749 ([`bacbad0`](https://github.com/RedHatInsights/vuln4shift-backend/c
 
 ## v0.29.2 (2024-02-26)
 
+### Bug Fixes
+
+* fix(database): sorting of cve names
+
+RHINENG-3350 ([`f77c286`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f77c2864533e8a7e4a5555bb5ef6edeff70a59c6))
+
 ### Chores
 
 * chore: service account support in 3scale-mock ([`05b2011`](https://github.com/RedHatInsights/vuln4shift-backend/commit/05b2011f4830de822f8a70ab059075279633eb7a))
 
 * chore: bump go version to current ubi8 version ([`aed479d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/aed479de0d4ce9847991c53a2fa491e61daa1450))
-
-### Fixes
-
-* fix(database): sorting of cve names
-
-RHINENG-3350 ([`f77c286`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f77c2864533e8a7e4a5555bb5ef6edeff70a59c6))
 
 ### Testing
 
@@ -390,7 +399,7 @@ RHINENG-3350 ([`f77c286`](https://github.com/RedHatInsights/vuln4shift-backend/c
 
 ## v0.29.1 (2023-10-05)
 
-### Fixes
+### Bug Fixes
 
 * fix(digestwriter): accept multiple account number types including empty strings ([`84734fc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/84734fcec7b113cba9a9a0c80e37d22c34cf0e70))
 
@@ -416,27 +425,27 @@ Co-authored-by: Jakub Drobena <jdrobena@redhat.com> ([`188e9e4`](https://github.
 
 ## v0.28.6 (2023-09-07)
 
-### Chores
-
-* chore: update linters ([`7052bb8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7052bb89e553f1b7cdce959e87715aa11408ddb9))
-
-### Fixes
+### Bug Fixes
 
 * fix: don't fetch Workload JSONB to optimize memory consumption
 
 VULN4OS-236 ([`123ce24`](https://github.com/RedHatInsights/vuln4shift-backend/commit/123ce24ffa299f882ee233a57938f9cd475877ab))
 
+### Chores
+
+* chore: update linters ([`7052bb8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7052bb89e553f1b7cdce959e87715aa11408ddb9))
+
 
 ## v0.28.5 (2023-09-04)
 
-### Fixes
+### Bug Fixes
 
 * fix(digestwriter): accept different account number types ([`e5ae135`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e5ae135db36f9e818640dcf94d078d4afab47196))
 
 
 ## v0.28.4 (2023-07-25)
 
-### Fixes
+### Bug Fixes
 
 * fix(digestwriter): build cve cluster cache based on select from table
 
@@ -444,6 +453,10 @@ VULN4OS-223 ([`8093cf1`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 
 ## v0.28.3 (2023-07-25)
+
+### Bug Fixes
+
+* fix: use older semantic-release ver ([`604931f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/604931f4db7de14273dcc31bf4577bb8b8cd9a2f))
 
 ### Chores
 
@@ -461,10 +474,6 @@ VULN40S-222 ([`43ac909`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 * chore(base): use RFC3339Nano timestamp in payload tracker messages ([`881d76f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/881d76f15a7c4265462b32d24059074d3cc8fc52))
 
-### Fixes
-
-* fix: use older semantic-release ver ([`604931f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/604931f4db7de14273dcc31bf4577bb8b8cd9a2f))
-
 ### Refactoring
 
 * refactor: fix issues from linter ([`2c1f33f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2c1f33fac3bc9fe72bf56501b5836f66013a687b))
@@ -472,12 +481,18 @@ VULN40S-222 ([`43ac909`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.28.2 (2023-02-16)
 
-### Fixes
+### Bug Fixes
 
 * fix(digestwriter): pass pt message by value ([`85406bb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/85406bb6dcbbfddfb571d10655393999c7517b03))
 
 
 ## v0.28.1 (2023-02-16)
+
+### Bug Fixes
+
+* fix(base): turn on sarama success return values ([`a82743e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a82743eba53ae0a4a15a2af78fc03940ec970b05))
+
+* fix(digestwriter): send all payload messages in goroutine ([`1ea978a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1ea978a042a3bd032a751f0029b9a3bc19111844))
 
 ### Chores
 
@@ -486,12 +501,6 @@ VULN40S-222 ([`43ac909`](https://github.com/RedHatInsights/vuln4shift-backend/co
 * chore(digestwriter): set payload tracker timeout to 5s ([`8591287`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8591287cc41084a588ba0731cab02675d3e9f7bd))
 
 * chore(dbadmin): remove cve removing functionality ([`737b979`](https://github.com/RedHatInsights/vuln4shift-backend/commit/737b979c94bc2b237b8dcc4382cfc726f7ceab1f))
-
-### Fixes
-
-* fix(base): turn on sarama success return values ([`a82743e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a82743eba53ae0a4a15a2af78fc03940ec970b05))
-
-* fix(digestwriter): send all payload messages in goroutine ([`1ea978a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1ea978a042a3bd032a751f0029b9a3bc19111844))
 
 
 ## v0.28.0 (2023-02-02)
@@ -514,12 +523,18 @@ VULN40S-222 ([`43ac909`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.26.2 (2023-01-30)
 
-### Fixes
+### Bug Fixes
 
 * fix: change apiPath to ocp-vulnerability ([`a152278`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a152278bda32413c978d7934479aa8bda421e916))
 
 
 ## v0.26.1 (2023-01-26)
+
+### Bug Fixes
+
+* fix(manager): fix references to columns in removed subquery
+
+VULN4OS-202 ([`f382277`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f3822774be86d68897c7bfe949795f8f0a0ea2f9))
 
 ### Chores
 
@@ -528,12 +543,6 @@ VULN40S-222 ([`43ac909`](https://github.com/RedHatInsights/vuln4shift-backend/co
 * chore: Enable ephemeral deployment ([`b6eeeca`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b6eeecaa0157cfa58c11db6372d64c8a15afeb3a))
 
 * chore: Enable PR Checks ([`f9afcde`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f9afcde89203e23f02408d414ed73fb04dcbaab1))
-
-### Fixes
-
-* fix(manager): fix references to columns in removed subquery
-
-VULN4OS-202 ([`f382277`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f3822774be86d68897c7bfe949795f8f0a0ea2f9))
 
 
 ## v0.26.0 (2023-01-16)
@@ -571,7 +580,7 @@ VULN4OS-202 ([`f382277`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.25.1 (2022-12-16)
 
-### Fixes
+### Bug Fixes
 
 * fix(expsync): add missing clowdapp env vars ([`5efc954`](https://github.com/RedHatInsights/vuln4shift-backend/commit/5efc954d32c3bf449bc7f35e9aff5d74c25b6710))
 
@@ -694,14 +703,14 @@ VULN4OS-186 ([`495bb12`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.19.6 (2022-10-14)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): improve repo images check ([`f073940`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f073940fc1a831672a1c4b0707d221a94dc887b6))
 
 
 ## v0.19.5 (2022-10-11)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): correct registerMissingCves metric incrementation ([`35fe26d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/35fe26d6c6d940c770596e38e8c1628c14bf7731))
 
@@ -722,15 +731,15 @@ VULN4OS-186 ([`495bb12`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.19.4 (2022-10-03)
 
-### Chores
-
-* chore: log cluster uuid, instead of id when no digests are found ([`ad2d218`](https://github.com/RedHatInsights/vuln4shift-backend/commit/ad2d218093fd6243cee6990d10a1c502421936e8))
-
-### Fixes
+### Bug Fixes
 
 * fix(manager): filter *_all lists for a single CVE scope
 
 VULN4OS-153 ([`a9f13e2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a9f13e233ee9508095f2bff05450f94bb3fc24d7))
+
+### Chores
+
+* chore: log cluster uuid, instead of id when no digests are found ([`ad2d218`](https://github.com/RedHatInsights/vuln4shift-backend/commit/ad2d218093fd6243cee6990d10a1c502421936e8))
 
 ### Refactoring
 
@@ -739,20 +748,20 @@ VULN4OS-153 ([`a9f13e2`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.19.3 (2022-09-26)
 
-### Chores
-
-* chore: fix sha_generator to insert image arch ([`9981682`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9981682de4865554f46ef021753d14be5783c873))
-
-### Fixes
+### Bug Fixes
 
 * fix(digestwriter): unlink images from cluster
 
 VULN4OS-168 ([`6baa5e3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6baa5e35f2e479770d349eaa722c6dd3090dbf61))
 
+### Chores
+
+* chore: fix sha_generator to insert image arch ([`9981682`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9981682de4865554f46ef021753d14be5783c873))
+
 
 ## v0.19.2 (2022-09-22)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): use both pyxis_id and reg/repo key for sync
 
@@ -761,7 +770,7 @@ VULN4OS-147 ([`3157364`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.19.1 (2022-09-21)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): set max header size to 65535 bytes
 
@@ -792,21 +801,21 @@ VULN4OS-161 ([`4fa6393`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.17.3 (2022-09-19)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): referencing attributes of apiImage will use only the last value in the loop, reference local variables instead ([`7b7bc7e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7b7bc7e8aa60ef5e02479391c161e31b4b671c26))
 
 
 ## v0.17.2 (2022-09-19)
 
-### Fixes
+### Bug Fixes
 
 * fix: check more image digests ([`8dbb70f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8dbb70f3bd15d93f7b8badb3729ca42f100e9da6))
 
 
 ## v0.17.1 (2022-09-15)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): do not encode undefined value ([`e7489f4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e7489f468479dd47d6258ee7d8a6910e908c5822))
 
@@ -820,7 +829,7 @@ VULN4OS-161 ([`4fa6393`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.16.1 (2022-09-08)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): use repository map with reg,repo key
 
@@ -851,7 +860,7 @@ VULN4OS-105 ([`cccae2f`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.14.7 (2022-09-06)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): sort versions by number
 
@@ -860,7 +869,7 @@ VULN4OS-145 ([`b6cb581`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.14.6 (2022-09-06)
 
-### Fixes
+### Bug Fixes
 
 * fix(kafka): create TLS context despite empty cacert
 
@@ -869,46 +878,52 @@ VULN4OS-143 ([`a55bd38`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.14.5 (2022-09-06)
 
+### Bug Fixes
+
+* fix(database): sorting of cluster versions ([`885e5c4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/885e5c4423c9b65ec7557e708de7332af65cb17c))
+
 ### Chores
 
 * chore: add ams secret for ephemeral
 
 VULN4OS-137 ([`ad73cb2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/ad73cb2eb84c6928c1aa6377e764acefaea10f8f))
 
-### Fixes
-
-* fix(database): sorting of cluster versions ([`885e5c4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/885e5c4423c9b65ec7557e708de7332af65cb17c))
-
 
 ## v0.14.4 (2022-09-06)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): report query should use parsedValues ([`77ff00a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/77ff00aa1991f0e4d00784f1700af1e810cf5d31))
 
 
 ## v0.14.3 (2022-09-05)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): return meta lists in predictable order ([`feb0cdc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/feb0cdcadc910e8b5bcc8594e5a0b279c45914b5))
 
 
 ## v0.14.2 (2022-09-05)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): support comma-separated values in status filter ([`e2025cc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e2025cc333c2617a22100b31ed6340e6c413b025))
 
 
 ## v0.14.1 (2022-09-03)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): use docker_image_digest if manifest_list_digest is empty ([`4666f1d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4666f1d3ac258bbe283da1b51877349cdf00b466))
 
 
 ## v0.14.0 (2022-09-02)
+
+### Bug Fixes
+
+* fix(digest-writer): match images with given arch ([`1db8d19`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1db8d192d434d5db4274e58db1479a91eca799a4))
+
+* fix(pyxis): store manifest_list_digest instead ([`dc0ae6b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/dc0ae6b02cfdeef43cf57b1d09e5e81a6b749c7b))
 
 ### Features
 
@@ -917,12 +932,6 @@ VULN4OS-137 ([`ad73cb2`](https://github.com/RedHatInsights/vuln4shift-backend/co
 * feat(database): add arch for image and remove digest unique constaint -> manifest list digest will be used ([`db4442d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/db4442df48cb40ea5662f3762a38930a85b44109))
 
 * feat(pyxis): support forcing the sync ([`1b10000`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1b10000e5b114f7c784384bf36da913131628c5a))
-
-### Fixes
-
-* fix(digest-writer): match images with given arch ([`1db8d19`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1db8d192d434d5db4274e58db1479a91eca799a4))
-
-* fix(pyxis): store manifest_list_digest instead ([`dc0ae6b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/dc0ae6b02cfdeef43cf57b1d09e5e81a6b749c7b))
 
 ### Testing
 
@@ -967,7 +976,7 @@ VULN4OS-119 ([`6b05b4b`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.9.1 (2022-08-31)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): dont init array with empty values
 
@@ -985,21 +994,21 @@ VULN4OS-115 ([`4611008`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.8.6 (2022-08-30)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): cluster severity filter should be OR ([`9292213`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9292213ad43c61498404235689e83b60db79bdfe))
 
 
 ## v0.8.5 (2022-08-29)
 
-### Fixes
+### Bug Fixes
 
 * fix(digest-writer): collect digests from containers ([`536ebfc`](https://github.com/RedHatInsights/vuln4shift-backend/commit/536ebfc9ce846e6f0097debfaedea3d97a0ce88a))
 
 
 ## v0.8.4 (2022-08-26)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): use provider+region str in list of all displayed providers ([`df18c7a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/df18c7ad1861aa6898085b2f12f2a9575d11e60d))
 
@@ -1008,7 +1017,7 @@ VULN4OS-115 ([`4611008`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.8.3 (2022-08-26)
 
-### Fixes
+### Bug Fixes
 
 * fix(pyxis): return unique image cves despite errata from pyxis
 
@@ -1017,29 +1026,29 @@ VULN4OS-114 ([`2ac645a`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.8.2 (2022-08-26)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): revert this join, should be LEFT to display clusters without CVEs ([`f8928c0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f8928c0130005054bca3dec8ebca7cceed67db26))
 
 
 ## v0.8.1 (2022-08-26)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): make sure UUIDs from AMS API are valid ([`e8d6089`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e8d608906abcad9dfe15c32360e94aa3c529e3ef))
 
 
 ## v0.8.0 (2022-08-25)
 
+### Bug Fixes
+
+* fix(digest-writer): missing cluster columns ([`7712b02`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7712b02b8dc86e776135574ade4b6707e1d9ec7f))
+
 ### Features
 
 * feat(manager): sync cluster details to db to allow sorting in DB ([`68fff0d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/68fff0d888df6f0e5cc73d9149764dac16e7ec1f))
 
 * feat(database): add missing columns to the cluster table and grant manager to update the table ([`a61ef5c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a61ef5cd14693da2ee8319554523151ab0cd3ab7))
-
-### Fixes
-
-* fix(digest-writer): missing cluster columns ([`7712b02`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7712b02b8dc86e776135574ade4b6707e1d9ec7f))
 
 
 ## v0.7.0 (2022-08-24)
@@ -1069,6 +1078,10 @@ VULN4OS-100 ([`35c8526`](https://github.com/RedHatInsights/vuln4shift-backend/co
 
 ## v0.4.0 (2022-08-19)
 
+### Bug Fixes
+
+* fix(manager): duplicate clusters when more than 1 image is affected by CVE ([`c89b05f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c89b05fe138e6f5fd5869215e50b9fd8a518c976))
+
 ### Features
 
 * feat(manager): AMS integration in CVE list
@@ -1091,10 +1104,6 @@ VULN4OS-67 ([`9f86338`](https://github.com/RedHatInsights/vuln4shift-backend/com
 
 VULN4OS-67 ([`7d47ca4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7d47ca4ceb3f25a9945ce32eb841db8052384e6d))
 
-### Fixes
-
-* fix(manager): duplicate clusters when more than 1 image is affected by CVE ([`c89b05f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c89b05fe138e6f5fd5869215e50b9fd8a518c976))
-
 
 ## v0.3.0 (2022-08-16)
 
@@ -1104,6 +1113,12 @@ VULN4OS-67 ([`7d47ca4`](https://github.com/RedHatInsights/vuln4shift-backend/com
 
 
 ## v0.2.2 (2022-08-15)
+
+### Bug Fixes
+
+* fix: make sure CVEs are ordered while inserting/deleting
+
+VULN4OS-46 ([`13991c0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/13991c0046eadbf9c7e63e46fd5282e2c16616e5))
 
 ### Chores
 
@@ -1117,16 +1132,10 @@ VULN4OS-94 ([`3521909`](https://github.com/RedHatInsights/vuln4shift-backend/com
 
 VULN4OS-94 ([`44f4b4d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/44f4b4d3f2d7cde03d5ceb09e3da1263d65f6f55))
 
-### Fixes
-
-* fix: make sure CVEs are ordered while inserting/deleting
-
-VULN4OS-46 ([`13991c0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/13991c0046eadbf9c7e63e46fd5282e2c16616e5))
-
 
 ## v0.2.1 (2022-08-05)
 
-### Fixes
+### Bug Fixes
 
 * fix(manager): fix sorting for cvss2/3_score
 
@@ -1169,6 +1178,12 @@ VULN4OS-94 ([`99c6bf2`](https://github.com/RedHatInsights/vuln4shift-backend/com
 
 ## v0.0.1 (2022-07-29)
 
+### Bug Fixes
+
+* fix(manager): comma is allowed search character in fulltext search
+
+VULN4OS-99 ([`f8dbd46`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f8dbd46e3914feb7a239cafba7c69252fbad67c1))
+
 ### Chores
 
 * chore: enable semantic release ([`140988c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/140988c96d76fa5016e1bdb0fc96b8a588f9c02b))
@@ -1176,12 +1191,6 @@ VULN4OS-94 ([`99c6bf2`](https://github.com/RedHatInsights/vuln4shift-backend/com
 * chore: add testing data
 
 VULN4OS-22 ([`04744e0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/04744e02c7849e3848ce6e2cb6a7f68fd39a2b4b))
-
-### Fixes
-
-* fix(manager): comma is allowed search character in fulltext search
-
-VULN4OS-99 ([`f8dbd46`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f8dbd46e3914feb7a239cafba7c69252fbad67c1))
 
 ### Unknown
 
