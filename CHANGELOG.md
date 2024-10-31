@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.36.16 (2024-10-31)
+
+### Chores
+
+* chore(deps): update konflux references
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com> ([`a21fc2a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a21fc2ab36dfbbd505d823155116f700f22be64f))
+
+
 ## v0.36.15 (2024-10-25)
 
 ### Chores
