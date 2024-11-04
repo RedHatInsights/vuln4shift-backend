@@ -51,7 +51,7 @@ objects:
       iqePlugin: ocp-vulnerability
     deployments:
     - name: manager
-      minReplicas: ${{REPLICAS_MANAGER}}
+      replicas: ${{REPLICAS_MANAGER}}
       webServices:
         public:
           enabled: true
@@ -148,7 +148,7 @@ objects:
             memory: ${MEMORY_REQUEST_MANAGER}
 
     - name: digest-writer
-      minReplicas: ${{MIN_REPLICAS_DIGEST_WRITER}}
+      replicas: ${{MIN_REPLICAS_DIGEST_WRITER}}
       maxReplicas: ${{MAX_REPLICAS_DIGEST_WRITER}}
       webServices:
         public:
