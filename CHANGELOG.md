@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.36.20 (2024-11-05)
+
+### Chores
+
+* chore(deps): update konflux references to fedcfe0
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com> ([`156ba2a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/156ba2a9fca30fc2d7eca4b12200b4f2535d1a4b))
+
+
 ## v0.36.19 (2024-11-01)
 
 ### Chores
