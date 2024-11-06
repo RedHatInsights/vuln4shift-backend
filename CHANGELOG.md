@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## v0.36.22 (2024-11-06)
+
+### Continuous Integration
+
+* ci: add new mandatory RPM signature scan task to tekton ([`f5bd92e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f5bd92e59445d455379be32d4604a9c78815160f))
+
+
 ## v0.36.21 (2024-11-05)
 
 ### Chores
