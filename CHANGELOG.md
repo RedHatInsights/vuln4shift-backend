@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.36.25 (2024-11-07)
+
+### Chores
+
+* chore: use replicase instead of minReplicas
+
+minReplicas is deprecated https://redhatinsights.github.io/clowder/clowder/dev/api_reference.html\#k8s-api-github-com-redhatinsights-clowder-apis-cloud-redhat-com-v1alpha1-deployment ([`fdaec3c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/fdaec3ce1212d3c0d8db4688cba03624cd70e9fb))
+
+
 ## v0.36.24 (2024-11-07)
 
 ### Chores
