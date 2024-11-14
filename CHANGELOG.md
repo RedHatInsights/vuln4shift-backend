@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.36.28 (2024-11-14)
+
+### Continuous Integration
+
+- Revert image temporarily until konflux is stable enough
+  ([`78da9a9`](https://github.com/RedHatInsights/vuln4shift-backend/commit/78da9a9373a74458e9c3a1e2b2f5d223138e98f8))
+
+
 ## v0.36.27 (2024-11-11)
 
 ### Continuous Integration
