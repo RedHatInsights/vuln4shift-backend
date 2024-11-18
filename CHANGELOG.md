@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.36.29 (2024-11-18)
+
+### Chores
+
+- **deps**: Update konflux references
+  ([`7a51c3d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7a51c3da845e4619edbd8269a687b8134d71fe8c))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+
 ## v0.36.28 (2024-11-14)
 
 ### Continuous Integration
