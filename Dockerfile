@@ -2,7 +2,7 @@ ARG BUILDIMG=registry.access.redhat.com/ubi9-minimal
 ARG RUNIMG=registry.access.redhat.com/ubi9-minimal
 # ---------------------------------------
 # build image
-FROM ${BUILDIMG} as buildimg
+FROM ${BUILDIMG} AS buildimg
 
 WORKDIR /vuln4shift
 
@@ -37,7 +37,7 @@ RUN bash ./scripts/generate_swagger.sh
 RUN go build -ldflags "-X app/manager.Version=$VERSION" -v main.go
 # ---------------------------------------
 # runtime image
-FROM ${RUNIMG} as runtimeimg
+FROM ${RUNIMG} AS runtimeimg
 
 WORKDIR /vuln4shift
 USER 1001
