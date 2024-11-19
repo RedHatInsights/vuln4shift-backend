@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.36.31 (2024-11-19)
+
+### Bug Fixes
+
+- Add missing primary keys
+  ([`3cff9c2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3cff9c2c01dd7e1cdcc2806253743c7b6e90cc8e))
+
+
 ## v0.36.30 (2024-11-19)
 
 ### Chores
