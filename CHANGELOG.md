@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.36.30 (2024-11-19)
+
+### Chores
+
+- Fix docker build warning
+  ([`451da7d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/451da7d241695a55fe3d0547946ce02c33e47dd9))
+
+WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match
+
+
 ## v0.36.29 (2024-11-18)
 
 ### Chores
