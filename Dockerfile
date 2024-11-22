@@ -29,6 +29,7 @@ ADD test                        /vuln4shift/test
 ADD vmsync                      /vuln4shift/vmsync
 ADD cleaner                     /vuln4shift/cleaner
 ADD expsync                     /vuln4shift/expsync
+ADD repack                      /vuln4shift/repack
 
 ARG VERSION=dev
 
