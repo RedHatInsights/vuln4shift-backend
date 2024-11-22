@@ -21,6 +21,9 @@ Vulnerabilities detection for OpenShift images.
     # Sync Exploit data
     docker-compose run --rm vuln4shift_expsync
 
+    # Run pg_repack job
+    docker-compose run --rm vuln4shift_repack
+
     # psql console
     docker-compose exec vuln4shift_database psql -U vuln4shift_admin vuln4shift
 

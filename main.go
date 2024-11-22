@@ -7,6 +7,7 @@ import (
 	"app/expsync"
 	"app/manager"
 	"app/pyxis"
+	"app/repack"
 	"app/vmsync"
 	"log"
 	"os"
@@ -29,6 +30,8 @@ func main() {
 			cleaner.Start()
 		case "expsync":
 			expsync.Start()
+		case "repack":
+			repack.Start()
 		default:
 			log.Fatalf("Unknown service name: %s\n", os.Args[1])
 		}

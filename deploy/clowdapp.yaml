@@ -338,6 +338,26 @@ objects:
             cpu: ${CPU_REQUEST_EXPLOIT_SYNC}
             memory: ${MEMORY_REQUEST_EXPLOIT_SYNC}
 
+    - name: repack
+      schedule: ${SCHEDULE_REPACK}
+      suspend: ${{SUSPEND_REPACK}}
+      concurrencyPolicy: "Forbid"
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        command:
+          - /engine/entrypoint.sh
+          - repack
+        env:
+        - name: LOGGING_LEVEL
+          value: ${LOGGING_LEVEL}
+        resources:
+          limits:
+            cpu: ${CPU_LIMIT_REPACK}
+            memory: ${MEMORY_LIMIT_REPACK}
+          requests:
+            cpu: ${CPU_REQUEST_REPACK}
+            memory: ${MEMORY_REQUEST_REPACK}
+
 parameters:
 # IMAGE AND CLOWDER
 - name: IMAGE_TAG
@@ -458,6 +478,18 @@ parameters:
 - name: MEMORY_REQUEST_EXPLOIT_SYNC
   description: Requested memory for pod
   value: "128Mi"
+- name: CPU_LIMIT_REPACK
+  description: Maximum CPU limit for pod
+  value: 500m
+- name: MEMORY_LIMIT_REPACK
+  description: Maximum memory limit for pod
+  value: "256Mi"
+- name: CPU_REQUEST_REPACK
+  description: Requested CPU for pod
+  value: 200m
+- name: MEMORY_REQUEST_REPACK
+  description: Requested memory for pod
+  value: "128Mi"
 
 # CRON SCHEDULES
 - name: SCHEDULE_VMAAS_SYNC
@@ -489,6 +521,14 @@ parameters:
   required: true
   value: 0 0/6 * * *
 - name: SUSPEND_EXPLOIT_SYNC
+  description: Disable Cronjob
+  required: true
+  value: "false"
+- name: SCHEDULE_REPACK
+  description: Cronjob schedule definition
+  required: true
+  value: 0 11 * * 1
+- name: SUSPEND_REPACK
   description: Disable Cronjob
   required: true
   value: "false"
