@@ -41,7 +41,10 @@ services:
 
   vuln4shift_database:
     container_name: vuln4shift-database
-    image: docker.io/library/postgres:14
+    image: vuln4shift-db
+    build:
+      context: .
+      dockerfile: ./dev/database/Dockerfile
     restart: unless-stopped
     env_file:
       - ./conf/common.env
@@ -49,7 +52,7 @@ services:
     ports:
       - 25432:5432
     volumes:
-      - vuln4shift-db-data:/var/lib/postgresql/data
+      - vuln4shift-db-data:/var/lib/pgsql/data
 
   vuln4shift_dbadmin:
     command: /vuln4shift/main dbadmin
@@ -111,7 +114,7 @@ services:
     image: vuln4shift/app:buildimg
     env_file:
       - ./conf/common.env
-      - ./conf/db.env
+      - ./conf/tests.env
     environment:
       - GIN_MODE=release
     depends_on:
