@@ -345,7 +345,7 @@ objects:
       podSpec:
         image: ${IMAGE}:${IMAGE_TAG}
         command:
-          - /engine/entrypoint.sh
+          - /vuln4shift/main
           - repack
         env:
         - name: LOGGING_LEVEL
