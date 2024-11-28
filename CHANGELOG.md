@@ -1,6 +1,21 @@
 # CHANGELOG
 
 
+## v0.37.0 (2024-11-28)
+
+### Features
+
+- Add pg_repack cronjob
+  ([`4db4faa`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4db4faa0b86d16e9581f5c0ab686cf42b06fcd57))
+
+RHINENG-14451
+
+- Update local postgresql and install pg_repack
+  ([`83a78fa`](https://github.com/RedHatInsights/vuln4shift-backend/commit/83a78fadba8045be406f67ef64bd32bd1a762fef))
+
+RHINENG-14451
+
+
 ## v0.36.32 (2024-11-23)
 
 ### Chores
