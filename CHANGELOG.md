@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.37.1 (2024-11-28)
+
+### Bug Fixes
+
+- **repack**: Use correct entrypoint
+  ([`0b47206`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0b47206eb48258ee4f6ff0ac6ddd869aa8f37b06))
+
+
 ## v0.37.0 (2024-11-28)
 
 ### Features
