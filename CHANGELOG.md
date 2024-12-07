@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.37.3 (2024-12-07)
+
+### Chores
+
+- **deps**: Update konflux references
+  ([`215f4bf`](https://github.com/RedHatInsights/vuln4shift-backend/commit/215f4bf2e7d3cdd9addea77781584b1d681c63cb))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+
 ## v0.37.2 (2024-11-30)
 
 ### Chores
@@ -356,16 +366,16 @@ going to enable Konflux image build only for tags
 
 ### Chores
 
-- **deps**: Update konflux references to e107cfd
-  ([`d1a3904`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d1a39044869985dccad93e177ae721659336ce63))
-
-Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
-
 - Automerge PRs updating konflux references
   ([`2f3f88d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2f3f88d18a3f44ba4b7df45c12b73e9d1920c521))
 
 - Red Hat Konflux update vuln4shift-backend
   ([`6b30490`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6b30490848a7e1f2cb88ef5df96a84b67d81be30))
+
+- **deps**: Update konflux references to e107cfd
+  ([`d1a3904`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d1a39044869985dccad93e177ae721659336ce63))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
 
 ### Features
 
@@ -382,6 +392,11 @@ Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.git
 
 ### Chores
 
+- Fix resources env vars
+  ([`6764733`](https://github.com/RedHatInsights/vuln4shift-backend/commit/67647331fa19e82fd177bbe34691a1d63c851374))
+
+RHINENG-12322
+
 - Update to ubi9
   ([`6b0998d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6b0998d5b1c7372e1635397179b6be3f3fd64139))
 
@@ -389,11 +404,6 @@ RHINENG-12544
 
 - **deps**: Increment minor Go version
   ([`c033f22`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c033f22316903887f15cc67fb6c0ed76470ba421))
-
-- Fix resources env vars
-  ([`6764733`](https://github.com/RedHatInsights/vuln4shift-backend/commit/67647331fa19e82fd177bbe34691a1d63c851374))
-
-RHINENG-12322
 
 
 ## v0.35.6 (2024-08-07)
@@ -594,16 +604,16 @@ we show all because we don't know what is running on the cluster
 
 ### Chores
 
-- **deps**: Update google.golang.org/protobuf
-  ([`19f2b36`](https://github.com/RedHatInsights/vuln4shift-backend/commit/19f2b36b76d684e7e1f8d6db51ce966ee2f6e8ca))
-
-- **deps**: Update golang.org/x/net
-  ([`2f93958`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2f93958f37814d0b06eaaac6946415408c98252c))
-
 - **deps**: Update github.com/jackc/pgx/v5
   ([`6350f4b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6350f4b1a799027a8b72a6b090124a1438bc468d))
 
 RHINENG-8821
+
+- **deps**: Update golang.org/x/net
+  ([`2f93958`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2f93958f37814d0b06eaaac6946415408c98252c))
+
+- **deps**: Update google.golang.org/protobuf
+  ([`19f2b36`](https://github.com/RedHatInsights/vuln4shift-backend/commit/19f2b36b76d684e7e1f8d6db51ce966ee2f6e8ca))
 
 
 ## v0.34.1 (2024-04-19)
@@ -688,20 +698,20 @@ RHINENG-3350
 
 ### Chores
 
-- Service account support in 3scale-mock
-  ([`05b2011`](https://github.com/RedHatInsights/vuln4shift-backend/commit/05b2011f4830de822f8a70ab059075279633eb7a))
-
 - Bump go version to current ubi8 version
   ([`aed479d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/aed479de0d4ce9847991c53a2fa491e61daa1450))
 
-### Testing
+- Service account support in 3scale-mock
+  ([`05b2011`](https://github.com/RedHatInsights/vuln4shift-backend/commit/05b2011f4830de822f8a70ab059075279633eb7a))
 
-- Tag the build image with different tag
-  ([`6441887`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64418877958caa5631c736f3e6b7125b1a0112c3))
+### Testing
 
 - Don't expect rbac to be deployed
   ([#186](https://github.com/RedHatInsights/vuln4shift-backend/pull/186),
   [`fa758da`](https://github.com/RedHatInsights/vuln4shift-backend/commit/fa758dafe4fe24635147f7fb55da5da292ba1177))
+
+- Tag the build image with different tag
+  ([`6441887`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64418877958caa5631c736f3e6b7125b1a0112c3))
 
 
 ## v0.29.1 (2023-10-05)
@@ -779,11 +789,11 @@ VULN4OS-223
 - Bump golangci-lint version to v1.53.3
   ([`a65d24b`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a65d24beb30c6816a6044f29ac2517ff486ee0fb))
 
-- Upgrade packages to fix CVE-2022-46908, CVE-2021-31239,
-  ([`43ac909`](https://github.com/RedHatInsights/vuln4shift-backend/commit/43ac9090e8c1e26b3207fef9e177e5bb08f75929))
-
 - Change method to post, get doesn't work anymore
   ([`e628bad`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e628bad5c8576a82aa7e91797ecee1cacf496a22))
+
+- Upgrade packages to fix CVE-2022-46908, CVE-2021-31239,
+  ([`43ac909`](https://github.com/RedHatInsights/vuln4shift-backend/commit/43ac9090e8c1e26b3207fef9e177e5bb08f75929))
 
 - **base**: Use RFC3339Nano timestamp in payload tracker messages
   ([`881d76f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/881d76f15a7c4265462b32d24059074d3cc8fc52))
@@ -817,11 +827,11 @@ VULN4OS-223
 - **base**: Add producer log message
   ([`35d99e4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/35d99e4a91af26ebe473163f64e063ad3bb6f156))
 
-- **digestwriter**: Set payload tracker timeout to 5s
-  ([`8591287`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8591287cc41084a588ba0731cab02675d3e9f7bd))
-
 - **dbadmin**: Remove cve removing functionality
   ([`737b979`](https://github.com/RedHatInsights/vuln4shift-backend/commit/737b979c94bc2b237b8dcc4382cfc726f7ceab1f))
+
+- **digestwriter**: Set payload tracker timeout to 5s
+  ([`8591287`](https://github.com/RedHatInsights/vuln4shift-backend/commit/8591287cc41084a588ba0731cab02675d3e9f7bd))
 
 
 ## v0.28.0 (2023-02-02)
@@ -864,28 +874,28 @@ VULN4OS-202
 
 ### Chores
 
-- Fix iqe plugin name
-  ([`0612427`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0612427bdfc2aeb1a5ad10ad1f1a03416a4d7415))
-
 - Enable ephemeral deployment
   ([`b6eeeca`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b6eeecaa0157cfa58c11db6372d64c8a15afeb3a))
 
 - Enable PR Checks
   ([`f9afcde`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f9afcde89203e23f02408d414ed73fb04dcbaab1))
 
+- Fix iqe plugin name
+  ([`0612427`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0612427bdfc2aeb1a5ad10ad1f1a03416a4d7415))
+
 
 ## v0.26.0 (2023-01-16)
 
 ### Chores
 
-- Add Payload Tracker cloud config
-  ([`89fbfc9`](https://github.com/RedHatInsights/vuln4shift-backend/commit/89fbfc975b61130223beb18b55d99c7ca0d2fedf))
-
-- **dbadmin**: Handle force migration version if database is dirty
-  ([`b923818`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b92381881c838e246fb9ec03771392c678dff534))
-
 - Add cve update permissions for exploit gatherer
   ([`ab5bd8e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/ab5bd8e29648d6d5f5cbd1d002b028d214070836))
+
+- Add exploits gatherer db pwd for ephemeral
+  ([`f606f68`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f606f68d158071e73f67cde969863cb63d542a57))
+
+- Add Payload Tracker cloud config
+  ([`89fbfc9`](https://github.com/RedHatInsights/vuln4shift-backend/commit/89fbfc975b61130223beb18b55d99c7ca0d2fedf))
 
 - Add table permissions for exploit gatherer
   ([`03fd112`](https://github.com/RedHatInsights/vuln4shift-backend/commit/03fd1125524b5d1b064aa66d46feb9d25edc93f8))
@@ -893,30 +903,30 @@ VULN4OS-202
 - Deploy amsclient as empty string in ephemeral
   ([`d28c50a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d28c50a0d96c02fd76bf537b510c5689ee4be5ca))
 
-- Add exploits gatherer db pwd for ephemeral
-  ([`f606f68`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f606f68d158071e73f67cde969863cb63d542a57))
+- **dbadmin**: Handle force migration version if database is dirty
+  ([`b923818`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b92381881c838e246fb9ec03771392c678dff534))
 
 ### Features
-
-- **digestwriter**: Add Payload Tracker kafka producer
-  ([`4f039e3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4f039e3b9d009d37b9839a0a2bf43763c5131047))
-
-- **base**: Add Payload Tracker event
-  ([`18b4cc5`](https://github.com/RedHatInsights/vuln4shift-backend/commit/18b4cc54bba10a01a8b7721c210cec3b544f6080))
 
 - **base**: Add Kafka producer
   ([`cdc203c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cdc203c0afb24a0ba8c8f07a3a26fbe78fe69434))
 
+- **base**: Add Payload Tracker event
+  ([`18b4cc5`](https://github.com/RedHatInsights/vuln4shift-backend/commit/18b4cc54bba10a01a8b7721c210cec3b544f6080))
+
+- **digestwriter**: Add Payload Tracker kafka producer
+  ([`4f039e3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/4f039e3b9d009d37b9839a0a2bf43763c5131047))
+
 ### Testing
 
-- **digestwriter**: Add Payload Tracker producer test
-  ([`a0f0db6`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a0f0db6ea0d1dbb5037dd2ac0df691d75629e248))
+- **base**: Add Kafka producer tests
+  ([`6eaa683`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6eaa683a7b59117298d0e599db83384edbe460cb))
 
 - **base**: Add Payload Tracker test
   ([`98105b7`](https://github.com/RedHatInsights/vuln4shift-backend/commit/98105b729e41d6dccdd43c7149573fe09f98bef3))
 
-- **base**: Add Kafka producer tests
-  ([`6eaa683`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6eaa683a7b59117298d0e599db83384edbe460cb))
+- **digestwriter**: Add Payload Tracker producer test
+  ([`a0f0db6`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a0f0db6ea0d1dbb5037dd2ac0df691d75629e248))
 
 
 ## v0.25.1 (2022-12-16)
@@ -931,13 +941,13 @@ VULN4OS-202
 
 ### Features
 
-- **tests**: Init caches on unit test db
-  ([`92a6803`](https://github.com/RedHatInsights/vuln4shift-backend/commit/92a6803640969f1b2fc6f8765c7499bcddfd5a64))
-
 - **manager**: Start returning cluster-cve cached counts
   ([`0d3fcf7`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0d3fcf7e1490b378c49473a57bbae81ec15e3dca))
 
 VULN4OS-195
+
+- **tests**: Init caches on unit test db
+  ([`92a6803`](https://github.com/RedHatInsights/vuln4shift-backend/commit/92a6803640969f1b2fc6f8765c7499bcddfd5a64))
 
 
 ## v0.24.0 (2022-12-15)
@@ -982,6 +992,11 @@ VULN4OS-187
 
 VULN4OS-187
 
+- **digestwriter**: Force cache regeneration
+  ([`1fb389c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1fb389c38f97a701d8382a12227d324ffed1b732))
+
+VULN4OS-186
+
 - **manager**: Disable exposed images on /clusers/id/cves
   ([`64291ca`](https://github.com/RedHatInsights/vuln4shift-backend/commit/64291ca9648af4dd423df0f1d76003d3d8f3c4a0))
 
@@ -992,12 +1007,10 @@ VULN4OS-197
 
 VULN4OS-196
 
-- **digestwriter**: Force cache regeneration
-  ([`1fb389c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1fb389c38f97a701d8382a12227d324ffed1b732))
-
-VULN4OS-186
-
 ### Features
+
+- **expsync**: Add exploit sync job
+  ([`cdc5202`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cdc5202288aa108dbdf16a9b87db393b57b54ee5))
 
 - **manager**: Add exploits field to cluster cves
   ([`c9200d2`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c9200d2e5e22c3639bbd244b3e14d75b2ec84f71))
@@ -1008,16 +1021,13 @@ VULN4OS-186
 - **manager**: Add exploits field to cve endpoint
   ([`2aee3f9`](https://github.com/RedHatInsights/vuln4shift-backend/commit/2aee3f9511006627733f6b73d0c3fc24b7469b24))
 
-- **expsync**: Add exploit sync job
-  ([`cdc5202`](https://github.com/RedHatInsights/vuln4shift-backend/commit/cdc5202288aa108dbdf16a9b87db393b57b54ee5))
-
 ### Refactoring
-
-- **base**: Move GetMetricsPusher to common
-  ([`1289135`](https://github.com/RedHatInsights/vuln4shift-backend/commit/128913597ab1c0aa2972bfb9a82eabd914707f42))
 
 - **base**: Add custom header option to API client
   ([`a4ee703`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a4ee7033f65811eee1a3cff35be8b43141020f13))
+
+- **base**: Move GetMetricsPusher to common
+  ([`1289135`](https://github.com/RedHatInsights/vuln4shift-backend/commit/128913597ab1c0aa2972bfb9a82eabd914707f42))
 
 - **base**: Reuse basic DB config set up
   ([`17e2866`](https://github.com/RedHatInsights/vuln4shift-backend/commit/17e2866684128182a61f96c6bec2ae10803982d2))
@@ -1027,11 +1037,11 @@ VULN4OS-186
 
 ### Chores
 
-- Fix index of the sha
-  ([`b383831`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b3838312b13390d5d2ee2eda7ececc0d8334f236))
-
 - Add script for debugging cluster reports in prod
   ([`d1d5dc7`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d1d5dc711a9b7f4c18256f7a1a3c5e3e07dbe2a4))
+
+- Fix index of the sha
+  ([`b383831`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b3838312b13390d5d2ee2eda7ececc0d8334f236))
 
 - **manager**: Start using identity package
   ([`c52c04c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c52c04c99dabd232c53f095443c22ae60ffb37c8))
@@ -1052,23 +1062,23 @@ VULN4OS-186
 
 ### Testing
 
+- **base**: Add API tests
+  ([`b6127b8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b6127b897fa9c2a2433d406442da7bdc43a2a9ed))
+
+- **base**: Add more utils tests
+  ([`899f5a1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/899f5a1a2b82c65c623faeaa7d0e784cbf061121))
+
 - **manager**: Add more manager unit tests
   ([`3b9b0b8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/3b9b0b89ec9d838c6be17de7961b4b2dac962d44))
 
 - **pyxis**: Add more pyxis unit tests
   ([`47a7128`](https://github.com/RedHatInsights/vuln4shift-backend/commit/47a712801902844b9511444c72a7c65bbe3c90a3))
 
-- **vmsync**: Add more unit tests
-  ([`c246754`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c246754d94bab9fd42e9785133e879ad23903c07))
-
-- **base**: Add more utils tests
-  ([`899f5a1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/899f5a1a2b82c65c623faeaa7d0e784cbf061121))
-
 - **pyxis**: Add Pyxis tests
   ([`9ac4a9a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9ac4a9aacc8b766aacfdfe6399cb604e705a979e))
 
-- **base**: Add API tests
-  ([`b6127b8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b6127b897fa9c2a2433d406442da7bdc43a2a9ed))
+- **vmsync**: Add more unit tests
+  ([`c246754`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c246754d94bab9fd42e9785133e879ad23903c07))
 
 
 ## v0.19.6 (2022-10-14)
@@ -1099,11 +1109,11 @@ VULN4OS-186
 - **manager**: Add AMS tests to controllers
   ([`86ada16`](https://github.com/RedHatInsights/vuln4shift-backend/commit/86ada1681a15d10548a3f5e0d27aa13d1c265ceb))
 
-- **manager**: Add cve controllers tests
-  ([`e3f5e36`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e3f5e367a7030d18101afde02e53c9cde974da1c))
-
 - **manager**: Add clusters controllers tests
   ([`fe45457`](https://github.com/RedHatInsights/vuln4shift-backend/commit/fe45457029b335c97c6de4ca57b18c3021c98be4))
+
+- **manager**: Add cve controllers tests
+  ([`e3f5e36`](https://github.com/RedHatInsights/vuln4shift-backend/commit/e3f5e367a7030d18101afde02e53c9cde974da1c))
 
 
 ## v0.19.4 (2022-10-03)
@@ -1334,12 +1344,12 @@ VULN4OS-137
 
 ### Features
 
-- **pyxis**: Store image archs
-  ([`a87d462`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a87d46201d54bd3b5aa199a5f1c3a90ffbb3cede))
-
 - **database**: Add arch for image and remove digest unique constaint -> manifest list digest will
   be used
   ([`db4442d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/db4442df48cb40ea5662f3762a38930a85b44109))
+
+- **pyxis**: Store image archs
+  ([`a87d462`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a87d46201d54bd3b5aa199a5f1c3a90ffbb3cede))
 
 - **pyxis**: Support forcing the sync
   ([`1b10000`](https://github.com/RedHatInsights/vuln4shift-backend/commit/1b10000e5b114f7c784384bf36da913131628c5a))
@@ -1430,11 +1440,11 @@ VULN4OS-115
 
 ### Bug Fixes
 
-- **manager**: Use provider+region str in list of all displayed providers
-  ([`df18c7a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/df18c7ad1861aa6898085b2f12f2a9575d11e60d))
-
 - **manager**: Fetch metrics from AMS (adding metrics attribute doesnt't work)
   ([`96e90a3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/96e90a3300568a428ce1e9738a0c4c4c0316fbb9))
+
+- **manager**: Use provider+region str in list of all displayed providers
+  ([`df18c7a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/df18c7ad1861aa6898085b2f12f2a9575d11e60d))
 
 
 ## v0.8.3 (2022-08-26)
@@ -1472,11 +1482,11 @@ VULN4OS-114
 
 ### Features
 
-- **manager**: Sync cluster details to db to allow sorting in DB
-  ([`68fff0d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/68fff0d888df6f0e5cc73d9149764dac16e7ec1f))
-
 - **database**: Add missing columns to the cluster table and grant manager to update the table
   ([`a61ef5c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/a61ef5cd14693da2ee8319554523151ab0cd3ab7))
+
+- **manager**: Sync cluster details to db to allow sorting in DB
+  ([`68fff0d`](https://github.com/RedHatInsights/vuln4shift-backend/commit/68fff0d888df6f0e5cc73d9149764dac16e7ec1f))
 
 
 ## v0.7.0 (2022-08-24)
@@ -1516,13 +1526,8 @@ VULN4OS-100
 
 ### Features
 
-- **manager**: Ams integration in CVE list
-  ([`74becfb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/74becfbf912a8516dc563c64c4e2978153e87215))
-
-VULN4OS-67
-
-- **manager**: Ams integration in CVE exposed clusters
-  ([`d3bbd88`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d3bbd88139ed053f6b3679849407eb1090326f12))
+- **manager**: Add AMS API client interface
+  ([`7d47ca4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7d47ca4ceb3f25a9945ce32eb841db8052384e6d))
 
 VULN4OS-67
 
@@ -1536,8 +1541,13 @@ VULN4OS-67
 
 VULN4OS-67
 
-- **manager**: Add AMS API client interface
-  ([`7d47ca4`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7d47ca4ceb3f25a9945ce32eb841db8052384e6d))
+- **manager**: Ams integration in CVE exposed clusters
+  ([`d3bbd88`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d3bbd88139ed053f6b3679849407eb1090326f12))
+
+VULN4OS-67
+
+- **manager**: Ams integration in CVE list
+  ([`74becfb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/74becfbf912a8516dc563c64c4e2978153e87215))
 
 VULN4OS-67
 
@@ -1636,10 +1646,10 @@ VULN4OS-99
 
 ### Chores
 
-- Enable semantic release
-  ([`140988c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/140988c96d76fa5016e1bdb0fc96b8a588f9c02b))
-
 - Add testing data
   ([`04744e0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/04744e02c7849e3848ce6e2cb6a7f68fd39a2b4b))
 
 VULN4OS-22
+
+- Enable semantic release
+  ([`140988c`](https://github.com/RedHatInsights/vuln4shift-backend/commit/140988c96d76fa5016e1bdb0fc96b8a588f9c02b))
