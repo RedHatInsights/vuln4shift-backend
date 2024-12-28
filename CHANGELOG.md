@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.37.6 (2024-12-28)
+
+### Chores
+
+- **deps**: Update konflux references to 9e33cbc
+  ([`5aa89cb`](https://github.com/RedHatInsights/vuln4shift-backend/commit/5aa89cb0f6dcd567cae65f84c9be2653b66870ce))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+
 ## v0.37.5 (2024-12-21)
 
 ### Chores
