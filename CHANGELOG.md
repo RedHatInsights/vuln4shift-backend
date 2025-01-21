@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.37.11 (2025-01-21)
+
+### Bug Fixes
+
+- **RHINENG-13528**: Add LICENSE and NOTICE specifying Red Hat as the owner
+  ([`73493b1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/73493b19bfd622461e80c01a45dd6e752abdd182))
+
+
 ## v0.37.10 (2025-01-18)
 
 ### Chores
