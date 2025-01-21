@@ -100,14 +100,14 @@ func BuildRouter() *gin.Engine {
 	db, err := models.GetGormConnection(dsn)
 
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err.Error())
 	}
 
 	var amsClient amsclient.AMSClient
 	if utils.Cfg.AmsEnabled {
 		amsClient, err = amsclient.NewAMSClient()
 		if err != nil {
-			log.Fatalf(err.Error())
+			log.Fatal(err.Error())
 		}
 	} else {
 		log.Println("AMS client is disabled!")
