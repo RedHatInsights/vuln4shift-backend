@@ -51,7 +51,7 @@ func TestGetAPIRepoImages(t *testing.T) {
 	expectedArch := "amd64"
 	expectedModified := "2022-10-07 01:51:21.689 +0000 UTC"
 
-	image, exists := resp[fmt.Sprintf(expectedID)]
+	image, exists := resp[expectedID]
 	assert.True(t, exists)
 
 	assert.Equal(t, expectedDockerDigest, image.DockerImageDigest)
