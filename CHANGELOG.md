@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.37.13 (2025-01-27)
+
+### Chores
+
+- Update dependencies
+  ([`0d31ff3`](https://github.com/RedHatInsights/vuln4shift-backend/commit/0d31ff38de638b382d11261bdf98a28cc174c542))
+
+- Update linting
+  ([`432151f`](https://github.com/RedHatInsights/vuln4shift-backend/commit/432151fc79a8e91891af949bd430bda93e712f1c))
+
+fix "printf: non-constant format string in call to log.Fatalf/fmt.Sprintf" add copyloopvar linter
+  remove deprecated linters: level=warning msg="The linter 'varcheck' is deprecated (since v1.49.0)
+  due to: The owner seems to have abandoned the linter. Replaced by unused." level=warning msg="The
+  linter 'deadcode' is deprecated (since v1.49.0) due to: The owner seems to have abandoned the
+  linter. Replaced by unused."
+
+RHINENG-15505
+
+
 ## v0.37.12 (2025-01-25)
 
 ### Chores
