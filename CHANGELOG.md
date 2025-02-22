@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.37.18 (2025-02-22)
+
+### Chores
+
+- **deps**: Update konflux references to b78123a
+  ([#279](https://github.com/RedHatInsights/vuln4shift-backend/pull/279),
+  [`ff925f9`](https://github.com/RedHatInsights/vuln4shift-backend/commit/ff925f9986e0dc3e0f1d7e7633d4256a602d9329))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+Co-authored-by: red-hat-konflux[bot] <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+
 ## v0.37.17 (2025-02-15)
 
 ### Chores
