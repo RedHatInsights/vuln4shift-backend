@@ -1,6 +1,38 @@
 # CHANGELOG
 
 
+## v0.37.19 (2025-02-24)
+
+### Bug Fixes
+
+- **deps**: Update module github.com/golang-migrate/migrate/v4 to v4.18.2
+  ([`7904ea8`](https://github.com/RedHatInsights/vuln4shift-backend/commit/7904ea856b0ab8b663912a85665d86ee66b1d18f))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+- **deps**: Update module github.com/lib/pq to v1.10.9
+  ([`c2621a0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/c2621a057602e789aae637c5dc943b8d07d49974))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+- **deps**: Update module github.com/openshift-online/ocm-sdk-go to v0.1.459
+  ([`10cad74`](https://github.com/RedHatInsights/vuln4shift-backend/commit/10cad746c1b06eb9ed0d0927478cac405ece321d))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+- **deps**: Update module github.com/prometheus/client_golang to v1.21.0
+  ([`6d479e0`](https://github.com/RedHatInsights/vuln4shift-backend/commit/6d479e04fc811e40d5b2fb60931fd3f04e969ed6))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update grafana/grafana docker tag to v11.5.2
+  ([`053c64e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/053c64ebbec1419aae148cfd1f43c35307ce9501))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+
 ## v0.37.18 (2025-02-22)
 
 ### Chores
