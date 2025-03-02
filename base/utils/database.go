@@ -9,8 +9,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/jackc/pgx/v4"
-	_ "github.com/jackc/pgx/v4/stdlib" // Needed to make pgx work with database/sql
+	"github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib" // Needed to make pgx work with database/sql
 )
 
 func GetDbURL(admin bool) string {
