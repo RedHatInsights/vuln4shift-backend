@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.37.22 (2025-03-12)
+
+### Bug Fixes
+
+- **deps**: Update module golang.org/x/text to v0.22.0
+  ([`88aba6a`](https://github.com/RedHatInsights/vuln4shift-backend/commit/88aba6ad3dc552e9e1692ed4718aef4e8fba1a7c))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+
 ## v0.37.21 (2025-03-12)
 
 ### Bug Fixes
