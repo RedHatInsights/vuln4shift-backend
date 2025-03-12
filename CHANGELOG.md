@@ -1,6 +1,26 @@
 # CHANGELOG
 
 
+## v0.37.21 (2025-03-12)
+
+### Bug Fixes
+
+- **deps**: Update module github.com/openshift-online/ocm-sdk-go to v0.1.460
+  ([`f4b3f11`](https://github.com/RedHatInsights/vuln4shift-backend/commit/f4b3f11ced2823085847d06fab60740b641a4a2a))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+- **deps**: Update module github.com/shopify/sarama to v1.45.1
+  ([`66e57a1`](https://github.com/RedHatInsights/vuln4shift-backend/commit/66e57a1b627a9c64c15979bc79ff8c32b38a51a7))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+- **deps**: Update module github.com/spf13/viper to v1.19.0
+  ([`96fab19`](https://github.com/RedHatInsights/vuln4shift-backend/commit/96fab191b54661d362beaaf5314f279b8982724a))
+
+Signed-off-by: red-hat-konflux <126015336+red-hat-konflux[bot]@users.noreply.github.com>
+
+
 ## v0.37.20 (2025-03-01)
 
 ### Chores
