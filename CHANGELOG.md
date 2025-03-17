@@ -1,6 +1,15 @@
 # CHANGELOG
 
 
+## v0.37.24 (2025-03-17)
+
+### Continuous Integration
+
+- Extending original config overrides the global schedule by adding schedule for each package
+  manager
+  ([`9b48386`](https://github.com/RedHatInsights/vuln4shift-backend/commit/9b48386f5bf0b15fe858cbbc7c6fde3f96073057))
+
+
 ## v0.37.23 (2025-03-15)
 
 ### Chores
