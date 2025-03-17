@@ -23,6 +23,8 @@ var (
 	pgRepackArgs = []string{
 		"--no-superuser-check",
 		"--no-password",
+		"-T", "600",
+		"--no-kill-backend",
 		"-d", utils.Cfg.DbName,
 		"-h", utils.Cfg.DbHost,
 		"-p", fmt.Sprintf("%d", utils.Cfg.DbPort),
