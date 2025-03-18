@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.37.25 (2025-03-18)
+
+### Bug Fixes
+
+- **repack**: Give 600s timeout to acquire exclusive lock and skip repack if not succeeded
+  ([`b85e41e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/b85e41ec8b7752ad0d9f787b320b1976ae7ce7b9))
+
+rather do nothing than kill transactions
+
+
 ## v0.37.24 (2025-03-17)
 
 ### Continuous Integration
