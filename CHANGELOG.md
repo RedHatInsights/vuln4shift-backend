@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.37.26 (2025-03-25)
+
+### Chores
+
+- Update golang-jwt
+  ([`d95e85e`](https://github.com/RedHatInsights/vuln4shift-backend/commit/d95e85ef27ddcd9202f0d6ce2986b6165bbc4071))
+
+RHINENG-16892
+
+
 ## v0.37.25 (2025-03-18)
 
 ### Bug Fixes
