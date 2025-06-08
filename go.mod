@@ -4,7 +4,7 @@ go 1.22.9
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/IBM/sarama v1.45.0
+	github.com/IBM/sarama v1.45.2
 	github.com/aws/aws-sdk-go v1.55.6
 	github.com/gin-gonic/gin v1.10.0
 	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
