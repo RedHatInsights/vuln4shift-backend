@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/Shopify/sarama v1.45.1
 	github.com/lib/pq v1.10.9
-	github.com/spf13/viper v1.19.0
+	github.com/spf13/viper v1.20.1
 )
 
 require (
