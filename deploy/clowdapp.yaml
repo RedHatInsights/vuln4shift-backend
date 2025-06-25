@@ -366,7 +366,7 @@ parameters:
 - name: IMAGE
   description: Image name
   required: true
-  value: quay.io/cloudservices/vuln4shift-backend-app
+  value: quay.io/redhat-services-prod/insights-management-tenant/insights-ocp-vulnerability/vuln4shift-backend
 - name: ENV_NAME
   description: ClowdEnv Name
   required: false
