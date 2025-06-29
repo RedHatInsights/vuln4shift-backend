@@ -1,6 +1,8 @@
 module app
 
-go 1.22.9
+go 1.23.0
+
+toolchain go1.23.9
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
@@ -12,7 +14,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgtype v1.14.4
 	github.com/jackc/pgx/v4 v4.18.3
-	github.com/openshift-online/ocm-sdk-go v0.1.460
+	github.com/openshift-online/ocm-sdk-go v0.1.469
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.21.0
 	github.com/redhatinsights/app-common-go v1.6.8
@@ -90,6 +92,8 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/openshift-online/ocm-api-model/clientapi v0.0.0-20250619114224-37dc3401307a // indirect
+	github.com/openshift-online/ocm-api-model/model v0.0.0-20250619114224-37dc3401307a // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
