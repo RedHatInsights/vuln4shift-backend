@@ -126,7 +126,7 @@ func BuildRouter() *gin.Engine {
 // Start
 //
 // @title Vulnerability for Openshift API documentation
-// @version 1.0.8
+// @version 1.0.9
 // @description Documentation to the REST API for application
 // @description Vulnerability for Openshift based on console.redhat.com.
 //
