@@ -1,21 +1,39 @@
-# options for analysis running
-run:
-  # timeout for analysis, e.g. 30s, 5m, default is 1m
-  timeout: 5m
-
-linters-settings:
-  gocyclo:
-    min-complexity: 40
-
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
+    - copyloopvar
     - errcheck
+    - gocyclo
     - govet
     - ineffassign
-    - typecheck
-    - goimports
     - revive
-    - gocyclo
-    - copyloopvar
     - unused
+  settings:
+    gocyclo:
+      min-complexity: 40
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+    rules:
+      - linters:
+        - revive
+        path: "base/utils/*"
+        text: "var-naming: avoid meaningless package names"
+formatters:
+  enable:
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
