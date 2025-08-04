@@ -1,17 +1,20 @@
 ARG BUILDIMG=registry.access.redhat.com/ubi9-minimal
 ARG RUNIMG=registry.access.redhat.com/ubi9-minimal
+ARG ALT_REPO
 # ---------------------------------------
 # build image
 FROM ${BUILDIMG} AS buildimg
-
-RUN curl -o /etc/yum.repos.d/postgresql.repo \
-        https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
 
 WORKDIR /vuln4shift
 
 USER root
 
-RUN microdnf install -y golang git-core pg_repack
+ARG ALT_REPO
+# support for alternative RPM name (in case not compatible version available in RHEL)
+ARG PG_REPACK_RPM=pg_repack-1.5.1
+# try to install $PG_REPACK_RPM from module, if it fails, use $ALT_REPO
+RUN (microdnf module enable -y postgresql:16 || curl -o /etc/yum.repos.d/postgresql.repo $ALT_REPO) && \
+    microdnf install -y golang git-core $PG_REPACK_RPM
 
 ADD go.mod                      /vuln4shift/
 ADD go.sum                      /vuln4shift/
