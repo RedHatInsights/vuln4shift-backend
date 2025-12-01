@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
+	swaggerFiles "github.com/swaggo/files/v2"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 
