@@ -22,7 +22,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
-	github.com/xdg-go/scram v1.1.2
+	github.com/xdg-go/scram v1.2.0
 	github.com/zsais/go-gin-prometheus v0.1.0
 	golang.org/x/text v0.27.0
 	gopkg.in/yaml.v3 v3.0.1
