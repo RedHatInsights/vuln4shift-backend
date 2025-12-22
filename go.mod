@@ -93,7 +93,7 @@ require (
 	github.com/openshift-online/ocm-api-model/clientapi v0.0.426 // indirect
 	github.com/openshift-online/ocm-api-model/model v0.0.426 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
-	github.com/pierrec/lz4/v4 v4.1.22 // indirect
+	github.com/pierrec/lz4/v4 v4.1.23 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
