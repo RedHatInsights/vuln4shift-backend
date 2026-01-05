@@ -8,5 +8,21 @@
     "enabled": true,
     "ignoreTests": true,
     "platformAutomerge": true
-  }
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "gomod"
+      ],
+      "groupName": "go modules",
+      "groupSlug": "go-modules"
+    },
+    {
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "groupName": "dockerfiles",
+      "groupSlug": "dockerfiles"
+    }
+  ]
 }
