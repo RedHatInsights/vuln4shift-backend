@@ -1,8 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "schedule": [
-    "on Monday after 3am and before 10am"
-  ],
   "timezone": "Europe/Prague",
   "tekton": {
     "automerge": true,
