@@ -2,6 +2,9 @@
 
 set -exv
 
+# Initialize git submodules (pg_repack)
+git submodule update --init --recursive
+
 IMAGE="quay.io/cloudservices/vuln4shift-backend-app"
 IMAGE_TAG=$(git rev-parse --short=7 HEAD)
 
