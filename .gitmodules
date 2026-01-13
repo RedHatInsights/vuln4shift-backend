@@ -1,0 +1,3 @@
+[submodule ".pg_repack"]
+	path = .pg_repack
+	url = https://github.com/reorg/pg_repack.git

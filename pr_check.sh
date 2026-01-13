@@ -105,6 +105,9 @@ if check_for_labels "skip-build"; then
     echo "PR check skipped"
     exit_code=1
 else
+    # Initialize git submodules (pg_repack)
+    git submodule update --init --recursive
+
     # Install bonfire repo/initialize
     CICD_URL=https://raw.githubusercontent.com/RedHatInsights/bonfire/master/cicd
     curl -s $CICD_URL/bootstrap.sh > .cicd_bootstrap.sh && source .cicd_bootstrap.sh

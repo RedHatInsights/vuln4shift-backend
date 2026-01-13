@@ -10,11 +10,19 @@ WORKDIR /vuln4shift
 USER root
 
 ARG ALT_REPO
-# support for alternative RPM name (in case not compatible version available in RHEL)
-ARG PG_REPACK_RPM=pg_repack-1.5.1
-# try to install $PG_REPACK_RPM from module, if it fails, use $ALT_REPO
 RUN (microdnf module enable -y postgresql:16 || curl -o /etc/yum.repos.d/postgresql.repo $ALT_REPO) && \
-    microdnf install -y golang git-core $PG_REPACK_RPM
+    microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
+        golang git-core \
+        gcc make redhat-rpm-config \
+        postgresql-server-devel postgresql-static libpq \
+        postgresql readline-devel zlib-devel \
+        openssl-devel lz4-devel libzstd-devel && \
+    microdnf clean all
+
+# Build pg_repack 1.5.2 from git submodule
+COPY .pg_repack /tmp/pg_repack
+RUN cd /tmp/pg_repack && \
+    make && make install
 
 ADD go.mod                      /vuln4shift/
 ADD go.sum                      /vuln4shift/
