@@ -11,6 +11,10 @@
   },
   "packageRules": [
     {
+      "matchPackageNames": [".pg_repack"],
+      "enabled": false
+    },
+    {
       "matchManagers": [
         "gomod"
       ],
