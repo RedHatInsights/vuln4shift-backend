@@ -9,6 +9,19 @@
     "ignoreTests": true,
     "platformAutomerge": true
   },
+  "gomod": {
+    "packageRules": [
+      {
+        "matchManagers": [
+          "gomod"
+        ],
+        "matchDepTypes": [
+          "indirect"
+        ],
+        "enabled": false
+      }
+    ]
+  },
   "packageRules": [
     {
       "matchPackageNames": [".pg_repack"],
