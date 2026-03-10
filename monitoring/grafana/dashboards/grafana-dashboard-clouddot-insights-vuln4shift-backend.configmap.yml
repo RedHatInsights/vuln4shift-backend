@@ -111,7 +111,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "sum(increase(api_3scale_gateway_api_time_count{exported_service=\"ocp-vulnerability\"}[$__range]))",
               "instant": true,
@@ -191,7 +191,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "(1 - avg_over_time(service:sli:status_5xx:pctl5rate5m{exported_service=\"ocp-vulnerability\"}[$__range])) * 720",
               "instant": true,
@@ -271,7 +271,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "(1 - avg_over_time(service:sli:latency_gt_2000:pctl10rate5m{exported_service=\"ocp-vulnerability\"}[$__range])) * 720",
               "instant": true,
@@ -355,7 +355,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "avg_over_time(service:sli:status_5xx:pctl5rate5m{exported_service=\"ocp-vulnerability\"}[$__range])",
               "instant": true,
@@ -439,7 +439,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "pKSsqZB7k"
+                "uid": "$datasource"
               },
               "expr": "avg_over_time(service:sli:latency_gt_2000:pctl10rate5m{exported_service=\"ocp-vulnerability\"}[$__range])",
               "instant": true,
@@ -523,7 +523,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "pKSsqZB7k"
+                "uid": "$datasource"
               },
               "expr": "avg_over_time(service:sli:latency_gt_2000:pctl10rate5m{exported_service=\"ocp-vulnerability\"}[30d])",
               "instant": true,
@@ -620,7 +620,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "sum(increase(kube_pod_container_status_restarts_total{container=\"vuln4shift-backend-digest-writer\"}[$__range]))",
               "format": "time_series",
@@ -735,7 +735,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "sum(increase(kube_pod_container_status_restarts_total{container=\"vuln4shift-backend-vmaas-sync\"}[$__range]))",
               "format": "time_series",
@@ -850,7 +850,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "sum(increase(kube_pod_container_status_restarts_total{container=\"vuln4shift-backend-pyxis-gatherer\"}[$__range]))",
               "format": "time_series",
@@ -965,7 +965,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "sum(increase(kube_pod_container_status_restarts_total{container=\"vuln4shift-backend-manager\"}[$__range]))",
               "format": "time_series",
@@ -1080,7 +1080,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "expr": "sum(increase(vuln4shift_digestwriter_parse_incoming_messages_error[$__range])) + sum(increase(vuln4shift_digestwriter_stored_messages_error[$__range])) + sum(increase(vuln4shift_kafka_consuming_errors[$__range]))",
               "format": "time_series",
@@ -1335,7 +1335,7 @@ data:
               "alias": "",
               "datasource": {
                 "type": "prometheus",
-                "uid": "aQ7y3WBnk"
+                "uid": "$datasource_rds"
               },
               "dimensions": {},
               "expr": "sum(rdsosmetrics_fileSys_usedPercent{exported_instance=~\"ocp-vulnerability-.*\"}) by (mount_point)",
@@ -1445,7 +1445,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "aQ7y3WBnk"
+                "uid": "$datasource_rds"
               },
               "expr": "sum(label_replace(rdsosmetrics_processList_cpuUsedPc{exported_instance=~\"ocp-vulnerability-.*\", name=~\"postgres:.*\"}, \"db_user\", \"$1\", \"name\", \"postgres: ([^ ]+) .+\")) by (db_user)",
               "interval": "",
@@ -1658,7 +1658,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "skSy3ZB7k"
+                "uid": "$datasource"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1812,7 +1812,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum(increase(ccx_consumer_received_total{namespace=\"$namespace\", service=\"sha-extractor-instance\"}[1m]))",
+              "expr": "sum(increase(ccx_consumer_received_total{service=\"sha-extractor-instance\"}[1m]))",
               "interval": "",
               "legendFormat": "received",
               "refId": "ccx_consumer_received_total"
@@ -1823,7 +1823,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum(increase(ccx_downloaded_total_count{namespace=\"$namespace\", service=\"sha-extractor-instance\"}[1m]))",
+              "expr": "sum(increase(ccx_downloaded_total_count{service=\"sha-extractor-instance\"}[1m]))",
               "hide": false,
               "interval": "",
               "legendFormat": "downloaded",
@@ -1835,7 +1835,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum(increase(ccx_engine_processed_total{namespace=\"$namespace\", service=\"sha-extractor-instance\"}[1m]))",
+              "expr": "sum(increase(ccx_engine_processed_total{service=\"sha-extractor-instance\"}[1m]))",
               "hide": false,
               "interval": "",
               "legendFormat": "processed",
@@ -1847,7 +1847,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum(increase(ccx_published_total{namespace=\"$namespace\", service=\"sha-extractor-instance\"}[1m]))",
+              "expr": "sum(increase(ccx_published_total{service=\"sha-extractor-instance\"}[1m]))",
               "hide": false,
               "interval": "",
               "legendFormat": "published",
@@ -1859,7 +1859,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum(increase(ccx_failures_total{namespace=\"$namespace\", service=\"sha-extractor-instance\"}[1m]))",
+              "expr": "sum(increase(ccx_failures_total{service=\"sha-extractor-instance\"}[1m]))",
               "hide": false,
               "interval": "",
               "legendFormat": "failures",
@@ -1871,7 +1871,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum(increase(ccx_not_handled_total{namespace=\"$namespace\", service=\"sha-extractor-instance\"}[1m]))",
+              "expr": "sum(increase(ccx_not_handled_total{service=\"sha-extractor-instance\"}[1m]))",
               "hide": false,
               "interval": "",
               "legendFormat": "not handled",
@@ -1883,7 +1883,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum(increase(ccx_engine_processed_timeout_total{namespace=\"$namespace\", service=\"sha-extractor-instance\"}[1m]))",
+              "expr": "sum(increase(ccx_engine_processed_timeout_total{service=\"sha-extractor-instance\"}[1m]))",
               "hide": false,
               "interval": "",
               "legendFormat": "engine timeouts",
@@ -1980,7 +1980,7 @@ data:
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum (rate (container_cpu_usage_seconds_total{namespace=\"$namespace\",pod=~\"sha-extractor-.*\"}[1m])) by (pod)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{pod=~\"sha-extractor-.*\"}[1m])) by (pod)",
               "interval": "",
               "legendFormat": "",
               "refId": "A"
@@ -2076,7 +2076,7 @@ data:
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum (container_memory_working_set_bytes{namespace=\"$namespace\",pod=~\"sha-extractor-.*\"}) by (pod)",
+              "expr": "sum (container_memory_working_set_bytes{pod=~\"sha-extractor-.*\"}) by (pod)",
               "interval": "",
               "legendFormat": "",
               "refId": "A"
@@ -2172,7 +2172,7 @@ data:
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum(rate(container_network_receive_bytes_total{namespace=\"$namespace\", pod=~\"sha-extractor-.*\"}[1m])) by (pod)",
+              "expr": "sum(rate(container_network_receive_bytes_total{pod=~\"sha-extractor-.*\"}[1m])) by (pod)",
               "interval": "",
               "legendFormat": "",
               "refId": "A"
@@ -2268,7 +2268,7 @@ data:
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum(rate(container_network_transmit_bytes_total{namespace=\"$namespace\", pod=~\"sha-extractor-.*\"}[1m])) by (pod)",
+              "expr": "sum(rate(container_network_transmit_bytes_total{pod=~\"sha-extractor-.*\"}[1m])) by (pod)",
               "interval": "",
               "legendFormat": "",
               "refId": "A"
@@ -2545,7 +2545,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.1\"})",
+              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.1\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2558,7 +2558,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.25\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.1\"})",
+              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.25\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.1\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2571,7 +2571,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.5\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.25\"})",
+              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.5\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.25\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2584,7 +2584,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.75\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.5\"})",
+              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.75\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.5\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2597,7 +2597,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"1.0\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.75\"})",
+              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"1.0\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.75\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2610,7 +2610,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"10.0\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"1.0\"})",
+              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"10.0\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"1.0\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2623,7 +2623,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"+Inf\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"10.0\"})",
+              "expr": "sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"+Inf\"}) - ignoring(le) sum by (le) (ccx_process_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"10.0\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2916,7 +2916,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.1\"})",
+              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.1\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2929,7 +2929,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\",le=\"0.25\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.1\"})",
+              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\",le=\"0.25\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.1\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2942,7 +2942,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.5\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.25\"})",
+              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.5\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.25\"})",
               "format": "time_series",
               "instant": false,
               "interval": "",
@@ -2956,7 +2956,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.75\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\",service=\"sha-extractor-instance\",  le=\"0.5\"})",
+              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.75\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.5\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2969,7 +2969,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"1.0\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\",le=\"0.75\"})",
+              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"1.0\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\",le=\"0.75\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2982,7 +2982,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"10.0\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\",le=\"1.0\"})",
+              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"10.0\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\",le=\"1.0\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2995,7 +2995,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"+Inf\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"10.0\"})",
+              "expr": "sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"+Inf\"}) - ignoring(le) sum by (le) (ccx_download_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"10.0\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3240,7 +3240,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.005\"})",
+              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.005\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3253,7 +3253,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.01\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.005\"})",
+              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.01\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.005\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3266,7 +3266,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\",  le=\"0.025\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.01\"})",
+              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\",  le=\"0.025\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.01\"})",
               "format": "time_series",
               "instant": false,
               "interval": "",
@@ -3280,7 +3280,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.1\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\",  le=\"0.025\"})",
+              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.1\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\",  le=\"0.025\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3293,7 +3293,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.5\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.1\"})",
+              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.5\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.1\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3306,7 +3306,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"10.0\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"0.5\"})",
+              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"10.0\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"0.5\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3319,7 +3319,7 @@ data:
                 "uid": "$datasource"
               },
               "exemplar": true,
-              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"+Inf\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{namespace=\"$namespace\", service=\"sha-extractor-instance\", le=\"10.0\"})",
+              "expr": "sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"+Inf\"}) - ignoring(le) sum by (le) (ccx_publish_duration_seconds_bucket{service=\"sha-extractor-instance\", le=\"10.0\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3360,7 +3360,7 @@ data:
             "options": [],
             "query": "prometheus",
             "refresh": 1,
-            "regex": "/devel-prometheus|crcs02ue1-prometheus|crcp01ue1-prometheus|.*crc.*/",
+            "regex": "/devel-prometheus|crcs02ue1-prometheus|crcp01ue1-prometheus/",
             "type": "datasource"
           },
           {
@@ -3375,29 +3375,6 @@ data:
             "refresh": 1,
             "regex": "/devel-prometheus|aws-resources-exporter/",
             "type": "datasource"
-          },
-          {
-            "current": {
-              "text": "ocp-vulnerability-prod",
-              "value": "ocp-vulnerability-prod"
-            },
-            "includeAll": false,
-            "label": "namespace",
-            "name": "namespace",
-            "options": [
-              {
-                "selected": false,
-                "text": "ocp-vulnerability-stage",
-                "value": "ocp-vulnerability-stage"
-              },
-              {
-                "selected": true,
-                "text": "ocp-vulnerability-prod",
-                "value": "ocp-vulnerability-prod"
-              }
-            ],
-            "query": "ocp-vulnerability-stage,ocp-vulnerability-prod",
-            "type": "custom"
           }
         ]
       },
