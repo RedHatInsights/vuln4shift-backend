@@ -24,7 +24,7 @@
   },
   "packageRules": [
     {
-      "matchPackageNames": [".pg_repack"],
+      "matchPackageNames": ["https://github.com/reorg/pg_repack.git"],
       "enabled": false
     },
     {
