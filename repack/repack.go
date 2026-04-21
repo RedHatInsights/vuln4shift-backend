@@ -90,7 +90,7 @@ func createPgRepackExtension() error {
 	if installedVersion != defaultVersion {
 		if installedVersion != "" {
 			logger.Infof("Dropping existing pg_repack extension version %s", installedVersion)
-			if _, err := conn.Exec("DROP EXTENSION pg_repack"); err != nil {
+			if _, err := conn.Exec("DROP EXTENSION pg_repack CASCADE"); err != nil {
 				logger.Error("Dropping extension failed")
 				return err
 			}
