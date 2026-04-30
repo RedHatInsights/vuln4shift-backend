@@ -16,7 +16,7 @@ var logFatalf = log.Fatalf
 func exposeOnPort(app *gin.Engine, port int) {
 	err := app.Run(fmt.Sprintf(":%d", port))
 	if err != nil {
-		logFatalf(err.Error())
+		logFatalf("%s", err.Error())
 	}
 }
 
