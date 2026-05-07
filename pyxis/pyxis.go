@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/jackc/pgtype"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -157,7 +156,7 @@ func syncImage(tx *gorm.DB, image models.Image) error {
 	return nil
 }
 
-func extractTags(img APIImage) (pgtype.JSONB, *string) {
+func extractTags(img APIImage) (json.RawMessage, *string) {
 	resSlice := []string{}
 	resSet := make(map[string]bool)
 	var displayedVersion *string
@@ -175,10 +174,10 @@ func extractTags(img APIImage) (pgtype.JSONB, *string) {
 		displayedVersion = &resSlice[0]
 	}
 	resJSON, _ := json.Marshal(resSlice)
-	return pgtype.JSONB{Bytes: resJSON, Status: pgtype.Present}, displayedVersion
+	return json.RawMessage(resJSON), displayedVersion
 }
 
-func newRepoImage(repoID int64, registry, repository string, imgID int64, tags pgtype.JSONB, displayedVersion *string) models.RepositoryImage {
+func newRepoImage(repoID int64, registry, repository string, imgID int64, tags json.RawMessage, displayedVersion *string) models.RepositoryImage {
 	registryRepoVersion := fmt.Sprintf("%s/%s:", registry, repository) // trailing ':' for consistency with SQL CONCAT
 	if displayedVersion != nil {
 		registryRepoVersion += *displayedVersion
@@ -204,10 +203,10 @@ func compareSlices(slice1, slice2 []string) bool {
 	return true
 }
 
-func checkTags(repImg models.RepositoryImage, tagsAPI pgtype.JSONB) bool {
+func checkTags(repImg models.RepositoryImage, tagsAPI json.RawMessage) bool {
 	// Decides if tags need to be updated
 	// Tags from API must be present && Tags from DB must be different from Tags from API
-	if tagsAPI.Status != pgtype.Present {
+	if len(tagsAPI) == 0 {
 		// We can't update tags
 		return false
 	}
@@ -217,11 +216,11 @@ func checkTags(repImg models.RepositoryImage, tagsAPI pgtype.JSONB) bool {
 	if repImg.Tags == nil {
 		return true
 	}
-	if err := json.Unmarshal(repImg.Tags.Bytes, &tagsA); err != nil {
+	if err := json.Unmarshal(*repImg.Tags, &tagsA); err != nil {
 		// try to update tags if we can't unmarshal the old tags
 		return true
 	}
-	if err := json.Unmarshal(tagsAPI.Bytes, &tagsB); err != nil {
+	if err := json.Unmarshal(tagsAPI, &tagsB); err != nil {
 		return false
 	}
 

@@ -1,10 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
 )
 
 // Account table
@@ -29,20 +29,20 @@ func (Arch) TableName() string {
 
 // Cluster table
 type Cluster struct {
-	ID                int64        `gorm:"type:bigint;primaryKey;autoIncrement"`
-	UUID              uuid.UUID    `gorm:"type:uuid;unique"`
-	DisplayName       string       `gorm:"type:text"`
-	Status            string       `gorm:"type:text"`
-	Type              string       `gorm:"type:text"`
-	Version           string       `gorm:"type:text"`
-	Provider          string       `gorm:"type:text"`
-	AccountID         int64        `gorm:"type:bigint;not null"`
-	CveCacheCritical  int32        `gorm:"type:int;not null;default:0"`
-	CveCacheImportant int32        `gorm:"type:int;not null;default:0"`
-	CveCacheModerate  int32        `gorm:"type:int;not null;default:0"`
-	CveCacheLow       int32        `gorm:"type:int;not null;default:0"`
-	LastSeen          time.Time    `gorm:"type:timestamp with time zone not null"`
-	Workload          pgtype.JSONB `gorm:"type:jsonb"`
+	ID                int64           `gorm:"type:bigint;primaryKey;autoIncrement"`
+	UUID              uuid.UUID       `gorm:"type:uuid;unique"`
+	DisplayName       string          `gorm:"type:text"`
+	Status            string          `gorm:"type:text"`
+	Type              string          `gorm:"type:text"`
+	Version           string          `gorm:"type:text"`
+	Provider          string          `gorm:"type:text"`
+	AccountID         int64           `gorm:"type:bigint;not null"`
+	CveCacheCritical  int32           `gorm:"type:int;not null;default:0"`
+	CveCacheImportant int32           `gorm:"type:int;not null;default:0"`
+	CveCacheModerate  int32           `gorm:"type:int;not null;default:0"`
+	CveCacheLow       int32           `gorm:"type:int;not null;default:0"`
+	LastSeen          time.Time       `gorm:"type:timestamp with time zone not null"`
+	Workload          json.RawMessage `gorm:"type:jsonb"`
 }
 
 func (Cluster) TableName() string {
@@ -100,11 +100,11 @@ func (i Image) TableName() string {
 
 // RepositoryImage table
 type RepositoryImage struct {
-	RepositoryID              int64         `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
-	ImageID                   int64         `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
-	Tags                      *pgtype.JSONB `gorm:"type:jsonb"`
-	Version                   *string       `gorm:"type:text"`
-	RegistryRepositoryVersion string        `gorm:"type:text"`
+	RepositoryID              int64            `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
+	ImageID                   int64            `gorm:"type:bigint;index:repository_image_repository_id_image_id_key"`
+	Tags                      *json.RawMessage `gorm:"type:jsonb"`
+	Version                   *string          `gorm:"type:text"`
+	RegistryRepositoryVersion string           `gorm:"type:text"`
 }
 
 func (ic RepositoryImage) TableName() string {
