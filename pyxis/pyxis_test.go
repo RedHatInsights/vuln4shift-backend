@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jackc/pgtype"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -308,7 +307,7 @@ func TestSyncReposDelete(t *testing.T) {
 	repository := "jboss-fuse-6"
 	tagsSlice := []string{"latest"}
 	tags, _ := json.Marshal(tagsSlice)
-	tagsJSON := pgtype.JSONB{Bytes: tags, Status: pgtype.Present}
+	tagsJSON := json.RawMessage(tags)
 
 	repoToSync := models.Repository{
 		ID:           7357,
@@ -360,11 +359,11 @@ func TestSyncReposUpdate(t *testing.T) {
 
 	tagsSlice := []string{"latest"}
 	tags, _ := json.Marshal(tagsSlice)
-	tagsJSON := pgtype.JSONB{Bytes: tags, Status: pgtype.Present}
+	tagsJSON := json.RawMessage(tags)
 
 	newTagsSlice := []string{"latest-new"}
 	newTags, _ := json.Marshal(newTagsSlice)
-	newTagsJSON := pgtype.JSONB{Bytes: newTags, Status: pgtype.Present}
+	newTagsJSON := json.RawMessage(newTags)
 
 	repo := models.Repository{
 		ID:           7357,

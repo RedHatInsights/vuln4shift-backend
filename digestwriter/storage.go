@@ -6,6 +6,7 @@ package digestwriter
 import (
 	"app/base/models"
 	"app/base/utils"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -233,10 +234,12 @@ func (storage *DBStorage) WriteClusterInfo(cluster ClusterName, orgID AccountNum
 		LastSeen:  time.Now().UTC(),
 	}
 
-	if err := clusterInfoData.Workload.Set(workload); err != nil {
+	workloadJSON, err := json.Marshal(workload)
+	if err != nil {
 		logger.Errorln("cannot set workload JSON")
 		return err
 	}
+	clusterInfoData.Workload = workloadJSON
 
 	if err := tx.Omit(
 		"DisplayName", "Status", "Type", "Version", "Provider", "CveCacheCritical",
