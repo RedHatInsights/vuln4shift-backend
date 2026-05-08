@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false # The auth token is persisted in the local git config. semantic-release picks this one instead of GH_TOKEN
       - name: Generate token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.SEMANTIC_RELEASE_APP_ID }}
           private-key: ${{ secrets.SEMANTIC_RELEASE_PK }}
