@@ -3,7 +3,7 @@ module sha_generator
 go 1.18
 
 require (
-	github.com/Shopify/sarama v1.48.0
+	github.com/Shopify/sarama v1.50.3
 	github.com/lib/pq v1.12.3
 	github.com/spf13/viper v1.21.0
 )
