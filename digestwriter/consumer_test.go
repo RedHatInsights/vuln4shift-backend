@@ -376,7 +376,7 @@ func awaitProcessingMessage(t *testing.T, testProducer *utils.KafkaProducer, tes
 			break
 		}
 		if time.Since(ts) > time.Millisecond*3000 {
-			t.Fatalf("Kafka producer could not finish producing messages within time constraints. Err=%s", errMsg)
+			t.Fatalf("Kafka producer could not finish producing messages within time constraints . Err=%s", errMsg)
 		}
 	}
 
