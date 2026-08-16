@@ -30,10 +30,7 @@ services:
 
   vuln4shift_database:
     container_name: vuln4shift-database
-    image: vuln4shift-db
-    build:
-      context: .
-      dockerfile: ./dev/database/Dockerfile
+    image: docker.io/library/postgres:18
     restart: unless-stopped
     env_file:
       - ./conf/common.env
@@ -41,7 +38,7 @@ services:
     ports:
       - 25432:5432
     volumes:
-      - vuln4shift-db-data:/var/lib/pgsql/data
+      - vuln4shift-db-data:/var/lib/postgresql
 
   vuln4shift_dbadmin:
     command: /vuln4shift/main dbadmin
@@ -50,7 +47,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -65,7 +62,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -85,7 +82,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -107,7 +104,7 @@ services:
       dockerfile: ./Dockerfile
       target: buildimg
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:buildimg
     env_file:
       - ./conf/common.env
@@ -131,7 +128,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -149,7 +146,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -167,7 +164,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -217,7 +214,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
@@ -235,7 +232,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       args:
-        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-16/repo/epel-9/group_insights-postgresql-16-epel-9.repo
+        - ALT_REPO=https://copr.fedorainfracloud.org/coprs/g/insights/postgresql-18/repo/rhel-9/group_insights-postgresql-18-rhel-9.repo
     image: vuln4shift/app:latest
     env_file:
       - ./conf/common.env
