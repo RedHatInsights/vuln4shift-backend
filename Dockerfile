@@ -10,7 +10,7 @@ WORKDIR /vuln4shift
 USER root
 
 ARG ALT_REPO
-RUN (microdnf module enable -y postgresql:16 || curl -o /etc/yum.repos.d/postgresql.repo $ALT_REPO) && \
+RUN (microdnf module enable -y postgresql:18 || curl -o /etc/yum.repos.d/postgresql.repo $ALT_REPO) && \
     microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         golang git-core \
         gcc make redhat-rpm-config \
