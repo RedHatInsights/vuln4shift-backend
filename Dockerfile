@@ -1,5 +1,5 @@
-ARG BUILDIMG=registry.access.redhat.com/ubi9-minimal:9.8-1791898448
-ARG RUNIMG=registry.access.redhat.com/ubi9-minimal:9.8-1791898448
+ARG BUILDIMG=registry.access.redhat.com/ubi9-minimal:9.8-1792742033
+ARG RUNIMG=registry.access.redhat.com/ubi9-minimal:9.8-1792742033
 ARG ALT_REPO
 # ---------------------------------------
 # build image
