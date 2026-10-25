@@ -1,5 +1,5 @@
-ARG BUILDIMG=registry.access.redhat.com/ubi9-minimal:9.8-1791898448
-ARG RUNIMG=registry.access.redhat.com/ubi9-minimal:9.8-1791898448
+ARG BUILDIMG=registry.access.redhat.com/ubi10-minimal
+ARG RUNIMG=registry.access.redhat.com/ubi10-minimal
 ARG ALT_REPO
 # ---------------------------------------
 # build image
@@ -10,12 +10,12 @@ WORKDIR /vuln4shift
 USER root
 
 ARG ALT_REPO
-RUN (microdnf module enable -y postgresql:18 || curl -o /etc/yum.repos.d/postgresql.repo $ALT_REPO) && \
+RUN (microdnf repoquery postgresql18 | grep postgresql18 || curl -o /etc/yum.repos.d/postgresql.repo $ALT_REPO) && \
     microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         golang git-core \
         gcc make redhat-rpm-config \
-        postgresql-server-devel postgresql-static libpq \
-        postgresql readline-devel zlib-devel \
+        postgresql18-server-devel postgresql18-static libpq \
+        postgresql18 readline-devel zlib-devel \
         openssl-devel lz4-devel libzstd-devel && \
     microdnf clean all
 
